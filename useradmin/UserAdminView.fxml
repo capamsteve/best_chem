@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.image.*?>
+<?import javafx.scene.text.*?>
+<?import java.lang.*?>
+<?import java.util.*?>
+<?import javafx.scene.*?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+
+<Pane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="467.0" prefWidth="637.0" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1" fx:controller="useradmin.UserAdminController">
+   <children>
+      <StackPane layoutY="111.0" prefHeight="310.0" prefWidth="637.0">
+         <children>
+            <TableView fx:id="customerList" prefHeight="305.0" prefWidth="600.0">
+               <columns>
+                  <TableColumn prefWidth="108.0" text="UserID" />
+                  <TableColumn prefWidth="168.0" text="Username" />
+                  <TableColumn minWidth="0.0" prefWidth="178.0" text="Password" />
+                  <TableColumn prefWidth="182.0" text="User Type" />
+               </columns>
+            </TableView>
+         </children>
+      </StackPane>
+      <ToolBar layoutY="71.0" prefHeight="40.0" prefWidth="637.0">
+         <items>
+            <Button id="Addbtn" fx:id="addbtn" mnemonicParsing="false" onAction="#AddUser" text="Add" />
+            <Button id="Addbtn" fx:id="addbtn1" mnemonicParsing="false" onAction="#AddUser" text="Edit User" />
+            <Button fx:id="deletebtn" mnemonicParsing="false" onMouseClicked="#DeleteHandler" text="Edit Password" />
+         </items>
+      </ToolBar>
+      <ImageView fitHeight="40.0" fitWidth="38.0" layoutX="24.0" layoutY="10.0" pickOnBounds="true" preserveRatio="true">
+         <image>
+            <Image url="@../res/BC.PNG" />
+         </image>
+      </ImageView>
+      <Label layoutX="82.0" layoutY="13.0" text="User Administrator">
+         <font>
+            <Font name="Rockwell" size="26.0" />
+         </font>
+      </Label>
+   </children>
+</Pane>

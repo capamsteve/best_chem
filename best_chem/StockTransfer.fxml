@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.text.*?>
+<?import java.lang.*?>
+<?import java.util.*?>
+<?import javafx.scene.*?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+
+<Pane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="580.0" prefWidth="733.0" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1">
+   <children>
+      <Label layoutX="31.0" layoutY="123.0" text="ST#">
+         <font>
+            <Font name="Arial" size="14.0" />
+         </font>
+      </Label>
+      <TextField fx:id="transactionidfld" layoutX="101.0" layoutY="118.0" prefHeight="25.0" prefWidth="284.0" />
+      <Label layoutX="60.0" layoutY="33.0" text="Stock Transfer">
+         <font>
+            <Font name="Rockwell" size="26.0" />
+         </font>
+      </Label>
+      <Button fx:id="pendingbtn" layoutX="612.0" layoutY="538.0" mnemonicParsing="false" onMousePressed="#PendingHandler" text="Post to Inventory" />
+      <Label layoutX="31.0" layoutY="88.0" text="ST Date:">
+         <font>
+            <Font name="Arial" size="14.0" />
+         </font>
+      </Label>
+      <DatePicker fx:id="datefld" layoutX="127.0" layoutY="84.0" prefHeight="25.0" prefWidth="182.0" />
+      <StackPane layoutX="14.0" layoutY="248.0" prefHeight="282.0" prefWidth="706.0">
+         <children>
+            <TableView fx:id="itemlist" prefHeight="282.0" prefWidth="60.0">
+               <columns>
+                  <TableColumn prefWidth="75.0" text="Product #" />
+                  <TableColumn prefWidth="282.0" text="Product Description" />
+                  <TableColumn prefWidth="139.0" text="Warehouse" />
+                  <TableColumn prefWidth="74.0" text="UOM" />
+                  <TableColumn minWidth="0.0" prefWidth="135.0" text="Stock Quantity" />
+               </columns>
+            </TableView>
+         </children>
+      </StackPane>
+      <TextField fx:id="transactionidfld121" layoutX="536.0" layoutY="84.0" prefHeight="25.0" prefWidth="166.0" />
+      <Label layoutX="452.0" layoutY="88.0" text="Reference#">
+         <font>
+            <Font name="Arial" size="14.0" />
+         </font>
+      </Label>
+      <TextField fx:id="transactionidfld122" layoutX="143.0" layoutY="150.0" prefHeight="48.0" prefWidth="245.0" />
+      <Label layoutX="31.0" layoutY="154.0" text="ST Description">
+         <font>
+            <Font name="Arial" size="14.0" />
+         </font>
+      </Label>
+      <ToolBar layoutX="14.0" layoutY="208.0" prefHeight="40.0" prefWidth="706.0">
+         <items>
+            <Button id="Addbtn" fx:id="addbtn" mnemonicParsing="false" onMouseClicked="#AddHandler" text="Add" />
+            <Button fx:id="editbtn" mnemonicParsing="false" onMouseClicked="#EditHandler" text="Remove" />
+         </items>
+      </ToolBar>
+   </children>
+</Pane>

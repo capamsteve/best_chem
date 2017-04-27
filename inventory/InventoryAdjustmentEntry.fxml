@@ -1,0 +1,80 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.image.*?>
+<?import javafx.scene.text.*?>
+<?import java.lang.*?>
+<?import java.util.*?>
+<?import javafx.scene.*?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+
+<Pane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="580.0" prefWidth="733.0" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1" fx:controller="inventory.InventoryAdjustmentEntryController">
+   <children>
+      <Label layoutX="31.0" layoutY="123.0" text="INVADJ#">
+         <font>
+            <Font name="Arial" size="14.0" />
+         </font>
+      </Label>
+      <TextField fx:id="invadjfld" layoutX="101.0" layoutY="118.0" prefHeight="25.0" prefWidth="208.0" />
+      <Label layoutX="74.0" layoutY="33.0" text="Inventory Adjustment Entry">
+         <font>
+            <Font name="Rockwell" size="26.0" />
+         </font>
+      </Label>
+      <Button fx:id="pendingbtn" layoutX="498.0" layoutY="539.0" mnemonicParsing="false" onAction="#saveHandler" text="Save" />
+      <Label layoutX="31.0" layoutY="88.0" text="INVADJ Date:">
+         <font>
+            <Font name="Arial" size="14.0" />
+         </font>
+      </Label>
+      <DatePicker fx:id="datefld" layoutX="127.0" layoutY="84.0" prefHeight="25.0" prefWidth="182.0" />
+      <StackPane layoutX="14.0" layoutY="248.0" prefHeight="282.0" prefWidth="706.0">
+         <children>
+            <TableView fx:id="itemlist" prefHeight="282.0" prefWidth="60.0">
+               <columns>
+                  <TableColumn prefWidth="75.0" text="SKU#" />
+                  <TableColumn prefWidth="282.0" text="Description" />
+                  <TableColumn prefWidth="139.0" text="Warehouse" />
+                  <TableColumn prefWidth="74.0" text="UOM" />
+                  <TableColumn minWidth="0.0" prefWidth="135.0" text="Stock Quantity" />
+               </columns>
+            </TableView>
+         </children>
+      </StackPane>
+      <TextField fx:id="reffld" layoutX="508.0" layoutY="84.0" prefHeight="25.0" prefWidth="194.0" />
+      <Label layoutX="424.0" layoutY="89.0" text="Reference#">
+         <font>
+            <Font name="Arial" size="14.0" />
+         </font>
+      </Label>
+      <Label layoutX="31.0" layoutY="154.0" text="Description:">
+         <font>
+            <Font name="Arial" size="14.0" />
+         </font>
+      </Label>
+      <ToolBar layoutX="14.0" layoutY="208.0" prefHeight="40.0" prefWidth="706.0">
+         <items>
+            <Button id="Addbtn" fx:id="addbtn" mnemonicParsing="false" onAction="#addItem" text="Add Invetory Adjustment" />
+            <Button fx:id="editbtn" mnemonicParsing="false" onAction="#removeItem" text="Remove" />
+         </items>
+      </ToolBar>
+      <TextArea fx:id="descriptionfld" layoutX="114.0" layoutY="154.0" prefHeight="48.0" prefWidth="603.0" />
+      <Label layoutX="424.0" layoutY="124.0" text="Post to Inventory:">
+         <font>
+            <Font name="Arial" size="14.0" />
+         </font>
+      </Label>
+      <Label fx:id="ptifld" layoutX="541.0" layoutY="124.0" text="Y/N">
+         <font>
+            <Font name="Arial" size="14.0" />
+         </font>
+      </Label>
+      <Button fx:id="postbtn" layoutX="552.0" layoutY="539.0" mnemonicParsing="false" onAction="#postToInventory" text="Post to Inventory" />
+      <Button fx:id="cancelbtn" layoutX="668.0" layoutY="539.0" mnemonicParsing="false" onAction="#cancelHandler" text="Cancel" />
+      <ImageView fitHeight="40.0" fitWidth="38.0" layoutX="29.0" layoutY="23.0" pickOnBounds="true" preserveRatio="true">
+         <image>
+            <Image url="@../res/BC.PNG" />
+         </image>
+      </ImageView>
+   </children>
+</Pane>

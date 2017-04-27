@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.text.*?>
+<?import javafx.scene.image.*?>
+<?import java.lang.*?>
+<?import java.util.*?>
+<?import javafx.scene.*?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+
+<Pane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="243.0" prefWidth="308.0" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1" fx:controller="main.ProgramSwitchController">
+   <children>
+      <ImageView fitHeight="39.0" fitWidth="151.0" layoutX="104.0" layoutY="25.0" pickOnBounds="true" preserveRatio="true">
+         <image>
+            <Image url="@../res/BC3.PNG" />
+         </image>
+      </ImageView>
+      <ImageView fitHeight="40.0" fitWidth="38.0" layoutX="60.0" layoutY="25.0" pickOnBounds="true" preserveRatio="true">
+         <image>
+            <Image url="@../res/BC.PNG" />
+         </image>
+      </ImageView>
+      <Button fx:id="smbtn" layoutX="68.0" layoutY="112.0" mnemonicParsing="false" onAction="#salesmanagementhandler" text="Sales Management">
+         <font>
+            <Font name="System Bold" size="18.0" />
+         </font>
+      </Button>
+      <Button fx:id="mmbtn" layoutX="54.0" layoutY="172.0" mnemonicParsing="false" onAction="#materialmanagementhandler" text="Material Management">
+         <font>
+            <Font name="System Bold" size="18.0" />
+         </font>
+      </Button>
+      <Text fx:id="useridfld" layoutX="158.0" layoutY="90.0" strokeType="OUTSIDE" strokeWidth="0.0" text="######" />
+      <Label layoutX="107.0" layoutY="77.0" text="User ID: " />
+   </children>
+</Pane>

@@ -1,0 +1,582 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import java.lang.*?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.image.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.text.*?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.ComboBox?>
+<?import javafx.scene.control.DatePicker?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.Menu?>
+<?import javafx.scene.control.MenuBar?>
+<?import javafx.scene.control.MenuItem?>
+<?import javafx.scene.control.Tab?>
+<?import javafx.scene.control.TabPane?>
+<?import javafx.scene.control.TableColumn?>
+<?import javafx.scene.control.TableView?>
+<?import javafx.scene.control.TextField?>
+<?import javafx.scene.image.Image?>
+<?import javafx.scene.image.ImageView?>
+<?import javafx.scene.layout.AnchorPane?>
+<?import javafx.scene.layout.Pane?>
+<?import javafx.scene.layout.StackPane?>
+<?import javafx.scene.text.Font?>
+
+<Pane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="607.0" prefWidth="979.0" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1" fx:controller="main.MainController_1">
+   <children>
+      <MenuBar prefHeight="25.0" prefWidth="979.0">
+        <menus>
+          <Menu mnemonicParsing="false" text="Help">
+            <items>
+              <MenuItem mnemonicParsing="false" text="About" />
+            </items>
+          </Menu>
+        </menus>
+      </MenuBar>
+      <TabPane layoutX="11.0" layoutY="87.0" prefHeight="507.0" prefWidth="951.0" tabClosingPolicy="UNAVAILABLE">
+        <tabs>
+            <Tab text="Supplier">
+               <content>
+                  <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0">
+                     <children>
+                        <StackPane layoutY="39.0" prefHeight="440.0" prefWidth="951.0">
+                           <children>
+                              <TableView fx:id="inventorytable1" prefHeight="200.0" prefWidth="200.0">
+                                 <columns>
+                                    <TableColumn prefWidth="111.0" text="Product#" />
+                                    <TableColumn minWidth="0.0" prefWidth="223.0" text="Product Description" />
+                                    <TableColumn prefWidth="163.0" text="Cust FG#" />
+                                    <TableColumn prefWidth="109.0" text="Warehouse" />
+                                    <TableColumn prefWidth="103.0" text="UOM" />
+                                    <TableColumn prefWidth="98.0" text="Stock Quantity" />
+                                    <TableColumn prefWidth="121.0" text="Critical Stock Level" />
+                                 </columns>
+                              </TableView>
+                           </children>
+                        </StackPane>
+                        <Button fx:id="additembtn1" layoutX="10.0" layoutY="7.0" mnemonicParsing="false" onMousePressed="#addInventoryItem" text="Add Item" />
+                        <Button fx:id="editinventbtn1" layoutX="86.0" layoutY="7.0" mnemonicParsing="false" onMousePressed="#editInventoryItem" text="Edit Item" />
+                     </children>
+                  </AnchorPane>
+               </content>
+            </Tab>
+          <Tab text="Inventory">
+               <content>
+                  <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0">
+                     <children>
+                        <StackPane layoutY="39.0" prefHeight="440.0" prefWidth="951.0">
+                           <children>
+                              <TableView fx:id="inventorytable" prefHeight="200.0" prefWidth="200.0">
+                                 <columns>
+                                    <TableColumn prefWidth="111.0" text="Product#" />
+                                    <TableColumn minWidth="0.0" prefWidth="223.0" text="Product Description" />
+                                    <TableColumn prefWidth="163.0" text="Cust FG#" />
+                                    <TableColumn prefWidth="109.0" text="Warehouse" />
+                                    <TableColumn prefWidth="103.0" text="UOM" />
+                                    <TableColumn prefWidth="98.0" text="Stock Quantity" />
+                                    <TableColumn prefWidth="121.0" text="Critical Stock Level" />
+                                 </columns>
+                              </TableView>
+                           </children>
+                        </StackPane>
+                        <Button fx:id="additembtn" layoutX="10.0" layoutY="7.0" mnemonicParsing="false" onMousePressed="#addInventoryItem" text="Add Item" />
+                        <Button fx:id="editinventbtn" layoutX="86.0" layoutY="7.0" mnemonicParsing="false" onMousePressed="#editInventoryItem" text="Edit Item" />
+                        <Button fx:id="editinventbtn1" layoutX="159.0" layoutY="7.0" mnemonicParsing="false" onMousePressed="#editInventoryItem" text="Goods Receipt Entry" />
+                        <Button fx:id="editinventbtn11" layoutX="293.0" layoutY="7.0" mnemonicParsing="false" onMousePressed="#editInventoryItem" text="Manual Goods Issue Entry" />
+                     </children>
+                  </AnchorPane>
+               </content>
+          </Tab>
+            <Tab text="Returns">
+               <content>
+                  <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0">
+                     <children>
+                        <StackPane layoutY="39.0" prefHeight="440.0" prefWidth="951.0">
+                           <children>
+                              <TableView fx:id="suppliertable" prefHeight="200.0" prefWidth="200.0">
+                                 <columns>
+                                    <TableColumn prefWidth="235.5" text="Product#" />
+                                    <TableColumn minWidth="0.0" prefWidth="96.5" text="Description" />
+                                    <TableColumn prefWidth="160.0" text="Warehouse" />
+                                    <TableColumn minWidth="0.0" prefWidth="208.0" text="UOM" />
+                                    <TableColumn minWidth="0.0" prefWidth="227.0" text="Stock on Hand" />
+                                 </columns>
+                              </TableView>
+                           </children>
+                        </StackPane>
+                        <Button fx:id="addsuppbtn" layoutX="10.0" layoutY="7.0" mnemonicParsing="false" onMousePressed="#addSupplier" text="Add Stocks" />
+                        <Button fx:id="editsuppbtn" layoutX="99.0" layoutY="7.0" mnemonicParsing="false" onMousePressed="#editSupplier" text="Remove Stocks" />
+                        <Button fx:id="editsuppbtn1" layoutX="208.0" layoutY="7.0" mnemonicParsing="false" onMousePressed="#editSupplier" text="View Stocks" />
+                     </children>
+                  </AnchorPane>
+               </content>
+            </Tab>
+            <Tab text="Prices">
+               <content>
+                  <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0">
+                     <children>
+                        <StackPane layoutY="39.0" prefHeight="440.0" prefWidth="951.0">
+                           <children>
+                              <TableView fx:id="pendingtable" prefHeight="200.0" prefWidth="200.0">
+                                 <columns>
+                                    <TableColumn prefWidth="118.0" text="Product#" />
+                                    <TableColumn prefWidth="234.0" text="Product Description" />
+                                    <TableColumn minWidth="0.0" prefWidth="96.0" text="PO Price" />
+                                    <TableColumn prefWidth="127.0" text="Selling Price" />
+                                    <TableColumn minWidth="0.0" prefWidth="81.0" text="UOM" />
+                                    <TableColumn prefWidth="347.0" text="Effect Date" />
+                                 </columns>
+                              </TableView>
+                           </children>
+                        </StackPane>
+                        <Button fx:id="addpendingbtn" layoutX="10.0" layoutY="7.0" mnemonicParsing="false" onMousePressed="#addPurchases" text="Add Price" />
+                        <Button fx:id="viewpendingbtn" layoutX="164.0" layoutY="7.0" mnemonicParsing="false" onMousePressed="#viewPendingPurchaseItems" text="View Price" />
+                        <Button fx:id="editpendingbtn" layoutX="85.0" layoutY="7.0" mnemonicParsing="false" onMousePressed="#editPendingPurchases" text="Edit Price" />
+                     </children>
+                  </AnchorPane>
+               </content>
+            </Tab>
+            <Tab text="Purchases">
+               <content>
+                  <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0">
+                     <children>
+                        <StackPane layoutY="39.0" prefHeight="440.0" prefWidth="951.0">
+                           <children>
+                              <TableView fx:id="donetable" prefHeight="200.0" prefWidth="200.0">
+                                 <columns>
+                                    <TableColumn prefWidth="131.5" text="Purchase ID" />
+                                    <TableColumn prefWidth="233.5" text="To" />
+                                    <TableColumn minWidth="0.0" prefWidth="156.5" text="Attention" />
+                                    <TableColumn prefWidth="131.5" text="Date" />
+                                    <TableColumn prefWidth="137.5" text="Delivery Date" />
+                                    <TableColumn prefWidth="137.5" text="Status" />
+                                 </columns>
+                              </TableView>
+                           </children>
+                        </StackPane>
+                        <Button fx:id="viewdonebtn" layoutX="10.0" layoutY="7.0" mnemonicParsing="false" onMousePressed="#viewDonePurchaseItems" text="View Purchases" />
+                        <Button fx:id="viewdonebtn1" layoutX="122.0" layoutY="7.0" mnemonicParsing="false" onMousePressed="#viewDonePurchaseItems" text="Stock Transfer" />
+                     </children>
+                  </AnchorPane>
+               </content>
+            </Tab>
+            <Tab text="Reports">
+               <content>
+                  <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="441.0" prefWidth="874.0">
+                     <children>
+                        <TabPane layoutX="9.0" layoutY="12.0" prefHeight="455.0" prefWidth="943.0" tabClosingPolicy="UNAVAILABLE">
+                          <tabs>
+                            <Tab text="Purchases Reports">
+                              <content>
+                                <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0">
+                                       <children>
+                                          <StackPane layoutY="39.0" prefHeight="340.0" prefWidth="911.0">
+                                             <children>
+                                                <TableView fx:id="ptable" prefHeight="298.0" prefWidth="673.0">
+                                                  <columns>
+                                                    <TableColumn prefWidth="75.0" text="Date" />
+                                                    <TableColumn prefWidth="103.0" text="Purchase ID" />
+                                                      <TableColumn prefWidth="120.0" text="Company Name" />
+                                                      <TableColumn fx:id="purchasetable" prefWidth="101.0" text="VAT Ex" />
+                                                      <TableColumn prefWidth="88.0" text="VAT" />
+                                                      <TableColumn prefWidth="103.0" text="Amount" />
+                                                      <TableColumn prefWidth="107.5" text="Tax Rate" />
+                                                      <TableColumn prefWidth="98.5" text="WTX" />
+                                                      <TableColumn prefWidth="114.0" text="Amount Paid" />
+                                                  </columns>
+                                                </TableView>
+                                             </children>
+                                          </StackPane>
+                                          <DatePicker fx:id="fromrpdate" layoutX="57.0" layoutY="7.0" />
+                                          <DatePicker fx:id="torpdate" layoutX="284.0" layoutY="8.0" />
+                                          <TextField fx:id="totalvatex" layoutX="106.0" layoutY="390.0" prefHeight="25.0" prefWidth="113.0" />
+                                          <Label layoutX="10.0" layoutY="12.0" text="From:">
+                                             <font>
+                                                <Font name="Arial" size="14.0" />
+                                             </font>
+                                          </Label>
+                                          <Label layoutX="255.0" layoutY="12.0" text="To:">
+                                             <font>
+                                                <Font name="Arial" size="14.0" />
+                                             </font>
+                                          </Label>
+                                          <Label layoutX="10.0" layoutY="395.0" text="Total VAT Ex:">
+                                             <font>
+                                                <Font name="Arial" size="14.0" />
+                                             </font>
+                                          </Label>
+                                          <Label layoutX="229.0" layoutY="395.0" text="Total Amount:">
+                                             <font>
+                                                <Font name="Arial" size="14.0" />
+                                             </font>
+                                          </Label>
+                                          <Label layoutX="448.0" layoutY="395.0" text="Total WTX:">
+                                             <font>
+                                                <Font name="Arial" size="14.0" />
+                                             </font>
+                                          </Label>
+                                          <Label layoutX="650.0" layoutY="396.0" text="Total Paid:">
+                                             <font>
+                                                <Font name="Arial" size="14.0" />
+                                             </font>
+                                          </Label>
+                                          <Button fx:id="rpbutton" layoutX="469.0" layoutY="8.0" mnemonicParsing="false" onAction="#getPurchasesReports" text="Refresh Report" />
+                                          <TextField fx:id="totalamt" layoutX="325.0" layoutY="390.0" prefHeight="25.0" prefWidth="113.0" />
+                                          <TextField fx:id="totalwtx" layoutX="527.0" layoutY="391.0" prefHeight="25.0" prefWidth="113.0" />
+                                          <TextField fx:id="totalpaid" layoutX="726.0" layoutY="392.0" prefHeight="25.0" prefWidth="113.0" />
+                                       </children>
+                                    </AnchorPane>
+                              </content>
+                            </Tab>
+                              <Tab text="Sales Order Report">
+                                 <content>
+                                    <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0">
+                                       <children>
+                                          <StackPane layoutY="74.0" prefHeight="308.0" prefWidth="911.0">
+                                             <children>
+                                                <TableView fx:id="stable" prefHeight="298.0" prefWidth="673.0">
+                                                   <columns>
+                                                      <TableColumn prefWidth="124.0" text="Date" />
+                                                      <TableColumn prefWidth="113.0" text="Invoice ID" />
+                                                      <TableColumn prefWidth="227.0" text="Company Name" />
+                                                      <TableColumn prefWidth="169.0" text="Amount" />
+                                                      <TableColumn prefWidth="159.5" text="Output VAT" />
+                                                      <TableColumn prefWidth="119.5" text="Status" />
+                                                   </columns>
+                                                </TableView>
+                                             </children>
+                                          </StackPane>
+                                          <DatePicker fx:id="salesfromrpdate" layoutX="57.0" layoutY="7.0" />
+                                          <DatePicker fx:id="salestorpdate" layoutX="271.0" layoutY="8.0" />
+                                          <TextField fx:id="salestotalamt" layoutX="103.0" layoutY="392.0" prefHeight="25.0" prefWidth="113.0" />
+                                          <Label layoutX="10.0" layoutY="12.0" text="From:">
+                                             <font>
+                                                <Font name="Arial" size="14.0" />
+                                             </font>
+                                          </Label>
+                                          <Label layoutX="242.0" layoutY="12.0" text="To:">
+                                             <font>
+                                                <Font name="Arial" size="14.0" />
+                                             </font>
+                                          </Label>
+                                          <Label layoutX="7.0" layoutY="397.0" text="Total Amount:">
+                                             <font>
+                                                <Font name="Arial" size="14.0" />
+                                             </font>
+                                          </Label>
+                                          <Label layoutX="226.0" layoutY="397.0" text="Total Output VAT:">
+                                             <font>
+                                                <Font name="Arial" size="14.0" />
+                                             </font>
+                                          </Label>
+                                          <Button fx:id="salesrpbutton" layoutX="313.0" layoutY="42.0" mnemonicParsing="false" onAction="#getSalesInvoiceReports" text="Invoice ID" />
+                                          <TextField fx:id="salestotalvat" layoutX="346.0" layoutY="392.0" prefHeight="25.0" prefWidth="113.0" />
+                                          <Button fx:id="salesrpbutton2" layoutX="81.0" layoutY="42.0" mnemonicParsing="false" onAction="#getSalesInvoiceReports2" text="Company Name (All)" />
+                                          <Label layoutX="10.0" layoutY="47.0" text="Group by: ">
+                                             <font>
+                                                <Font name="Arial" size="14.0" />
+                                             </font>
+                                          </Label>
+                                          <Button fx:id="salesrpbutton3" layoutX="216.0" layoutY="42.0" mnemonicParsing="false" onAction="#getSalesInvoiceReports3" text="Date (Month)" />
+                                          <Label layoutX="474.0" layoutY="14.0" text="Company Name:">
+                                             <font>
+                                                <Font name="Arial" size="14.0" />
+                                             </font>
+                                          </Label>
+                                          <Button fx:id="sisearchbtn" layoutX="747.0" layoutY="9.0" mnemonicParsing="false" onAction="#getSalesInvoiceReports" prefHeight="25.0" prefWidth="78.0" text="Search" />
+                                          <ComboBox fx:id="sicmb" layoutX="587.0" layoutY="9.0" prefWidth="150.0" />
+                                       </children>
+                                    </AnchorPane>
+                                 </content>
+                              </Tab>
+                              <Tab text="Sales Return Summary Report">
+                                 <content>
+                                    <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0">
+                                       <children>
+                                          <StackPane layoutY="74.0" prefHeight="308.0" prefWidth="911.0">
+                                             <children>
+                                                <TableView fx:id="stable1" prefHeight="298.0" prefWidth="673.0">
+                                                   <columns>
+                                                      <TableColumn prefWidth="124.0" text="Date" />
+                                                      <TableColumn prefWidth="113.0" text="Invoice ID" />
+                                                      <TableColumn prefWidth="227.0" text="Company Name" />
+                                                      <TableColumn prefWidth="169.0" text="Amount" />
+                                                      <TableColumn prefWidth="159.5" text="Output VAT" />
+                                                      <TableColumn prefWidth="119.5" text="Status" />
+                                                   </columns>
+                                                </TableView>
+                                             </children>
+                                          </StackPane>
+                                          <DatePicker fx:id="salesfromrpdate1" layoutX="57.0" layoutY="7.0" />
+                                          <DatePicker fx:id="salestorpdate1" layoutX="271.0" layoutY="8.0" />
+                                          <TextField fx:id="salestotalamt1" layoutX="103.0" layoutY="392.0" prefHeight="25.0" prefWidth="113.0" />
+                                          <Label layoutX="10.0" layoutY="12.0" text="From:">
+                                             <font>
+                                                <Font name="Arial" size="14.0" />
+                                             </font>
+                                          </Label>
+                                          <Label layoutX="242.0" layoutY="12.0" text="To:">
+                                             <font>
+                                                <Font name="Arial" size="14.0" />
+                                             </font>
+                                          </Label>
+                                          <Label layoutX="7.0" layoutY="397.0" text="Total Amount:">
+                                             <font>
+                                                <Font name="Arial" size="14.0" />
+                                             </font>
+                                          </Label>
+                                          <Label layoutX="226.0" layoutY="397.0" text="Total Output VAT:">
+                                             <font>
+                                                <Font name="Arial" size="14.0" />
+                                             </font>
+                                          </Label>
+                                          <Button fx:id="salesrpbutton1" layoutX="313.0" layoutY="42.0" mnemonicParsing="false" onAction="#getSalesInvoiceReports" text="Invoice ID" />
+                                          <TextField fx:id="salestotalvat1" layoutX="346.0" layoutY="392.0" prefHeight="25.0" prefWidth="113.0" />
+                                          <Button fx:id="salesrpbutton21" layoutX="81.0" layoutY="42.0" mnemonicParsing="false" onAction="#getSalesInvoiceReports2" text="Company Name (All)" />
+                                          <Label layoutX="10.0" layoutY="47.0" text="Group by: ">
+                                             <font>
+                                                <Font name="Arial" size="14.0" />
+                                             </font>
+                                          </Label>
+                                          <Button fx:id="salesrpbutton31" layoutX="216.0" layoutY="42.0" mnemonicParsing="false" onAction="#getSalesInvoiceReports3" text="Date (Month)" />
+                                          <Label layoutX="474.0" layoutY="14.0" text="Company Name:">
+                                             <font>
+                                                <Font name="Arial" size="14.0" />
+                                             </font>
+                                          </Label>
+                                          <Button fx:id="sisearchbtn1" layoutX="747.0" layoutY="9.0" mnemonicParsing="false" onAction="#getSalesInvoiceReports" prefHeight="25.0" prefWidth="78.0" text="Search" />
+                                          <ComboBox fx:id="sicmb1" layoutX="587.0" layoutY="9.0" prefWidth="150.0" />
+                                       </children>
+                                    </AnchorPane>
+                                 </content>
+                              </Tab>
+                              <Tab text="FG inventory Summary Report">
+                                 <content>
+                                    <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0">
+                                       <children>
+                                          <StackPane layoutY="74.0" prefHeight="308.0" prefWidth="911.0">
+                                             <children>
+                                                <TableView fx:id="stable11" prefHeight="298.0" prefWidth="673.0">
+                                                   <columns>
+                                                      <TableColumn prefWidth="124.0" text="Date" />
+                                                      <TableColumn prefWidth="113.0" text="Invoice ID" />
+                                                      <TableColumn prefWidth="227.0" text="Company Name" />
+                                                      <TableColumn prefWidth="169.0" text="Amount" />
+                                                      <TableColumn prefWidth="159.5" text="Output VAT" />
+                                                      <TableColumn prefWidth="119.5" text="Status" />
+                                                   </columns>
+                                                </TableView>
+                                             </children>
+                                          </StackPane>
+                                          <DatePicker fx:id="salesfromrpdate11" layoutX="57.0" layoutY="7.0" />
+                                          <DatePicker fx:id="salestorpdate11" layoutX="271.0" layoutY="8.0" />
+                                          <TextField fx:id="salestotalamt11" layoutX="103.0" layoutY="392.0" prefHeight="25.0" prefWidth="113.0" />
+                                          <Label layoutX="10.0" layoutY="12.0" text="From:">
+                                             <font>
+                                                <Font name="Arial" size="14.0" />
+                                             </font>
+                                          </Label>
+                                          <Label layoutX="242.0" layoutY="12.0" text="To:">
+                                             <font>
+                                                <Font name="Arial" size="14.0" />
+                                             </font>
+                                          </Label>
+                                          <Label layoutX="7.0" layoutY="397.0" text="Total Amount:">
+                                             <font>
+                                                <Font name="Arial" size="14.0" />
+                                             </font>
+                                          </Label>
+                                          <Label layoutX="226.0" layoutY="397.0" text="Total Output VAT:">
+                                             <font>
+                                                <Font name="Arial" size="14.0" />
+                                             </font>
+                                          </Label>
+                                          <Button fx:id="salesrpbutton11" layoutX="313.0" layoutY="42.0" mnemonicParsing="false" onAction="#getSalesInvoiceReports" text="Invoice ID" />
+                                          <TextField fx:id="salestotalvat11" layoutX="346.0" layoutY="392.0" prefHeight="25.0" prefWidth="113.0" />
+                                          <Button fx:id="salesrpbutton211" layoutX="81.0" layoutY="42.0" mnemonicParsing="false" onAction="#getSalesInvoiceReports2" text="Company Name (All)" />
+                                          <Label layoutX="10.0" layoutY="47.0" text="Group by: ">
+                                             <font>
+                                                <Font name="Arial" size="14.0" />
+                                             </font>
+                                          </Label>
+                                          <Button fx:id="salesrpbutton311" layoutX="216.0" layoutY="42.0" mnemonicParsing="false" onAction="#getSalesInvoiceReports3" text="Date (Month)" />
+                                          <Label layoutX="474.0" layoutY="14.0" text="Company Name:">
+                                             <font>
+                                                <Font name="Arial" size="14.0" />
+                                             </font>
+                                          </Label>
+                                          <Button fx:id="sisearchbtn11" layoutX="747.0" layoutY="9.0" mnemonicParsing="false" onAction="#getSalesInvoiceReports" prefHeight="25.0" prefWidth="78.0" text="Search" />
+                                          <ComboBox fx:id="sicmb11" layoutX="587.0" layoutY="9.0" prefWidth="150.0" />
+                                       </children>
+                                    </AnchorPane>
+                                 </content>
+                              </Tab>
+                              <Tab text="FG Inventory Detailed Report">
+                                 <content>
+                                    <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0">
+                                       <children>
+                                          <StackPane layoutY="74.0" prefHeight="308.0" prefWidth="911.0">
+                                             <children>
+                                                <TableView fx:id="stable12" prefHeight="298.0" prefWidth="673.0">
+                                                   <columns>
+                                                      <TableColumn prefWidth="124.0" text="Date" />
+                                                      <TableColumn prefWidth="113.0" text="Invoice ID" />
+                                                      <TableColumn prefWidth="227.0" text="Company Name" />
+                                                      <TableColumn prefWidth="169.0" text="Amount" />
+                                                      <TableColumn prefWidth="159.5" text="Output VAT" />
+                                                      <TableColumn prefWidth="119.5" text="Status" />
+                                                   </columns>
+                                                </TableView>
+                                             </children>
+                                          </StackPane>
+                                          <DatePicker fx:id="salesfromrpdate12" layoutX="57.0" layoutY="7.0" />
+                                          <DatePicker fx:id="salestorpdate12" layoutX="271.0" layoutY="8.0" />
+                                          <TextField fx:id="salestotalamt12" layoutX="103.0" layoutY="392.0" prefHeight="25.0" prefWidth="113.0" />
+                                          <Label layoutX="10.0" layoutY="12.0" text="From:">
+                                             <font>
+                                                <Font name="Arial" size="14.0" />
+                                             </font>
+                                          </Label>
+                                          <Label layoutX="242.0" layoutY="12.0" text="To:">
+                                             <font>
+                                                <Font name="Arial" size="14.0" />
+                                             </font>
+                                          </Label>
+                                          <Label layoutX="7.0" layoutY="397.0" text="Total Amount:">
+                                             <font>
+                                                <Font name="Arial" size="14.0" />
+                                             </font>
+                                          </Label>
+                                          <Label layoutX="226.0" layoutY="397.0" text="Total Output VAT:">
+                                             <font>
+                                                <Font name="Arial" size="14.0" />
+                                             </font>
+                                          </Label>
+                                          <Button fx:id="salesrpbutton12" layoutX="313.0" layoutY="42.0" mnemonicParsing="false" onAction="#getSalesInvoiceReports" text="Invoice ID" />
+                                          <TextField fx:id="salestotalvat12" layoutX="346.0" layoutY="392.0" prefHeight="25.0" prefWidth="113.0" />
+                                          <Button fx:id="salesrpbutton212" layoutX="81.0" layoutY="42.0" mnemonicParsing="false" onAction="#getSalesInvoiceReports2" text="Company Name (All)" />
+                                          <Label layoutX="10.0" layoutY="47.0" text="Group by: ">
+                                             <font>
+                                                <Font name="Arial" size="14.0" />
+                                             </font>
+                                          </Label>
+                                          <Button fx:id="salesrpbutton312" layoutX="216.0" layoutY="42.0" mnemonicParsing="false" onAction="#getSalesInvoiceReports3" text="Date (Month)" />
+                                          <Label layoutX="474.0" layoutY="14.0" text="Company Name:">
+                                             <font>
+                                                <Font name="Arial" size="14.0" />
+                                             </font>
+                                          </Label>
+                                          <Button fx:id="sisearchbtn12" layoutX="747.0" layoutY="9.0" mnemonicParsing="false" onAction="#getSalesInvoiceReports" prefHeight="25.0" prefWidth="78.0" text="Search" />
+                                          <ComboBox fx:id="sicmb12" layoutX="587.0" layoutY="9.0" prefWidth="150.0" />
+                                       </children>
+                                    </AnchorPane>
+                                 </content>
+                              </Tab>
+                              <Tab text="FG Inventory Critical Stock Report">
+                                 <content>
+                                    <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0">
+                                       <children>
+                                          <StackPane layoutY="74.0" prefHeight="308.0" prefWidth="911.0">
+                                             <children>
+                                                <TableView fx:id="stable13" prefHeight="298.0" prefWidth="673.0">
+                                                   <columns>
+                                                      <TableColumn prefWidth="124.0" text="Date" />
+                                                      <TableColumn prefWidth="113.0" text="Invoice ID" />
+                                                      <TableColumn prefWidth="227.0" text="Company Name" />
+                                                      <TableColumn prefWidth="169.0" text="Amount" />
+                                                      <TableColumn prefWidth="159.5" text="Output VAT" />
+                                                      <TableColumn prefWidth="119.5" text="Status" />
+                                                   </columns>
+                                                </TableView>
+                                             </children>
+                                          </StackPane>
+                                          <DatePicker fx:id="salesfromrpdate13" layoutX="57.0" layoutY="7.0" />
+                                          <DatePicker fx:id="salestorpdate13" layoutX="271.0" layoutY="8.0" />
+                                          <TextField fx:id="salestotalamt13" layoutX="103.0" layoutY="392.0" prefHeight="25.0" prefWidth="113.0" />
+                                          <Label layoutX="10.0" layoutY="12.0" text="From:">
+                                             <font>
+                                                <Font name="Arial" size="14.0" />
+                                             </font>
+                                          </Label>
+                                          <Label layoutX="242.0" layoutY="12.0" text="To:">
+                                             <font>
+                                                <Font name="Arial" size="14.0" />
+                                             </font>
+                                          </Label>
+                                          <Label layoutX="7.0" layoutY="397.0" text="Total Amount:">
+                                             <font>
+                                                <Font name="Arial" size="14.0" />
+                                             </font>
+                                          </Label>
+                                          <Label layoutX="226.0" layoutY="397.0" text="Total Output VAT:">
+                                             <font>
+                                                <Font name="Arial" size="14.0" />
+                                             </font>
+                                          </Label>
+                                          <Button fx:id="salesrpbutton13" layoutX="313.0" layoutY="42.0" mnemonicParsing="false" onAction="#getSalesInvoiceReports" text="Invoice ID" />
+                                          <TextField fx:id="salestotalvat13" layoutX="346.0" layoutY="392.0" prefHeight="25.0" prefWidth="113.0" />
+                                          <Button fx:id="salesrpbutton213" layoutX="81.0" layoutY="42.0" mnemonicParsing="false" onAction="#getSalesInvoiceReports2" text="Company Name (All)" />
+                                          <Label layoutX="10.0" layoutY="47.0" text="Group by: ">
+                                             <font>
+                                                <Font name="Arial" size="14.0" />
+                                             </font>
+                                          </Label>
+                                          <Button fx:id="salesrpbutton313" layoutX="216.0" layoutY="42.0" mnemonicParsing="false" onAction="#getSalesInvoiceReports3" text="Date (Month)" />
+                                          <Label layoutX="474.0" layoutY="14.0" text="Company Name:">
+                                             <font>
+                                                <Font name="Arial" size="14.0" />
+                                             </font>
+                                          </Label>
+                                          <Button fx:id="sisearchbtn13" layoutX="747.0" layoutY="9.0" mnemonicParsing="false" onAction="#getSalesInvoiceReports" prefHeight="25.0" prefWidth="78.0" text="Search" />
+                                          <ComboBox fx:id="sicmb13" layoutX="587.0" layoutY="9.0" prefWidth="150.0" />
+                                       </children>
+                                    </AnchorPane>
+                                 </content>
+                              </Tab>
+                          </tabs>
+                        </TabPane>
+                     </children></AnchorPane>
+               </content>
+            </Tab>
+          <Tab text="Warehouses">
+            <content>
+              <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="536.0" prefWidth="929.0">
+                     <children>
+                        <StackPane layoutY="39.0" prefHeight="440.0" prefWidth="951.0">
+                           <children>
+                              <TableView fx:id="customertable" prefHeight="200.0" prefWidth="200.0">
+                                <columns>
+                                  <TableColumn prefWidth="237.0" text="Company" />
+                                    <TableColumn minWidth="0.0" prefWidth="150.5" text="TIN Number" />
+                                    <TableColumn prefWidth="540.0" text="Address" />
+                                </columns>
+                              </TableView>
+                           </children>
+                        </StackPane>
+                        <Button fx:id="addcustbtn" layoutX="10.0" layoutY="7.0" mnemonicParsing="false" onMousePressed="#addCustomer" text="Add Customer" />
+                        <Button fx:id="editcustbtn" layoutX="113.0" layoutY="7.0" mnemonicParsing="false" onMousePressed="#editCustomer" text="Edit Customer" />
+                        <Button fx:id="viewcontactsbtn" layoutX="214.0" layoutY="7.0" mnemonicParsing="false" onMousePressed="#viewContactDetails" text="View Contacts" />
+                        <Button fx:id="viewtransactbtn" layoutX="315.0" layoutY="7.0" mnemonicParsing="false" onAction="#viewTransactions" text="View Transactions" />
+                     </children>
+                  </AnchorPane>
+            </content>
+          </Tab>
+        </tabs>
+      </TabPane>
+      <Text fx:id="useridfld" layoutX="914.0" layoutY="69.0" strokeType="OUTSIDE" strokeWidth="0.0" text="######" />
+      <Label layoutX="863.0" layoutY="56.0" text="User ID: " />
+      <ImageView fitHeight="39.0" fitWidth="151.0" layoutX="69.0" layoutY="34.0" pickOnBounds="true" preserveRatio="true">
+         <image>
+            <Image url="@../res/BC3.PNG" />
+         </image>
+      </ImageView>
+      <ImageView fitHeight="40.0" fitWidth="38.0" layoutX="25.0" layoutY="34.0" pickOnBounds="true" preserveRatio="true">
+         <image>
+            <Image url="@../res/BC.PNG" />
+         </image>
+      </ImageView>
+      <Button layoutX="907.0" layoutY="31.0" mnemonicParsing="false" text="Refresh" />
+   </children>
+</Pane>
