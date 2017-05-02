@@ -46,6 +46,8 @@ public class ProgramSwitchController extends AbstractController implements Initi
 
     @FXML
     private Button mmbtn;
+    
+    private int tp;
 
     @FXML
     public void salesmanagementhandler(ActionEvent event) throws IOException {
@@ -53,7 +55,8 @@ public class ProgramSwitchController extends AbstractController implements Initi
         Parent root = (Parent) fxmlloader.load();
         
         MainController mvc = fxmlloader.<MainController>getController();
-        mvc.initData(super.getGlobalUser());
+        tp = 1;
+        mvc.initData(super.getGlobalUser(), tp);
         
         Scene scene = new Scene(root);
         Stage stage = (Stage) smbtn.getScene().getWindow();
@@ -73,7 +76,7 @@ public class ProgramSwitchController extends AbstractController implements Initi
         Parent root = (Parent) fxmlloader.load();
         
         MainController_1 mvc = fxmlloader.<MainController_1>getController();
-        mvc.initData(super.getGlobalUser());
+        mvc.initData(super.getGlobalUser(), 2);
 
         Scene scene = new Scene(root);
         Stage stage = (Stage) smbtn.getScene().getWindow();
@@ -88,7 +91,7 @@ public class ProgramSwitchController extends AbstractController implements Initi
     }
 
     @Override
-    public void initData(UserModel user) {
+    public void initData(UserModel user, int type) {
         super.setGlobalUser(user);
         useridfld.setText(String.valueOf(super.getGlobalUser().getId()));
     }

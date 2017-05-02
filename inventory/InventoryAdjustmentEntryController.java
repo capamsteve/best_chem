@@ -5,13 +5,13 @@
  */
 package inventory;
 
+import best_chem.AbstractController;
 import dbquerries.InventoryQuery;
 import java.io.IOException;
 import java.net.URL;
 import java.sql.Date;
 import java.sql.SQLException;
 import java.util.ArrayList;
-import java.util.Iterator;
 import java.util.ResourceBundle;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
@@ -33,14 +33,14 @@ import javafx.stage.Modality;
 import javafx.stage.Stage;
 import models.InventoryAdjustmentModel;
 import models.InventoryModel;
-import salesorder.SOItemsController;
+import models.UserModel;
 
 /**
  * FXML Controller class
  *
  * @author Steven
  */
-public class InventoryAdjustmentEntryController implements Initializable {
+public class InventoryAdjustmentEntryController extends AbstractController implements Initializable {
     
     @FXML
     private Button postbtn;
@@ -91,7 +91,7 @@ public class InventoryAdjustmentEntryController implements Initializable {
         
         iam.setItemslist(items);
         
-        iq.addInventoryAdjustment(iam);
+        iq.addInventoryAdjustment(iam, super.getType());
     }
 
     @FXML
@@ -100,6 +100,8 @@ public class InventoryAdjustmentEntryController implements Initializable {
         Parent root = (Parent) fxmlloader.load();
         
         ItemSelectorController soic = fxmlloader.<ItemSelectorController>getController();
+        
+        soic.initData(null,super.getType());
 
         Scene scene = new Scene(root);
         Stage stage = (Stage) addbtn.getScene().getWindow();
@@ -156,5 +158,10 @@ public class InventoryAdjustmentEntryController implements Initializable {
         // TODO
         this.ptifld.setText("N");
     }    
+
+    @Override
+    public void initData(UserModel user, int type) {
+        super.setType(type);
+    }
     
 }

@@ -5,7 +5,7 @@
  */
 package returns;
 
-import dbquerries.InventoryQuery;
+import best_chem.AbstractController;
 import dbquerries.ReturnsQuery;
 import dbquerries.UtilitiesQuery;
 import inventory.InventoryItemController;
@@ -23,10 +23,10 @@ import javafx.scene.control.Button;
 import javafx.scene.control.ComboBox;
 import javafx.scene.control.TextField;
 import javafx.stage.Stage;
-import models.InventoryModel;
 import models.ReturnsModel;
+import models.UserModel;
 
-public class ReturnsController implements Initializable{
+public class ReturnsController extends AbstractController implements Initializable{
 
     private ArrayList<String> uoms = new ArrayList();
     private ArrayList<String> whs = new ArrayList();
@@ -121,10 +121,15 @@ public class ReturnsController implements Initializable{
         
         ReturnsQuery rq = new ReturnsQuery();
         
-        rq.addReturns(returns);
+        rq.addReturns(returns, super.getType());
         
         Stage stage = (Stage) cancelbtn.getScene().getWindow();
         stage.close();
+    }
+
+    @Override
+    public void initData(UserModel user, int type) {
+        super.setType(type);
     }
 
 }

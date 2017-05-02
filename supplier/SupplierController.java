@@ -5,6 +5,7 @@
  */
 package supplier;
 
+import best_chem.AbstractController;
 import customer.ContactViewController;
 import dbquerries.SupplierQuery;
 import java.io.IOException;
@@ -29,13 +30,14 @@ import javafx.stage.Modality;
 import javafx.stage.Stage;
 import models.SupplierContactModel;
 import models.SupplierModel;
+import models.UserModel;
 
 /**
  * FXML Controller class
  *
  * @author Steven
  */
-public class SupplierController implements Initializable {
+public class SupplierController extends AbstractController implements Initializable {
     
     @FXML
     private TextField pymtrmfld;
@@ -186,7 +188,7 @@ public class SupplierController implements Initializable {
         
         supmod.setScm(this.contacts);
         
-        sq.addSupplier(supmod);
+        sq.addSupplier(supmod, super.getType());
         
         Stage stage = (Stage) cancelbtn.getScene().getWindow();
         stage.close();
@@ -208,5 +210,10 @@ public class SupplierController implements Initializable {
     public void initialize(URL url, ResourceBundle rb) {
         // TODO
     }    
+
+    @Override
+    public void initData(UserModel user, int type) {
+        super.setType(type);
+    }
     
 }

@@ -5,6 +5,7 @@
  */
 package returns;
 
+import best_chem.AbstractController;
 import dbquerries.InventoryQuery;
 import dbquerries.ReturnsQuery;
 import inventory.ItemSelectorController;
@@ -36,13 +37,14 @@ import models.InventoryAdjustmentModel;
 import models.InventoryModel;
 import models.ReturnAdjustmentModel;
 import models.ReturnsModel;
+import models.UserModel;
 
 /**
  * FXML Controller class
  *
  * @author Steven
  */
-public class ReturnsAdjustmentController implements Initializable {
+public class ReturnsAdjustmentController extends AbstractController implements Initializable {
 
     @FXML
     private Button postbtn;
@@ -93,7 +95,7 @@ public class ReturnsAdjustmentController implements Initializable {
         
         ram.setItems(items);
         
-        rq.addReturnAdjustment(ram);
+        rq.addReturnAdjustment(ram, super.getType());
     }
 
     @FXML
@@ -102,6 +104,7 @@ public class ReturnsAdjustmentController implements Initializable {
         Parent root = (Parent) fxmlloader.load();
         
         ReturnSelectorController roic = fxmlloader.<ReturnSelectorController>getController();
+        roic.setType(super.getType());
 
         Scene scene = new Scene(root);
         Stage stage = (Stage) addbtn.getScene().getWindow();
@@ -158,4 +161,9 @@ public class ReturnsAdjustmentController implements Initializable {
         // TODO
         this.ptifld.setText("N");
     }    
+
+    @Override
+    public void initData(UserModel user, int type) {
+        super.setType(type);
+    }
 }

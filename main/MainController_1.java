@@ -7,174 +7,119 @@ package main;
  */
 
 import best_chem.AbstractController;
+import dbquerries.SupplierQuery;
+import dbquerries.UtilitiesQuery;
+import java.io.IOException;
 import java.net.URL;
+import java.sql.SQLException;
+import java.util.Iterator;
 import java.util.ResourceBundle;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+import javafx.collections.FXCollections;
+import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
 import javafx.fxml.Initializable;
 import javafx.fxml.FXML;
+import javafx.fxml.FXMLLoader;
+import javafx.scene.Parent;
+import javafx.scene.Scene;
 import javafx.scene.control.Button;
-import javafx.scene.control.ComboBox;
-import javafx.scene.control.DatePicker;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
-import javafx.scene.control.TextField;
+import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.text.Text;
+import javafx.stage.Modality;
+import javafx.stage.Stage;
+import models.PricesModel;
+import models.ReturnsModel;
+import models.SupplierModel;
+import models.UOMmodel;
 import models.UserModel;
+import models.WHSModel;
+import supplier.SupplierController;
+import utilities.UOMController;
+import utilities.WHSController;
 
 public class MainController_1 extends AbstractController implements Initializable {
 
-    @FXML
-    private Button editinventbtn;
+     @FXML
+    private Button adduombtn;
 
     @FXML
-    private Button editsuppbtn;
+    private Button viewPurchases;
 
     @FXML
-    private Button editpendingbtn;
+    private Button viewreturnbtn;
 
     @FXML
-    private TextField salestotalvat;
+    private Button returnsabtn;
 
     @FXML
-    private Button sisearchbtn;
+    private TableView<SupplierModel> suppliertable;
 
     @FXML
-    private Button addsuppbtn;
+    private Button removereturnbtn;
 
     @FXML
-    private TableView<?> pendingtable;
+    private Button editwhsbtn;
 
     @FXML
-    private Button additembtn;
+    private Button addwhsbtn;
 
     @FXML
-    private Button viewpendingbtn;
+    private Button edituombtn;
 
     @FXML
-    private DatePicker fromrpdate;
+    private TableView<PricesModel> pricetable;
 
     @FXML
-    private Button rpbutton;
+    private TableView<WHSModel> whstable;
 
     @FXML
-    private TextField totalamt;
+    private Button iabtn;
 
     @FXML
-    private Button addcustbtn;
+    private Button addreturnbtn;
+
+    @FXML
+    private Button addPricebtn;
+
+    @FXML
+    private Button editInventorybtn;
+
+    @FXML
+    private TableView<ReturnsModel> returntable;
+
+    @FXML
+    private TableView<UOMmodel> uomtable;
 
     @FXML
     private TableView<?> inventorytable;
 
     @FXML
-    private Button viewdonebtn;
+    private Button viewsupbtn;
 
     @FXML
-    private DatePicker salesfromrpdate;
+    private Button addInventorybtn;
 
-    @FXML
-    private Button addpendingbtn;
-
-    @FXML
-    private TableColumn<?, ?> purchasetable;
-
-    @FXML
-    private DatePicker torpdate;
-
-    @FXML
-    private Button editcustbtn;
-
-    @FXML
-    private TextField totalwtx;
-
-    @FXML
-    private TableView<?> suppliertable;
-
-    @FXML
-    private TextField salestotalamt;
-
-    @FXML
-    private Button salesrpbutton2;
-
-    @FXML
-    private Button salesrpbutton3;
-
-    @FXML
-    private ComboBox<?> sicmb;
-
-    @FXML
-    private TextField totalvatex;
-
-    @FXML
-    private TableView<?> customertable;
-
-    @FXML
-    private Button viewtransactbtn;
-
-    @FXML
-    private DatePicker salestorpdate;
-
-    @FXML
-    private TableView<?> ptable;
-
-    @FXML
-    private TextField totalpaid;
-
-    @FXML
-    private TableView<?> stable;
-
-    @FXML
-    private TableView<?> donetable;
-
-    @FXML
-    private Button viewcontactsbtn;
-
-    @FXML
-    private Button salesrpbutton;
-    
     @FXML
     private Text useridfld;
 
-
-    /**
-     * Initializes the controller class.
-     */
-    @Override
-    public void initialize(URL url, ResourceBundle rb) {
-        // TODO
-    }
+    @FXML
+    private Button addsupbtn;
 
     @FXML
-    void addCustomer(ActionEvent event) {
-
-    }
+    private Button editPricebtn;
 
     @FXML
-    void editCustomer(ActionEvent event) {
-
-    }
-
+    private Button editsupbtn;
+    
+    private final UtilitiesQuery uq = new UtilitiesQuery();
+    private final SupplierQuery sq = new SupplierQuery();
+    
     @FXML
-    void viewContactDetails(ActionEvent event) {
-
-    }
-
-    @FXML
-    void viewTransactions(ActionEvent event) {
-
-    }
-
-    @FXML
-    void addInventoryItem(ActionEvent event) {
-
-    }
-
-    @FXML
-    void editInventoryItem(ActionEvent event) {
-
-    }
-
-    @FXML
-    void addSupplier(ActionEvent event) {
+    void viewSupplier(ActionEvent event) {
 
     }
 
@@ -184,53 +129,261 @@ public class MainController_1 extends AbstractController implements Initializabl
     }
 
     @FXML
-    void addPurchases(ActionEvent event) {
+    void addSupplier(ActionEvent event) throws SQLException, IOException {
+        
+        FXMLLoader fxmlloader = new FXMLLoader(getClass().getResource("/supplier/SupplierView.fxml"));
+        Parent root = (Parent) fxmlloader.load();
+        
+        SupplierController sc = new SupplierController();
+        sc.AddMode();
+        sc.setType(super.getType());
+
+        Scene scene = new Scene(root);
+        Stage stage = (Stage) addsupbtn.getScene().getWindow();
+        Stage substage = new Stage();
+        substage.setScene(scene);
+        substage.setResizable(false);
+        substage.sizeToScene();
+        substage.setTitle("Add Supplier");
+        substage.initModality(Modality.WINDOW_MODAL);
+        substage.initOwner(stage);
+        substage.showAndWait();
+        
+        this.getSuppliers();
+
+    }
+    
+    public void getSuppliers() throws SQLException{
+        
+        Iterator rs = sq.getAllSuppliers(super.getType());
+        String[] arr = {"supid", "supname", "suptin", "supaddress"};
+        
+        ObservableList<SupplierModel> data
+                = FXCollections.observableArrayList();
+        
+        
+        while(rs.hasNext()){
+            //System.out.println("HELLO");
+            SupplierModel sup = (SupplierModel) rs.next();
+            System.out.println(sup.getSupname());
+            data.add(sup);
+        }
+        
+        ObservableList<TableColumn<SupplierModel, ?>> olist;
+        olist = (ObservableList<TableColumn<SupplierModel, ?>>) this.suppliertable.getColumns();
+
+        for (int i = 0; i < arr.length; i++) {
+            olist.get(i).setCellValueFactory(
+                    new PropertyValueFactory<>(arr[i])
+            );
+        }
+        this.suppliertable.setItems(data);
+        
+    }
+
+    @FXML
+    void viewPurchases(ActionEvent event) {
 
     }
 
     @FXML
-    void viewPendingPurchaseItems(ActionEvent event) {
+    void addInventory(ActionEvent event) {
 
     }
 
     @FXML
-    void editPendingPurchases(ActionEvent event) {
+    void editInventory(ActionEvent event) {
 
     }
 
     @FXML
-    void viewDonePurchaseItems(ActionEvent event) {
+    void inventoryAdjustment(ActionEvent event) {
 
     }
 
     @FXML
-    void getPurchasesReports(ActionEvent event) {
+    void addReturns(ActionEvent event) {
 
     }
 
     @FXML
-    void getSalesInvoiceReports(ActionEvent event) {
+    void removeReturns(ActionEvent event) {
 
     }
 
     @FXML
-    void getSalesInvoiceReports2(ActionEvent event) {
+    void viewReturns(ActionEvent event) {
 
     }
 
     @FXML
-    void getSalesInvoiceReports3(ActionEvent event) {
+    void returnsAdjustment(ActionEvent event) {
 
     }
 
     @FXML
-    void REFRESH(ActionEvent event) {
+    void addPrice(ActionEvent event) {
 
+    }
+
+    @FXML
+    void editPrice(ActionEvent event) {
+
+    }
+    
+    public void getUOMS() throws SQLException{
+        Iterator rs = uq.getUOM();
+        String[] arr = {"model"};
+        ObservableList<UOMmodel> data = FXCollections.observableArrayList();
+        
+        while(rs.hasNext()){
+            String str = rs.next().toString();
+            System.out.println(str);
+            UOMmodel mod = new UOMmodel(str);
+            mod.setHello(str);
+            data.add(mod);
+        }
+        ObservableList<TableColumn<UOMmodel, ?>> olist;
+        olist = (ObservableList<TableColumn<UOMmodel, ?>>) uomtable.getColumns();
+
+        for (int i = 0; i < arr.length; i++) {
+            olist.get(i).setCellValueFactory(
+                    new PropertyValueFactory<>(arr[i])
+            );
+        }
+        uomtable.setItems(data);
+    }
+    
+    public void getWHS() throws SQLException{
+        Iterator rs = uq.getWHS();
+        String[] arr = {"whsmod"};
+        ObservableList<WHSModel> data = FXCollections.observableArrayList();
+        
+        while(rs.hasNext()){
+            data.add(new WHSModel(rs.next().toString()));
+        }
+        ObservableList<TableColumn<WHSModel, ?>> olist;
+        olist = (ObservableList<TableColumn<WHSModel, ?>>) whstable.getColumns();
+
+        for (int i = 0; i < arr.length; i++) {
+            olist.get(i).setCellValueFactory(
+                    new PropertyValueFactory<>(arr[i])
+            );
+        }
+        whstable.setItems(data);
+    }
+
+    @FXML
+    public void addWHS(ActionEvent event) throws IOException, SQLException {
+        
+        FXMLLoader fxmlloader = new FXMLLoader(getClass().getResource("/utilities/WHSView.fxml"));
+        Parent root = (Parent) fxmlloader.load();
+        
+        WHSController whs = fxmlloader.<WHSController>getController();
+        whs.AddMode();
+
+        Scene scene = new Scene(root);
+        Stage stage = (Stage) addwhsbtn.getScene().getWindow();
+        Stage substage = new Stage();
+        substage.setScene(scene);
+        substage.setResizable(false);
+        substage.sizeToScene();
+        substage.setTitle("Add Warehouse");
+        substage.initModality(Modality.WINDOW_MODAL);
+        substage.initOwner(stage);
+        substage.showAndWait();
+        
+        this.getWHS();
+
+    }
+
+    @FXML
+    public void editWHS(ActionEvent event) throws SQLException, IOException {
+        FXMLLoader fxmlloader = new FXMLLoader(getClass().getResource("/utilities/WHSView.fxml"));
+        Parent root = (Parent) fxmlloader.load();
+        
+        WHSController whs = fxmlloader.<WHSController>getController();
+        //System.out.println(this.whstable.getSelectionModel().getSelectedItem().getWhsmod());
+        whs.EditMode(this.whstable.getSelectionModel().getSelectedItem().getWhsmod());
+
+        Scene scene = new Scene(root);
+        Stage stage = (Stage) editwhsbtn.getScene().getWindow();
+        Stage substage = new Stage();
+        substage.setScene(scene);
+        substage.setResizable(false);
+        substage.sizeToScene();
+        substage.setTitle("Edit Warehouse");
+        substage.initModality(Modality.WINDOW_MODAL);
+        substage.initOwner(stage);
+        substage.showAndWait();
+        
+        this.getWHS();
+    }
+
+    @FXML
+    public void editUOM(ActionEvent event) throws IOException, SQLException {
+        FXMLLoader fxmlloader = new FXMLLoader(getClass().getResource("/utilities/UOMView.fxml"));
+        Parent root = (Parent) fxmlloader.load();
+        
+        UOMController uom = fxmlloader.<UOMController>getController();
+        //System.out.println(this.uomtable.getSelectionModel().getSelectedItem().getModel());
+        uom.EditMode(this.uomtable.getSelectionModel().getSelectedItem().getModel());
+
+        Scene scene = new Scene(root);
+        Stage stage = (Stage) edituombtn.getScene().getWindow();
+        Stage substage = new Stage();
+        substage.setScene(scene);
+        substage.setResizable(false);
+        substage.sizeToScene();
+        substage.setTitle("Edit UOM");
+        substage.initModality(Modality.WINDOW_MODAL);
+        substage.initOwner(stage);
+        substage.showAndWait();
+        
+        this.getUOMS();
+    }
+
+    @FXML
+    public void addUOM(ActionEvent event) throws IOException, SQLException {
+        FXMLLoader fxmlloader = new FXMLLoader(getClass().getResource("/utilities/UOMView.fxml"));
+        Parent root = (Parent) fxmlloader.load();
+        
+        UOMController uom = fxmlloader.<UOMController>getController();
+        uom.AddMode();
+
+        Scene scene = new Scene(root);
+        Stage stage = (Stage) adduombtn.getScene().getWindow();
+        Stage substage = new Stage();
+        substage.setScene(scene);
+        substage.setResizable(false);
+        substage.sizeToScene();
+        substage.setTitle("Add UOM");
+        substage.initModality(Modality.WINDOW_MODAL);
+        substage.initOwner(stage);
+        substage.showAndWait();
+        
+        this.getUOMS();
     }
 
     @Override
-    public void initData(UserModel user) {
+    public void initData(UserModel user, int type) {
         super.setGlobalUser(user);
+        super.setType(type);
         useridfld.setText(String.valueOf(super.getGlobalUser().getId()));
+    }
+
+    @Override
+    public void initialize(URL location, ResourceBundle resources) {
+        
+        try {
+             // TOD
+             this.getUOMS();
+             this.getWHS();
+             this.getSuppliers();
+             
+         } catch (SQLException ex) {
+             Logger.getLogger(MainController.class.getName()).log(Level.SEVERE, null, ex);
+         }
+        
     }
 }

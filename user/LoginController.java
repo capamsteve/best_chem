@@ -94,7 +94,7 @@ public class LoginController implements Initializable {
         }
         else {
             ProgramSwitchController mvc = fxmlloader.<ProgramSwitchController>getController();
-            mvc.initData(rs);
+            mvc.initData(rs, 0);
         }
         
         mainstage.show();

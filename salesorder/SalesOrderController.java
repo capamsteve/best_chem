@@ -230,7 +230,7 @@ public class SalesOrderController extends AbstractController implements Initiali
         Parent root = (Parent) fxmlloader.load();
         
         DeliveryReceiptController drvc = fxmlloader.<DeliveryReceiptController>getController();
-        drvc.initData(this.getGlobalUser());
+        drvc.initData(this.getGlobalUser(), 0);
         drvc.setInit(cust, this.salestble.getSelectionModel().getSelectedItem());
         drvc.AddMode();
         
@@ -265,7 +265,7 @@ public class SalesOrderController extends AbstractController implements Initiali
         Parent root = (Parent) fxmlloader.load();
         
         SalesInvoiceController sivc = fxmlloader.<SalesInvoiceController>getController();
-        sivc.initData(this.getGlobalUser());
+        sivc.initData(this.getGlobalUser(), 0);
         sivc.setInit(cust, this.salestble.getSelectionModel().getSelectedItem());
         sivc.AddMode();
         
@@ -328,7 +328,7 @@ public class SalesOrderController extends AbstractController implements Initiali
     }
 
     @Override
-    public void initData(UserModel user) {
+    public void initData(UserModel user, int type) {
         super.setGlobalUser(user);
     }
     

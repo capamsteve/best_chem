@@ -63,7 +63,7 @@ public class SOItemsController implements Initializable {
         
         System.out.println(this.inventorytable.getSelectionModel().getSelectedItem().getIdinventory());
         
-        item = iq.getInventoryWPrice(this.inventorytable.getSelectionModel().getSelectedItem().getIdinventory());
+        item = iq.getInventoryWPrice(this.inventorytable.getSelectionModel().getSelectedItem().getIdinventory(), 1);
         
         Stage stage = (Stage) cancelbtn.getScene().getWindow();
         stage.close();
@@ -91,7 +91,7 @@ public class SOItemsController implements Initializable {
         ObservableList<InventoryModel> data
                 = FXCollections.observableArrayList();
         
-        Iterator rs = iq.getInventories(sku);
+        Iterator rs = iq.getInventories(sku, 1);
         
         while(rs.hasNext()){
             data.add((InventoryModel)rs.next());

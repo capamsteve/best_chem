@@ -172,8 +172,7 @@
                                           <ToolBar layoutY="-1.0" prefHeight="40.0" prefWidth="945.0">
                                              <items>
                                                 <Button fx:id="addreturnbtn" mnemonicParsing="false" onAction="#addReturns" text="Add Returns" />
-                                                <Button fx:id="removereturnbtn" mnemonicParsing="false" onAction="#removeReturns" text="Remove Returns" />
-                                                <Button fx:id="viewreturnbtn" mnemonicParsing="false" onAction="#viewReturns" text="View Returns" />
+                                                <Button fx:id="removereturnbtn" mnemonicParsing="false" onAction="#removeReturns" text="Edit Returns" />
                                                 <Button fx:id="returnsabtn" mnemonicParsing="false" onAction="#returnsAdjustment" text="Returns Adjustment" />
                                              </items>
                                           </ToolBar>

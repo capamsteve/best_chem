@@ -186,7 +186,7 @@ public class SalesInvoiceController extends AbstractController implements Initia
     }    
 
     @Override
-    public void initData(UserModel user) {
+    public void initData(UserModel user, int type) {
         super.setGlobalUser(user);
     }
     

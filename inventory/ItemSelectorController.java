@@ -5,6 +5,7 @@
  */
 package inventory;
 
+import best_chem.AbstractController;
 import dbquerries.InventoryQuery;
 import java.net.URL;
 import java.sql.SQLException;
@@ -29,6 +30,7 @@ import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyEvent;
 import javafx.stage.Stage;
 import models.InventoryModel;
+import models.UserModel;
 import salesorder.SOItemsController;
 
 /**
@@ -36,7 +38,7 @@ import salesorder.SOItemsController;
  *
  * @author Steven
  */
-public class ItemSelectorController implements Initializable {
+public class ItemSelectorController extends AbstractController implements Initializable {
     
     @FXML
     private TextField qtyfld;
@@ -76,7 +78,7 @@ public class ItemSelectorController implements Initializable {
         
         RadioButton selectedRadioButton = (RadioButton) this.togglegroup1.getSelectedToggle();
         
-        this.item = iq.getInventory(this.inventorytable.getSelectionModel().getSelectedItem().getIdinventory());
+        this.item = iq.getInventory(this.inventorytable.getSelectionModel().getSelectedItem().getIdinventory(), super.getType());
         System.out.println(this.item.getIdinventory());
         System.out.println(this.item.getDescription());
         this.item.setSoh(Integer.valueOf(this.qtyfld.getText()));
@@ -116,7 +118,7 @@ public class ItemSelectorController implements Initializable {
         ObservableList<InventoryModel> data
                 = FXCollections.observableArrayList();
         
-        Iterator rs = iq.getInventories(sku);
+        Iterator rs = iq.getInventories(sku, super.getType());
         
         while(rs.hasNext()){
             data.add((InventoryModel)rs.next());
@@ -175,6 +177,11 @@ public class ItemSelectorController implements Initializable {
      */
     public boolean IsCancelled() {
         return isCancelled;
+    }
+
+    @Override
+    public void initData(UserModel user, int type) {
+        super.setType(type);
     }
     
 }

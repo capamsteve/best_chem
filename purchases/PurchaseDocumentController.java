@@ -5,13 +5,18 @@
  */
 package purchases;
 
+import best_chem.AbstractController;
+import dbquerries.PurchasesQuery;
 import dbquerries.SupplierQuery;
 import java.io.IOException;
 import java.net.URL;
+import java.sql.Date;
 import java.sql.SQLException;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.ResourceBundle;
+import javafx.collections.FXCollections;
+import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
@@ -21,20 +26,25 @@ import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.scene.control.ComboBox;
 import javafx.scene.control.DatePicker;
+import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
 import javafx.scene.control.TextField;
+import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
-import models.SOItemModel;
+import models.InventoryModel;
+import models.PurchaseItemModel;
+import models.PurchasesModel;
 import models.SupplierContactModel;
 import models.SupplierModel;
+import models.UserModel;
 
 /**
  * FXML Controller class
  *
  * @author Steven
  */
-public class PurchaseDocumentController implements Initializable {
+public class PurchaseDocumentController extends AbstractController implements Initializable {
     
     @FXML
     private TextField addressfld;
@@ -58,7 +68,7 @@ public class PurchaseDocumentController implements Initializable {
     private Button cancelbtn;
 
     @FXML
-    private TableView<SOItemModel> itemlist;
+    private TableView<PurchaseItemModel> itemlist;
 
     @FXML
     private TextField bsnstylefld;
@@ -93,14 +103,19 @@ public class PurchaseDocumentController implements Initializable {
     private SupplierModel supplier;
     
     private final SupplierQuery supq = new SupplierQuery();
+    
+    private final PurchasesQuery pq = new PurchasesQuery();
+    
+    private ArrayList<PurchaseItemModel> items;
 
     @FXML
-    public void AddItem(ActionEvent event) throws IOException {
+    public void AddItem(ActionEvent event) throws IOException, SQLException {
         
         FXMLLoader fxmlloader = new FXMLLoader(getClass().getResource("/purchases/POItems.fxml"));
         Parent root = (Parent) fxmlloader.load();
         
         POItemsController poic = fxmlloader.<POItemsController>getController();
+        poic.setType(super.getType());
 
         Scene scene = new Scene(root);
         Stage stage = (Stage) addbtn.getScene().getWindow();
@@ -110,7 +125,45 @@ public class PurchaseDocumentController implements Initializable {
         substage.initModality(Modality.WINDOW_MODAL);
         substage.initOwner(stage);
         substage.showAndWait();
+        
+        if(!poic.IsCancelled()){
+            PurchaseItemModel poitem = new PurchaseItemModel();
+            InventoryModel item = poic.getItem();
+            poitem.setIdinventory(item.getIdinventory());
+            poitem.setDesc(item.getDescription());
+            poitem.setQty(poic.getQty());
+            poitem.setSku(item.getSku());
+            poitem.setUom(item.getUom());
+            poitem.setUprice(item.getPoprice());
+            
+            double amount = item.getPoprice() * poic.getQty();
+            
+            double vatVal = 1 + (12 / 100);
+            double vat = amount * vatVal;
+            vat = Math.round(vat * 100.0)/100.0;
+            System.out.println(vat);
+            
+            poitem.setAmount(amount);
+            poitem.setVat(vat);
+            
+            items.add(poitem);
+            
+            this.RefreshItems();
+            this.computeTotal();
+            
+        }
 
+    }
+    
+    public void computeTotal(){
+        
+        double total = 0.0;
+        
+        for(PurchaseItemModel model : this.items){
+            total += model.getAmount();
+        }
+        
+        this.totalfld.setText(String.valueOf(total));
     }
 
     @FXML
@@ -129,8 +182,42 @@ public class PurchaseDocumentController implements Initializable {
     }
 
     @FXML
-    void saveHandler(ActionEvent event) {
+    public void saveHandler(ActionEvent event) throws SQLException {
+        
+        PurchasesModel pomod = new PurchasesModel();
+        
+        pomod.setSup_id(this.supplier.getSupid());
+        pomod.setSupcname(this.contactbx.getSelectionModel().getSelectedItem());
+        pomod.setPo_dte(Date.valueOf(this.datefld.getValue().toString()));
+        pomod.setPo_dr_dte(Date.valueOf(this.drdatefld.getValue().toString()));
+        pomod.setCbyid(super.getGlobalUser().getId());
+        
+        pomod.setPurchases(this.items);
+        
+        pq.addPurchases(pomod, super.getType());
+        
+        Stage stage = (Stage) cancelbtn.getScene().getWindow();
+        stage.close();
 
+    }
+    
+    public void RefreshItems(){
+        String[] arr = {"sku", "desc", "qty", "uom", "uprice", "amount", "vat"};
+        ObservableList<PurchaseItemModel> data
+                = FXCollections.observableArrayList();
+        
+        for(int i = 0; i < this.items.size(); i++){
+            data.add(items.get(i));
+        }
+        ObservableList<TableColumn<PurchaseItemModel, ?>> olist = (ObservableList<TableColumn<PurchaseItemModel, ?>>) itemlist.getColumns();
+        
+        for (int i = 0; i < olist.size(); i++) {
+            olist.get(i).setCellValueFactory(
+                    new PropertyValueFactory<>(arr[i])
+            );
+        }
+        
+        this.itemlist.setItems(data);
     }
 
     @FXML
@@ -175,7 +262,6 @@ public class PurchaseDocumentController implements Initializable {
     public void ViewMode(){
         
     }
-
     
     /**
      * Initializes the controller class.
@@ -183,6 +269,14 @@ public class PurchaseDocumentController implements Initializable {
     @Override
     public void initialize(URL url, ResourceBundle rb) {
         // TODO
+        
+        this.items = new ArrayList();
     }    
+
+    @Override
+    public void initData(UserModel user, int type) {
+        super.setGlobalUser(user);
+        super.setType(type);
+    }
     
 }

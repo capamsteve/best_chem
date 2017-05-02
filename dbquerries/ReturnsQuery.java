@@ -21,10 +21,17 @@ import models.ReturnsModel;
 /**
  *
  * @author Steven
+ * 
+ * ALSO USED WITH
+ * 
+ * SM
+ * 
+ * MM
+ * 
  */
 public class ReturnsQuery {
     
-    public void addReturns(ReturnsModel model) throws SQLException{
+    public void addReturns(ReturnsModel model, int table) throws SQLException{
                 
         DBQuery dbq = DBQuery.getInstance();
         DBConnect dbc = DBConnect.getInstance();
@@ -42,7 +49,7 @@ public class ReturnsQuery {
         
     }
     
-    public Iterator getReturns() throws SQLException{
+    public Iterator getReturns(int table) throws SQLException{
         
         DBQuery db = DBQuery.getInstance();
         DBConnect dbc = DBConnect.getInstance();
@@ -70,7 +77,7 @@ public class ReturnsQuery {
         
     }
     
-    public ReturnsModel getReturn(int id) throws SQLException{
+    public ReturnsModel getReturn(int id, int table) throws SQLException{
         
         DBQuery db = DBQuery.getInstance();
         DBConnect dbc = DBConnect.getInstance();
@@ -98,7 +105,7 @@ public class ReturnsQuery {
         return returns;
     }
     
-    public Iterator getReturnsBySku(String sku) throws SQLException{
+    public Iterator getReturnsBySku(String sku, int table) throws SQLException{
         
         DBQuery dbq = DBQuery.getInstance();
         DBConnect dbc = DBConnect.getInstance();
@@ -133,7 +140,7 @@ public class ReturnsQuery {
         
     }
     
-    public void addReturnAdjustment(ReturnAdjustmentModel ram) throws SQLException{
+    public void addReturnAdjustment(ReturnAdjustmentModel ram, int table) throws SQLException{
         
         DBQuery dbq = DBQuery.getInstance();
         DBConnect dbc = DBConnect.getInstance();
@@ -153,7 +160,7 @@ public class ReturnsQuery {
                 System.out.println(generatedKeys.getInt(1));
                 int ramid = generatedKeys.getInt(1);
                 
-                this.addReturnAdjustmentItems(ram.getItems().iterator(), ramid);
+                this.addReturnAdjustmentItems(ram.getItems().iterator(), ramid, table);
             }
         }catch(Exception e){
             e.printStackTrace();
@@ -161,7 +168,7 @@ public class ReturnsQuery {
         
     }
     
-    public void addReturnAdjustmentItems(Iterator items, int id) throws SQLException{
+    public void addReturnAdjustmentItems(Iterator items, int id, int table) throws SQLException{
         
         DBConnect dbc = DBConnect.getInstance();
         

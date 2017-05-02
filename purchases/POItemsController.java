@@ -5,6 +5,7 @@
  */
 package purchases;
 
+import best_chem.AbstractController;
 import dbquerries.InventoryQuery;
 import java.net.URL;
 import java.sql.SQLException;
@@ -26,6 +27,7 @@ import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyEvent;
 import javafx.stage.Stage;
 import models.InventoryModel;
+import models.UserModel;
 import salesorder.SOItemsController;
 
 /**
@@ -33,7 +35,7 @@ import salesorder.SOItemsController;
  *
  * @author Steven
  */
-public class POItemsController implements Initializable {
+public class POItemsController extends AbstractController implements Initializable {
     
     @FXML
     private TextField qtyfld;
@@ -64,7 +66,7 @@ public class POItemsController implements Initializable {
         
         System.out.println(this.inventorytable.getSelectionModel().getSelectedItem().getIdinventory());
         
-        item = iq.getInventoryWPrice(this.inventorytable.getSelectionModel().getSelectedItem().getIdinventory());
+        item = iq.getInventoryWPrice(this.inventorytable.getSelectionModel().getSelectedItem().getIdinventory(), super.getType());
         
         Stage stage = (Stage) cancelbtn.getScene().getWindow();
         stage.close();
@@ -92,7 +94,7 @@ public class POItemsController implements Initializable {
         ObservableList<InventoryModel> data
                 = FXCollections.observableArrayList();
         
-        Iterator rs = iq.getInventories(sku);
+        Iterator rs = iq.getInventories(sku, super.getType());
         
         while(rs.hasNext()){
             data.add((InventoryModel)rs.next());
@@ -141,6 +143,11 @@ public class POItemsController implements Initializable {
      */
     public boolean IsCancelled() {
         return isCancelled;
+    }
+
+    @Override
+    public void initData(UserModel user, int type) {
+        super.setType(type);
     }
     
 }

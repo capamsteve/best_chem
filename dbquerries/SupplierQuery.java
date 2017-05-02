@@ -20,10 +20,16 @@ import models.SupplierModel;
 /**
  *
  * @author Steven
+ * 
+ * ALSO USED WITH 
+ * 
+ * SM
+ * 
+ * MM
  */
 public class SupplierQuery {
     
-    public void addSupplier(SupplierModel sup) throws SQLException{
+    public void addSupplier(SupplierModel sup, int table) throws SQLException{
         
         DBConnect dbc = DBConnect.getInstance();
         PreparedStatement st = dbc.getConnection().prepareStatement("CALL `SUPPLIER_ADD` (?,?,?,?,?);");
@@ -41,7 +47,7 @@ public class SupplierQuery {
             if(generatedKeys.next()){
                 System.out.println(generatedKeys.getInt(1));
                 int supid = generatedKeys.getInt(1);
-                this.addContactSupplier(sup.getScm().iterator(), supid);
+                this.addContactSupplier(sup.getScm().iterator(), supid, table);
             }
         }catch(Exception e){
             e.printStackTrace();
@@ -49,11 +55,11 @@ public class SupplierQuery {
         
     }
     
-    public void editSupplier(SupplierModel sup){
+    public void editSupplier(SupplierModel sup, int table){
         
     }
     
-    public void addContactSupplier(Iterator supcon, int supid) throws SQLException{
+    public void addContactSupplier(Iterator supcon, int supid, int table) throws SQLException{
         DBQuery dbq = DBQuery.getInstance();
         DBConnect dbc = DBConnect.getInstance();
         PreparedStatement ps = dbc.getConnection().prepareStatement("CALL `SUP_CONTACT_ADD`(?,?,?,?)");
@@ -73,15 +79,15 @@ public class SupplierQuery {
         dbc.closeConnection();
     }
     
-    public void editContactSupplier(SupplierContactModel supcon){
+    public void editContactSupplier(SupplierContactModel supcon, int table){
         
     }
     
-    public Iterator getAllSuppliers() throws SQLException{
+    public Iterator getAllSuppliers(int table) throws SQLException{
         
         DBConnect dbc = DBConnect.getInstance();
         DBQuery dbq = DBQuery.getInstance();
-        
+        System.out.println("TABLE: " + table);
         ArrayList<SupplierModel> list = new ArrayList();
         
         PreparedStatement st = dbc.getConnection().prepareStatement("SELECT * FROM bestchem_db2.suppliers;");

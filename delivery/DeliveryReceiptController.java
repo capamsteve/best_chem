@@ -279,7 +279,7 @@ public class DeliveryReceiptController extends AbstractController implements Ini
     }    
 
     @Override
-    public void initData(UserModel user) {
+    public void initData(UserModel user, int type) {
         super.setGlobalUser(user);
     }
     

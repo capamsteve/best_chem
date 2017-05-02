@@ -14,6 +14,7 @@ import models.UserModel;
 public abstract class AbstractController {
     
     private UserModel globalUser;
+    private int c_type;
 
     /**
      * @return the globalUser
@@ -29,7 +30,15 @@ public abstract class AbstractController {
         this.globalUser = globalUser;
     }
     
-    public abstract void initData(UserModel user);
+    public int getType(){
+        return c_type;
+    }
+    
+    public void setType(int type){
+        this.c_type = type;
+    }
+    
+    public abstract void initData(UserModel user, int type);
     
     
     

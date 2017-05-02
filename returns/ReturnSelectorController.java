@@ -5,6 +5,7 @@
  */
 package returns;
 
+import best_chem.AbstractController;
 import dbquerries.InventoryQuery;
 import dbquerries.ReturnsQuery;
 import java.net.URL;
@@ -31,6 +32,7 @@ import javafx.scene.input.KeyEvent;
 import javafx.stage.Stage;
 import models.InventoryModel;
 import models.ReturnsModel;
+import models.UserModel;
 import salesorder.SOItemsController;
 
 /**
@@ -38,7 +40,7 @@ import salesorder.SOItemsController;
  *
  * @author Steven
  */
-public class ReturnSelectorController implements Initializable {
+public class ReturnSelectorController extends AbstractController implements Initializable {
 @FXML
     private TextField qtyfld;
 
@@ -77,7 +79,7 @@ public class ReturnSelectorController implements Initializable {
         
         RadioButton selectedRadioButton = (RadioButton) this.togglegroup1.getSelectedToggle();
         
-        this.item = rq.getReturn(this.inventorytable.getSelectionModel().getSelectedItem().getIdreturns());
+        this.item = rq.getReturn(this.inventorytable.getSelectionModel().getSelectedItem().getIdreturns(), super.getType());
         this.item.setSoh(Integer.valueOf(this.qtyfld.getText()));
         Stage stage = (Stage) saveitembtn.getScene().getWindow();
         
@@ -115,7 +117,7 @@ public class ReturnSelectorController implements Initializable {
         ObservableList<ReturnsModel> data
                 = FXCollections.observableArrayList();
         
-        Iterator rs = rq.getReturnsBySku(sku);
+        Iterator rs = rq.getReturnsBySku(sku, super.getType());
         
         while(rs.hasNext()){
             data.add((ReturnsModel)rs.next());
@@ -174,6 +176,11 @@ public class ReturnSelectorController implements Initializable {
      */
     public boolean IsCancelled() {
         return isCancelled;
+    }
+
+    @Override
+    public void initData(UserModel user, int type) {
+        super.setType(type);
     }
     
 }

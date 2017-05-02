@@ -5,10 +5,19 @@
  */
 package purchases;
 
+import best_chem.AbstractController;
+import dbquerries.PurchasesQuery;
 import java.io.IOException;
 import java.net.URL;
+import java.sql.Date;
 import java.sql.SQLException;
+import java.util.HashMap;
+import java.util.Iterator;
 import java.util.ResourceBundle;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+import javafx.collections.FXCollections;
+import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
@@ -16,18 +25,22 @@ import javafx.fxml.Initializable;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
+import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
 import javafx.scene.control.TextField;
+import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
+import models.PurchasesModel;
 import models.SupplierModel;
+import models.UserModel;
 
 /**
  * FXML Controller class
  *
  * @author Steven
  */
-public class PurchaseController implements Initializable {
+public class PurchaseController extends AbstractController implements Initializable {
     
     @FXML
     private TextField comfld;
@@ -39,7 +52,7 @@ public class PurchaseController implements Initializable {
     private Button edtibtn;
 
     @FXML
-    private TableView<?> purchtble;
+    private TableView<PurchasesModel> purchtble;
 
     @FXML
     private TextField tinfld;
@@ -52,6 +65,8 @@ public class PurchaseController implements Initializable {
     
     private SupplierModel supplier;
     
+    private final PurchasesQuery pq = new PurchasesQuery();
+    
     @FXML
     public void addPurchaseOrder(ActionEvent event) throws IOException, SQLException {
         
@@ -59,6 +74,7 @@ public class PurchaseController implements Initializable {
         Parent root = (Parent) fxmlloader.load();
         
         PurchaseDocumentController povc = fxmlloader.<PurchaseDocumentController>getController();
+        povc.initData(super.getGlobalUser(), super.getType());
         povc.setSupplier(this.supplier);
         povc.AddMode();
 
@@ -66,11 +82,12 @@ public class PurchaseController implements Initializable {
         Stage stage = (Stage) addpobtn.getScene().getWindow();
         Stage substage = new Stage();
         substage.setScene(scene);
-        substage.setTitle("View Supplier Orders");
+        substage.setTitle("Add Supplier Orders");
         substage.initModality(Modality.WINDOW_MODAL);
         substage.initOwner(stage);
         substage.showAndWait();
-
+        
+        this.getPurchases();
     }
 
     @FXML
@@ -83,12 +100,51 @@ public class PurchaseController implements Initializable {
 
     }
     
+    public void getPurchases() throws SQLException{
+        
+        String[] arr = {"idpurchases", "po_dte", "pgistat", "po_dr_dte"};
+        
+        ObservableList<PurchasesModel> data
+                = FXCollections.observableArrayList();
+        
+        Iterator map = this.pq.getPurchaseOrder(this.supplier.getSupid(), super.getType());
+        
+        while(map.hasNext()){
+            
+            HashMap temp = (HashMap) map.next();
+            PurchasesModel povm = new PurchasesModel();
+            povm.setIdpurchases(Integer.valueOf(temp.get("idpurchases").toString()));
+            povm.setPo_dte(Date.valueOf(temp.get("po_dte").toString()));
+            povm.setPo_dr_dte(Date.valueOf(temp.get("po_dr_dte").toString()));
+            povm.setPgistat(temp.get("pgistat").toString());
+            
+            data.add(povm);
+        }
+        
+        ObservableList<TableColumn<PurchasesModel, ?>> olist;
+        olist = (ObservableList<TableColumn<PurchasesModel, ?>>) this.purchtble.getColumns();
+
+        for (int i = 0; i < arr.length; i++) {
+            olist.get(i).setSortable(false);
+            olist.get(i).setCellValueFactory(
+                    new PropertyValueFactory<>(arr[i])
+            );
+        }
+        this.purchtble.setItems(data);
+    }
+    
     public void setSupplier(SupplierModel supmod){
         this.supplier = supmod;
         
         this.comfld.setText(this.supplier.getSupname());
         this.tinfld.setText(this.supplier.getSuptin());
         this.addfld.setText(this.supplier.getSupaddress());
+        
+        try {
+            this.getPurchases();
+        } catch (SQLException ex) {
+            Logger.getLogger(PurchaseController.class.getName()).log(Level.SEVERE, null, ex);
+        }
     }
     
     /**
@@ -98,5 +154,11 @@ public class PurchaseController implements Initializable {
     public void initialize(URL url, ResourceBundle rb) {
         // TODO
     }    
+
+    @Override
+    public void initData(UserModel user, int type) {
+        super.setGlobalUser(user);
+        super.setType(type);
+    }
     
 }

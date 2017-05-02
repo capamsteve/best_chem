@@ -238,7 +238,7 @@ public class TransactionItemsViewController extends AbstractController implement
     }
 
     @Override
-    public void initData(UserModel user) {
+    public void initData(UserModel user, int type) {
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
 }

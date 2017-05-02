@@ -67,8 +67,6 @@ public class SalesOrderQuery {
         ps.executeBatch();
         
         dbc.closeConnection();
-        
-        
     }
     
     public Iterator getSalesOrders(int customer) throws SQLException{

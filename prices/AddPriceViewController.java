@@ -5,6 +5,7 @@
  */
 package prices;
 
+import best_chem.AbstractController;
 import dbquerries.InventoryQuery;
 import models.PricesModel;
 import java.net.URL;
@@ -30,6 +31,7 @@ import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyEvent;
 import models.InventoryModel;
+import models.UserModel;
 import salesorder.SOItemsController;
 
 /**
@@ -37,7 +39,7 @@ import salesorder.SOItemsController;
  *
  * @author Steven
  */
-public class AddPriceViewController implements Initializable {
+public class AddPriceViewController extends AbstractController implements Initializable {
 
     /**
      * Initializes the controller class.
@@ -72,7 +74,7 @@ public class AddPriceViewController implements Initializable {
         ObservableList<InventoryModel> data
                 = FXCollections.observableArrayList();
         
-        Iterator rs = iq.getInventories(sku);
+        Iterator rs = iq.getInventories(sku, super.getType());
         
         while(rs.hasNext()){
             data.add((InventoryModel)rs.next());
@@ -135,10 +137,15 @@ public class AddPriceViewController implements Initializable {
         System.out.println(price.getPoprice());
         System.out.println(price.getEffdte().toString());
         
-        iq.addPrice(price);
+        iq.addPrice(price, super.getType());
         
         Stage stage = (Stage) cancelbtn.getScene().getWindow();
         stage.close();
+    }
+
+    @Override
+    public void initData(UserModel user, int type) {
+        super.setType(type);
     }
 
     

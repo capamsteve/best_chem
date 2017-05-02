@@ -5,6 +5,7 @@
  */
 package inventory;
 
+import best_chem.AbstractController;
 import models.InventoryModel;
 import customer.CustomerViewController;
 import dbquerries.InventoryQuery;
@@ -24,13 +25,14 @@ import javafx.scene.control.Button;
 import javafx.scene.control.ComboBox;
 import javafx.scene.control.TextField;
 import javafx.stage.Stage;
+import models.UserModel;
 
 /**
  * FXML Controller class
  *
  * @author Steven
  */
-public class InventoryItemController implements Initializable {
+public class InventoryItemController extends AbstractController implements Initializable {
     
     private ArrayList<String> uoms = new ArrayList();
     private ArrayList<String> whs = new ArrayList();
@@ -118,7 +120,7 @@ public class InventoryItemController implements Initializable {
         
         InventoryQuery iq = new InventoryQuery();
         
-        iq.addInventory(inventory);
+        iq.addInventory(inventory, super.getType());
         
         Stage stage = (Stage) cancelbtn.getScene().getWindow();
         stage.close();
@@ -128,6 +130,11 @@ public class InventoryItemController implements Initializable {
     public void cancelHandler(ActionEvent event) {
         Stage stage = (Stage) cancelbtn.getScene().getWindow();
         stage.close();
+    }
+
+    @Override
+    public void initData(UserModel user, int type) {
+        super.setType(type);
     }
     
 }
