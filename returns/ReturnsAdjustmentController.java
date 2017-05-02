@@ -3,15 +3,16 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package inventory;
+package returns;
 
 import dbquerries.InventoryQuery;
+import dbquerries.ReturnsQuery;
+import inventory.ItemSelectorController;
 import java.io.IOException;
 import java.net.URL;
 import java.sql.Date;
 import java.sql.SQLException;
 import java.util.ArrayList;
-import java.util.Iterator;
 import java.util.ResourceBundle;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
@@ -33,15 +34,16 @@ import javafx.stage.Modality;
 import javafx.stage.Stage;
 import models.InventoryAdjustmentModel;
 import models.InventoryModel;
-import salesorder.SOItemsController;
+import models.ReturnAdjustmentModel;
+import models.ReturnsModel;
 
 /**
  * FXML Controller class
  *
  * @author Steven
  */
-public class InventoryAdjustmentEntryController implements Initializable {
-    
+public class ReturnsAdjustmentController implements Initializable {
+
     @FXML
     private Button postbtn;
 
@@ -64,7 +66,7 @@ public class InventoryAdjustmentEntryController implements Initializable {
     private Button cancelbtn;
 
     @FXML
-    private TableView<InventoryModel> itemlist;
+    private TableView<ReturnsModel> itemlist;
 
     @FXML
     private Label ptifld;
@@ -75,31 +77,31 @@ public class InventoryAdjustmentEntryController implements Initializable {
     @FXML
     private Button addbtn;
     
-    private ArrayList<InventoryModel> items = new ArrayList();
+    private ArrayList<ReturnsModel> items = new ArrayList();
     
-    private InventoryQuery iq = new InventoryQuery();
+    private ReturnsQuery rq = new ReturnsQuery();
 
     @FXML
     public void saveHandler(ActionEvent event) throws SQLException {
         
-        InventoryAdjustmentModel iam = new InventoryAdjustmentModel();
+        ReturnAdjustmentModel ram = new ReturnAdjustmentModel();
         
-        iam.setIam_dte(Date.valueOf(this.datefld.getValue().toString()));
-        iam.setDesc(this.descriptionfld.getText());
-        iam.setRefnum(this.reffld.getText());
-        iam.setPgistat("N");
+        ram.setRamdte(Date.valueOf(this.datefld.getValue().toString()));
+        ram.setDesc(this.descriptionfld.getText());
+        ram.setRefnum(this.reffld.getText());
+        ram.setPgistat("N");
         
-        iam.setItemslist(items);
+        ram.setItems(items);
         
-        iq.addInventoryAdjustment(iam);
+        rq.addReturnAdjustment(ram);
     }
 
     @FXML
     public void addItem(ActionEvent event) throws IOException {
-        FXMLLoader fxmlloader = new FXMLLoader(getClass().getResource("/inventory/ItemSelector.fxml"));
+        FXMLLoader fxmlloader = new FXMLLoader(getClass().getResource("/returns/ReturnSelector.fxml"));
         Parent root = (Parent) fxmlloader.load();
         
-        ItemSelectorController soic = fxmlloader.<ItemSelectorController>getController();
+        ReturnSelectorController roic = fxmlloader.<ReturnSelectorController>getController();
 
         Scene scene = new Scene(root);
         Stage stage = (Stage) addbtn.getScene().getWindow();
@@ -110,19 +112,19 @@ public class InventoryAdjustmentEntryController implements Initializable {
         substage.initOwner(stage);
         substage.showAndWait();
         
-        this.items.add(soic.getitem());
+        this.items.add(roic.getItem());
         this.RefreshItems();
     }
     
     public void RefreshItems(){
-        String[] arr = {"sku", "description", "wh", "uom", "soh", "mov"};
-        ObservableList<InventoryModel> data
+        String[] arr = {"sku", "skudesc", "retwhs", "retuom", "soh", "mov"};
+        ObservableList<ReturnsModel> data
                 = FXCollections.observableArrayList();
         
         data.addAll(items);
         
-        ObservableList<TableColumn<InventoryModel, ?>> olist;
-        olist = (ObservableList<TableColumn<InventoryModel, ?>>) this.itemlist.getColumns();
+        ObservableList<TableColumn<ReturnsModel, ?>> olist;
+        olist = (ObservableList<TableColumn<ReturnsModel, ?>>) this.itemlist.getColumns();
 
         for (int i = 0; i < olist.size(); i++) {
             olist.get(i).setCellValueFactory(
@@ -156,5 +158,4 @@ public class InventoryAdjustmentEntryController implements Initializable {
         // TODO
         this.ptifld.setText("N");
     }    
-    
 }

@@ -65,57 +65,22 @@
                <content>
                   <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0">
                      <children>
-                        <TabPane layoutX="4.0" layoutY="12.0" prefHeight="455.0" prefWidth="943.0" tabClosingPolicy="UNAVAILABLE">
-                           <tabs>
-                              <Tab text="Details">
-                                 <content>
-                                    <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0">
-                                       <children>
-                                          <ToolBar prefHeight="40.0" prefWidth="945.0">
-                                             <items>
-                                                <Button fx:id="addsupbtn" mnemonicParsing="false" onAction="#addSupplier" text="Add Supplier" />
-                                                <Button fx:id="editsupbtn" mnemonicParsing="false" onAction="#editSupplier" text="Edit Supplier" />
-                                                <Button fx:id="viewsupbtn" mnemonicParsing="false" onAction="#viewSupplier" text="View Supplier" />
-                                             </items>
-                                          </ToolBar>
-                                          <StackPane layoutY="40.0" prefHeight="390.0" prefWidth="944.0">
-                                             <children>
-                                                <TableView fx:id="suppliertable" prefHeight="200.0" prefWidth="200.0">
-                                                   <columns>
-                                                      <TableColumn prefWidth="147.0" text="Supplier#" />
-                                                      <TableColumn prefWidth="300.0" text="Name" />
-                                                      <TableColumn minWidth="0.0" prefWidth="169.0" text="TIN" />
-                                                      <TableColumn prefWidth="325.0" text="Address" />
-                                                   </columns>
-                                                </TableView>
-                                             </children>
-                                          </StackPane>
-                                       </children></AnchorPane>
-                                 </content>
-                              </Tab>
-                              <Tab text="Transactions">
-                                 <content>
-                                    <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0">
-                                       <children>
-                                          <DatePicker layoutX="57.0" layoutY="7.0" />
-                                          <DatePicker layoutX="284.0" layoutY="8.0" />
-                                          <Label layoutX="10.0" layoutY="12.0" text="From:">
-                                             <font>
-                                                <Font name="Arial" size="14.0" />
-                                             </font>
-                                          </Label>
-                                          <Label layoutX="255.0" layoutY="12.0" text="To:">
-                                             <font>
-                                                <Font name="Arial" size="14.0" />
-                                             </font>
-                                          </Label>
-                                          <Button layoutX="469.0" layoutY="8.0" mnemonicParsing="false" text="Export Report" />
-                                       </children>
-                                    </AnchorPane>
-                                 </content>
-                              </Tab>
-                           </tabs>
-                        </TabPane>
+                        <StackPane layoutY="39.0" prefHeight="440.0" prefWidth="951.0">
+                           <children>
+                              <TableView fx:id="suppliertable" prefHeight="200.0" prefWidth="200.0">
+                                 <columns>
+                                    <TableColumn prefWidth="147.0" text="Supplier#" />
+                                    <TableColumn prefWidth="300.0" text="Name" />
+                                    <TableColumn minWidth="0.0" prefWidth="169.0" text="TIN" />
+                                    <TableColumn prefWidth="325.0" text="Address" />
+                                 </columns>
+                              </TableView>
+                           </children>
+                        </StackPane>
+                        <Button fx:id="viewsupbtn" layoutX="199.0" layoutY="7.0" mnemonicParsing="false" onAction="#viewSupplier" text="View Supplier" />
+                        <Button fx:id="editsupbtn" layoutX="105.0" layoutY="7.0" mnemonicParsing="false" onAction="#editSupplier" text="Edit Supplier" />
+                        <Button fx:id="addsupbtn" layoutX="10.0" layoutY="7.0" mnemonicParsing="false" onAction="#addSupplier" text="Add Supplier" />
+                        <Button fx:id="viewPurchases" layoutX="298.0" layoutY="7.0" mnemonicParsing="false" onAction="#viewPurchases" text="View Purchases" />
                      </children>
                   </AnchorPane>
                </content>
@@ -185,22 +150,44 @@
                <content>
                   <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0">
                      <children>
-                        <StackPane layoutY="39.0" prefHeight="440.0" prefWidth="951.0">
-                           <children>
-                              <TableView fx:id="returntable" prefHeight="200.0" prefWidth="200.0">
-                                 <columns>
-                                    <TableColumn prefWidth="235.5" text="Product#" />
-                                    <TableColumn minWidth="0.0" prefWidth="96.5" text="Description" />
-                                    <TableColumn prefWidth="160.0" text="Warehouse" />
-                                    <TableColumn minWidth="0.0" prefWidth="208.0" text="UOM" />
-                                    <TableColumn minWidth="0.0" prefWidth="227.0" text="Stock on Hand" />
-                                 </columns>
-                              </TableView>
-                           </children>
-                        </StackPane>
-                        <Button fx:id="addreturnbtn" layoutX="10.0" layoutY="7.0" mnemonicParsing="false" onAction="#addReturns" text="Add Returns" />
-                        <Button fx:id="removereturnbtn" layoutX="99.0" layoutY="7.0" mnemonicParsing="false" onAction="#removeReturns" text="Remove Returns" />
-                        <Button fx:id="viewreturnbtn" layoutX="208.0" layoutY="7.0" mnemonicParsing="false" onAction="#viewReturns" text="View Returns" />
+                        <TabPane layoutX="4.0" layoutY="12.0" prefHeight="455.0" prefWidth="943.0" tabClosingPolicy="UNAVAILABLE">
+                          <tabs>
+                            <Tab text="Returns">
+                              <content>
+                                <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0">
+                                       <children>
+                                          <StackPane layoutX="-1.0" layoutY="39.0" prefHeight="390.0" prefWidth="944.0">
+                                             <children>
+                                                <TableView fx:id="returntable" prefHeight="200.0" prefWidth="200.0">
+                                                   <columns>
+                                                      <TableColumn prefWidth="235.5" text="SKU#" />
+                                                      <TableColumn minWidth="0.0" prefWidth="182.0" text="Description" />
+                                                      <TableColumn minWidth="0.0" prefWidth="79.0" text="UOM" />
+                                                      <TableColumn prefWidth="204.0" text="Warehouse" />
+                                                      <TableColumn minWidth="0.0" prefWidth="242.0" text="Returned Stock Quantity" />
+                                                   </columns>
+                                                </TableView>
+                                             </children>
+                                          </StackPane>
+                                          <ToolBar layoutY="-1.0" prefHeight="40.0" prefWidth="945.0">
+                                             <items>
+                                                <Button fx:id="addreturnbtn" mnemonicParsing="false" onAction="#addReturns" text="Add Returns" />
+                                                <Button fx:id="removereturnbtn" mnemonicParsing="false" onAction="#removeReturns" text="Remove Returns" />
+                                                <Button fx:id="viewreturnbtn" mnemonicParsing="false" onAction="#viewReturns" text="View Returns" />
+                                                <Button fx:id="returnsabtn" mnemonicParsing="false" onAction="#returnsAdjustment" text="Returns Adjustment" />
+                                             </items>
+                                          </ToolBar>
+                                       </children>
+                                    </AnchorPane>
+                              </content>
+                            </Tab>
+                            <Tab text="Transactions">
+                              <content>
+                                <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0" />
+                              </content>
+                            </Tab>
+                          </tabs>
+                        </TabPane>
                      </children>
                   </AnchorPane>
                </content>
@@ -229,29 +216,6 @@
                   </AnchorPane>
                </content>
             </Tab>
-            <Tab text="Purchases">
-               <content>
-                  <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0">
-                     <children>
-                        <StackPane layoutY="39.0" prefHeight="440.0" prefWidth="951.0">
-                           <children>
-                              <TableView fx:id="purchasetable" prefHeight="200.0" prefWidth="200.0">
-                                 <columns>
-                                    <TableColumn prefWidth="131.5" text="Purchase ID" />
-                                    <TableColumn prefWidth="233.5" text="To" />
-                                    <TableColumn minWidth="0.0" prefWidth="156.5" text="Attention" />
-                                    <TableColumn prefWidth="131.5" text="Date" />
-                                    <TableColumn prefWidth="137.5" text="Delivery Date" />
-                                    <TableColumn prefWidth="137.5" text="Status" />
-                                 </columns>
-                              </TableView>
-                           </children>
-                        </StackPane>
-                        <Button fx:id="viewPurchases" layoutX="10.0" layoutY="7.0" mnemonicParsing="false" text="View Purchases" />
-                     </children>
-                  </AnchorPane>
-               </content>
-            </Tab>
             <Tab text="Reports">
                <content>
                   <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="441.0" prefWidth="874.0">
@@ -262,19 +226,19 @@
                               <content>
                                 <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0">
                                        <children>
-                                          <DatePicker layoutX="372.0" layoutY="7.0" />
-                                          <DatePicker layoutX="599.0" layoutY="8.0" />
-                                          <Label layoutX="325.0" layoutY="12.0" text="From:">
+                                          <DatePicker layoutX="57.0" layoutY="7.0" />
+                                          <DatePicker layoutX="284.0" layoutY="8.0" />
+                                          <Label layoutX="10.0" layoutY="12.0" text="From:">
                                              <font>
                                                 <Font name="Arial" size="14.0" />
                                              </font>
                                           </Label>
-                                          <Label layoutX="570.0" layoutY="12.0" text="To:">
+                                          <Label layoutX="255.0" layoutY="12.0" text="To:">
                                              <font>
                                                 <Font name="Arial" size="14.0" />
                                              </font>
                                           </Label>
-                                          <Button layoutX="784.0" layoutY="8.0" mnemonicParsing="false" text="Export Report" />
+                                          <Button layoutX="469.0" layoutY="8.0" mnemonicParsing="false" text="Export Report" />
                                        </children>
                                     </AnchorPane>
                               </content>

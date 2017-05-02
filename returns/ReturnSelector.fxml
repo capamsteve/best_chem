@@ -8,9 +8,9 @@
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
 
-<Pane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="465.0" prefWidth="624.0" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1" fx:controller="inventory.ItemSelectorController">
+<Pane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="465.0" prefWidth="624.0" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1" fx:controller="returns.ReturnSelectorController">
    <children>
-      <Label layoutX="92.0" layoutY="23.0" text="Item Inventory Adjustment">
+      <Label layoutX="92.0" layoutY="23.0" text="Returns Adjustment">
          <font>
             <Font name="Rockwell" size="26.0" />
          </font>
@@ -31,11 +31,10 @@
             <TableView fx:id="inventorytable" prefHeight="200.0" prefWidth="200.0">
                <columns>
                   <TableColumn prefWidth="128.0" text="SKU#" />
-                  <TableColumn prefWidth="138.0" text="Description" />
-                  <TableColumn minWidth="0.0" prefWidth="38.0" text="UOM" />
-                  <TableColumn prefWidth="71.0" text="Warehouse" />
-                  <TableColumn prefWidth="93.0" text="Stock on Hand" />
-                  <TableColumn prefWidth="114.0" text="Critical Stock Level" />
+                  <TableColumn prefWidth="218.0" text="Description" />
+                  <TableColumn minWidth="0.0" prefWidth="49.0" text="UOM" />
+                  <TableColumn prefWidth="79.0" text="Warehouse" />
+                  <TableColumn prefWidth="108.0" text="Stock on Hand" />
                </columns>
             </TableView>
          </children>

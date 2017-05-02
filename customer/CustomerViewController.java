@@ -151,6 +151,13 @@ public class CustomerViewController implements Initializable {
     //DONE
     @FXML
     public void deletecontact(ActionEvent event) {
+        
+        if(isEdit){
+            /**
+             * Get id list of contacts to be deleted
+             */
+        }
+        
         if(!contactList.getItems().isEmpty()){
             int select = contactList.getSelectionModel().getFocusedIndex();
         
@@ -192,13 +199,6 @@ public class CustomerViewController implements Initializable {
     @FXML
     public void saveCustomer(ActionEvent event) throws SQLException {
         
-        if(isEdit){
-            
-        }
-        else{
-            
-        }
-        
         CustomerModel customer;
         
         customer = new CustomerModel();
@@ -213,6 +213,14 @@ public class CustomerViewController implements Initializable {
         customer.setVendor_code(this.vndrcdfld.getText());
         customer.setVAT(Double.parseDouble(this.vatfld.getText()));
         customer.setAuto_create(this.autochck.isSelected());
+        
+        
+        if(isEdit){
+            
+        }
+        else{
+            
+        }
         
         cq.addCustomer(customer);
         

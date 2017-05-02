@@ -3,7 +3,7 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package inventory;
+package purchases;
 
 import dbquerries.InventoryQuery;
 import java.net.URL;
@@ -17,13 +17,10 @@ import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
-import javafx.scene.control.Alert;
 import javafx.scene.control.Button;
-import javafx.scene.control.RadioButton;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
 import javafx.scene.control.TextField;
-import javafx.scene.control.ToggleGroup;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyEvent;
@@ -36,19 +33,13 @@ import salesorder.SOItemsController;
  *
  * @author Steven
  */
-public class ItemSelectorController implements Initializable {
+public class POItemsController implements Initializable {
     
     @FXML
     private TextField qtyfld;
 
     @FXML
-    private TableView<InventoryModel> inventorytable;
-
-    @FXML
     private Button saveitembtn;
-
-    @FXML
-    private Button searchbtn;
 
     @FXML
     private Button cancelbtn;
@@ -56,50 +47,27 @@ public class ItemSelectorController implements Initializable {
     @FXML
     private TextField inventoryidfld;
     
-    @FXML
-    private RadioButton incbtn;
-
-    @FXML
-    private RadioButton decbtn;
-
-    @FXML
-    private ToggleGroup togglegroup1;
-    
     private InventoryModel item;
+    
+    @FXML
+    private TableView<InventoryModel> inventorytable;
+    
+    @FXML
+    private Button searchbtn;
     
     private boolean isCancelled = false;
     
     private final InventoryQuery iq = new InventoryQuery();
-    
-    @FXML
-    public void additem(ActionEvent event) throws SQLException {
-        
-        RadioButton selectedRadioButton = (RadioButton) this.togglegroup1.getSelectedToggle();
-        
-        this.item = iq.getInventory(this.inventorytable.getSelectionModel().getSelectedItem().getIdinventory());
-        System.out.println(this.item.getIdinventory());
-        System.out.println(this.item.getDescription());
-        this.item.setSoh(Integer.valueOf(this.qtyfld.getText()));
-        Stage stage = (Stage) saveitembtn.getScene().getWindow();
-        
-        if(selectedRadioButton == null){
-            Alert alert = new Alert(Alert.AlertType.INFORMATION);
-            alert.setTitle("Information Dialog");
-            alert.setHeaderText(null);
-            alert.setContentText("Please select either Increment or Decrement");
 
-            alert.showAndWait();
-        }
-        else if(selectedRadioButton.getText().equals("INCREMENT")){
-            System.out.println(selectedRadioButton.getText());
-            this.item.setMov("INC");
-            stage.close();
-        }
-        else if(selectedRadioButton.getText().equals("DECREMENT")){
-            System.out.println(selectedRadioButton.getText());
-            this.item.setMov("DEC");
-            stage.close();
-        }
+    @FXML
+    public void saveItem(ActionEvent event) throws SQLException {
+        
+        System.out.println(this.inventorytable.getSelectionModel().getSelectedItem().getIdinventory());
+        
+        item = iq.getInventoryWPrice(this.inventorytable.getSelectionModel().getSelectedItem().getIdinventory());
+        
+        Stage stage = (Stage) cancelbtn.getScene().getWindow();
+        stage.close();
     }
 
     @FXML
@@ -108,6 +76,14 @@ public class ItemSelectorController implements Initializable {
         
         Stage stage = (Stage) cancelbtn.getScene().getWindow();
         stage.close();
+    }
+    
+    public InventoryModel getItem() throws SQLException{
+        return item;
+    }
+    
+    public int getQty(){
+        return Integer.valueOf(this.qtyfld.getText());
     }
     
     private void searchSKU(String sku) throws SQLException{
@@ -133,22 +109,12 @@ public class ItemSelectorController implements Initializable {
         inventorytable.setItems(data);
     }
     
-    public InventoryModel getitem(){
-        return item;
-    }
-
     /**
      * Initializes the controller class.
      */
     @Override
     public void initialize(URL url, ResourceBundle rb) {
         // TODO
-        
-        this.togglegroup1 = new ToggleGroup();
-        
-        this.incbtn.setToggleGroup(togglegroup1);
-        this.decbtn.setToggleGroup(togglegroup1);
-        
         this.inventoryidfld.setOnKeyPressed((KeyEvent event) -> {
             if(event.getCode().equals(KeyCode.ENTER)){
                 System.out.println(inventoryidfld.getText());

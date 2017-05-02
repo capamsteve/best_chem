@@ -16,6 +16,7 @@ import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
+import models.InventoryAdjustmentModel;
 import models.PricesModel;
 
 /**
@@ -127,9 +128,79 @@ public class InventoryQuery {
         return im;
     }
     
-    
+    public InventoryModel getInventory(int id) throws SQLException{
+        DBQuery dbq = DBQuery.getInstance();
+        DBConnect dbc = DBConnect.getInstance();
+        PreparedStatement st = dbc.getConnection().prepareStatement("SELECT * FROM bestchem_db2.inventory where idinventory = ?");
+        st.setInt(1, id);
+        
+        InventoryModel im;
+        
+        Iterator rs = dbq.getQueryResultSet(st);
+        
+        im = new InventoryModel();
+        if(rs.hasNext()){
+            HashMap map = (HashMap) rs.next();
+            im.setIdinventory((int) map.get("idinventory"));
+            im.setSku((String) map.get("sku"));
+            im.setDescription((String) map.get("skudesc"));
+            im.setUom((String) map.get("skuom"));
+            im.setWh(map.get("skuwh").toString());
+            
+        }
+        return im;
+    }
     
     public void editInventory(){
+        
+    }
+    
+    public void addInventoryAdjustment(InventoryAdjustmentModel iam) throws SQLException{
+        DBQuery dbq = DBQuery.getInstance();
+        DBConnect dbc = DBConnect.getInstance();
+        
+        PreparedStatement st = dbc.getConnection().prepareStatement("CALL INVENTORY_ADJ_ADD(?,?,?,?)");
+        
+        st.setDate(1, Date.valueOf(iam.getIam_dte().toString()));
+        st.setString(2, iam.getRefnum());
+        st.setString(3, iam.getDesc());
+        st.setString(4, "N");
+        
+        ResultSet generatedKeys = st.executeQuery();
+        
+        try{
+            
+            if(generatedKeys.next()){
+                System.out.println(generatedKeys.getInt(1));
+                int iamid = generatedKeys.getInt(1);
+                this.addInventoryAdjustmentItems(iam.getItemslist().iterator(), iamid);
+            }
+        }catch(Exception e){
+            e.printStackTrace();
+        }
+        
+    }
+    
+    public void addInventoryAdjustmentItems(Iterator items, int iam_id) throws SQLException{
+        
+        DBConnect dbc = DBConnect.getInstance();
+        
+        PreparedStatement ps = dbc.getConnection().prepareStatement("call `INVENTORY_ADJ_ADD_ITEMS`(?,?,?,?,?);");
+        while(items.hasNext()){
+            InventoryModel item = (InventoryModel) items.next();
+            
+            ps.setInt(1, item.getIdinventory());
+            ps.setInt(2, item.getSoh());
+            ps.setString(3, item.getMov());
+            ps.setString(4, "N");
+            ps.setInt(5, iam_id);
+            
+            ps.addBatch();
+        }
+        
+        ps.executeBatch();
+        
+        dbc.closeConnection();
         
     }
     
@@ -155,10 +226,5 @@ public class InventoryQuery {
         st.setDate(3, Date.valueOf(price.getEffdte().toString()));
         st.setInt(4, price.getIdinventory());
         dbq.executeUpdateQuery(st); 
-//                + price.getSellingprice() + "', '"
-//                + price.getPoprice() + "', '"
-//                + price.getEffdte() + "', '"
-//                + price.getIdinventory() + "');");
-//        
     }
 }

@@ -8,9 +8,9 @@
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
 
-<Pane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="465.0" prefWidth="624.0" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1" fx:controller="inventory.ItemSelectorController">
+<Pane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="465.0" prefWidth="624.0" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1" fx:controller="purchases.POItemsController">
    <children>
-      <Label layoutX="92.0" layoutY="23.0" text="Item Inventory Adjustment">
+      <Label layoutX="92.0" layoutY="23.0" text="Add Item">
          <font>
             <Font name="Rockwell" size="26.0" />
          </font>
@@ -46,7 +46,7 @@
             <Font name="Arial" size="14.0" />
          </font>
       </Label>
-      <Button fx:id="saveitembtn" layoutX="509.0" layoutY="417.0" mnemonicParsing="false" onAction="#additem" text="Add" />
+      <Button fx:id="saveitembtn" layoutX="509.0" layoutY="417.0" mnemonicParsing="false" onAction="#saveItem" text="Add" />
       <Button fx:id="cancelbtn" layoutX="554.0" layoutY="417.0" mnemonicParsing="false" onAction="#cancelHandler" text="Cancel" />
       <Button fx:id="searchbtn" layoutX="331.0" layoutY="67.0" mnemonicParsing="false">
          <graphic>
@@ -57,11 +57,5 @@
             </ImageView>
          </graphic>
       </Button>
-      <RadioButton fx:id="incbtn" layoutX="156.0" layoutY="409.0" mnemonicParsing="false" text="INCREMENT">
-         <toggleGroup>
-            <ToggleGroup fx:id="togglegroup1" />
-         </toggleGroup>
-      </RadioButton>
-      <RadioButton fx:id="decbtn" layoutX="156.0" layoutY="434.0" mnemonicParsing="false" text="DECREMENT" toggleGroup="$togglegroup1" />
    </children>
 </Pane>

@@ -11,6 +11,7 @@ import models.CustomerModel;
 import customer.CustomerViewController;
 import dbquerries.CustomerQuery;
 import dbquerries.InventoryQuery;
+import dbquerries.ReturnsQuery;
 import dbquerries.SupplierQuery;
 import dbquerries.UtilitiesQuery;
 import models.InventoryModel;
@@ -42,10 +43,12 @@ import javafx.scene.text.Text;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
 import models.PricesModel;
+import models.ReturnsModel;
 import models.SupplierModel;
 import models.UOMmodel;
 import models.UserModel;
 import models.WHSModel;
+import purchases.PurchaseController;
 import salesorder.SalesOrderController;
 import utilities.UOMController;
 import utilities.WHSController;
@@ -110,7 +113,7 @@ public class MainController extends AbstractController implements Initializable 
     private TableView<WHSModel> whstable;
 
     @FXML
-    private TableView<?> returntable;
+    private TableView<ReturnsModel> returntable;
 
     @FXML
     private Button viewsupbtn;
@@ -139,6 +142,9 @@ public class MainController extends AbstractController implements Initializable 
     @FXML
     private Button addreturnbtn;
     
+    @FXML
+    private Button returnsabtn;
+    
     //Queries
     private final CustomerQuery cq = new CustomerQuery();
     private final UtilitiesQuery uq = new UtilitiesQuery();
@@ -159,17 +165,29 @@ public class MainController extends AbstractController implements Initializable 
              this.getInventory();
              this.getPrices();
              
-             //this.getReturns();
+             this.getReturns();
              this.getUOMS();
              this.getWHS();
-             //this.getPurchases();
              this.getSuppliers();
              
          } catch (SQLException ex) {
              Logger.getLogger(MainController.class.getName()).log(Level.SEVERE, null, ex);
          }
     }
-
+    
+    /**
+     *  CUSTOMER SECTION
+     *  1. Add Customer - DONE
+     *      a. Add Contact - from list - DONE
+     *      b. Delete Contact - from list - DONE
+     *  2. Edit Customer
+     *      a. Ca
+     *  3. View Customer
+     * @param event
+     * @throws java.io.IOException
+     * @throws java.sql.SQLException
+     */
+    
     @FXML
     public void addCustomer(ActionEvent event) throws IOException, SQLException {
         FXMLLoader fxmlloader = new FXMLLoader(getClass().getResource("/customer/CustomerView.fxml"));
@@ -260,12 +278,41 @@ public class MainController extends AbstractController implements Initializable 
             Alert alert = new Alert(AlertType.INFORMATION);
             alert.setTitle("Information Dialog");
             alert.setHeaderText(null);
-            alert.setContentText("I have a great message for you!");
+            alert.setContentText("Please Select A Customer");
 
             alert.showAndWait();
         }
-        
+    }
+    
+    @FXML
+    public void viewPurchases(ActionEvent event) {
+        try{
+            FXMLLoader fxmlloader = new FXMLLoader(getClass().getResource("/purchases/PurchaseView.fxml"));
+            Parent root = (Parent) fxmlloader.load();
 
+            PurchaseController poc = fxmlloader.<PurchaseController>getController();
+            //poc.initData(this.getGlobalUser());
+            poc.setSupplier(this.suppliertable.getSelectionModel().getSelectedItem());
+
+            Scene scene = new Scene(root);
+            Stage stage = (Stage) this.viewPurchases.getScene().getWindow();
+            Stage substage = new Stage();
+            substage.setScene(scene);
+            substage.setResizable(false);
+            substage.sizeToScene();
+            substage.setTitle("View Purchase Orders");
+            substage.initModality(Modality.WINDOW_MODAL);
+            substage.initOwner(stage);
+            substage.showAndWait();
+        }catch(Exception e){
+            e.printStackTrace();
+            Alert alert = new Alert(AlertType.INFORMATION);
+            alert.setTitle("Information Dialog");
+            alert.setHeaderText(null);
+            alert.setContentText("Please Select A Supplier");
+
+            alert.showAndWait();
+        }
     }
     
     public void getCustomers() throws SQLException{
@@ -348,8 +395,47 @@ public class MainController extends AbstractController implements Initializable 
         pricetable.setItems(data);
     }
     
-    public void getReturns(){
+    public void getReturns() throws SQLException{
+        ReturnsQuery rq = new ReturnsQuery();
         
+        String[] arr = {"sku", "skudesc", "retuom", "retwhs", "soh"};
+        ObservableList<ReturnsModel> data
+                = FXCollections.observableArrayList();
+        
+        Iterator rs = rq.getReturns();
+        
+        while(rs.hasNext()){
+            data.add((ReturnsModel)rs.next());
+        }
+        
+        ObservableList<TableColumn<ReturnsModel, ?>> olist;
+        olist = (ObservableList<TableColumn<ReturnsModel, ?>>) this.returntable.getColumns();
+
+        for (int i = 0; i < olist.size(); i++) {
+            olist.get(i).setCellValueFactory(
+                    new PropertyValueFactory<>(arr[i])
+            );
+        }
+        this.returntable.setItems(data);
+    }
+    
+    @FXML
+    public void returnsAdjustment(ActionEvent event) throws IOException {
+        
+        FXMLLoader fxmlloader = new FXMLLoader(getClass().getResource("/returns/ReturnsAdjustmentView.fxml"));
+        Parent root = (Parent) fxmlloader.load();
+        
+        Scene scene = new Scene(root);
+        Stage stage = (Stage) this.returnsabtn.getScene().getWindow();
+        Stage substage = new Stage();
+        substage.setScene(scene);
+        substage.setResizable(false);
+        substage.sizeToScene();
+        substage.setTitle("Returns Adjustment Entry");
+        substage.initModality(Modality.WINDOW_MODAL);
+        substage.initOwner(stage);
+        substage.showAndWait();
+
     }
     
     public void getUOMS() throws SQLException{
@@ -397,14 +483,6 @@ public class MainController extends AbstractController implements Initializable 
     public void getSuppliers() throws SQLException{
         
         Iterator rs = sq.getAllSuppliers();
-        
-//        private int supid;
-//        private String supname;
-//        private String suptin;
-//        private String supaddress;
-//        private String supbustyp;
-//        private String suppymttrm;
-        
         String[] arr = {"supid", "supname", "suptin", "supaddress"};
         
         ObservableList<SupplierModel> data
@@ -548,7 +626,23 @@ public class MainController extends AbstractController implements Initializable 
     }
 
     @FXML
-    public void addReturns(ActionEvent event) {
+    public void addReturns(ActionEvent event) throws SQLException, IOException {
+        
+        FXMLLoader fxmlloader = new FXMLLoader(getClass().getResource("/returns/ReturnsView.fxml"));
+        Parent root = (Parent) fxmlloader.load();
+
+        Scene scene = new Scene(root);
+        Stage stage = (Stage) this.addreturnbtn.getScene().getWindow();
+        Stage substage = new Stage();
+        substage.setScene(scene);
+        substage.setResizable(false);
+        substage.sizeToScene();
+        substage.setTitle("Add Returns");
+        substage.initModality(Modality.WINDOW_MODAL);
+        substage.initOwner(stage);
+        substage.showAndWait();
+        
+        this.getReturns();
 
     }
 

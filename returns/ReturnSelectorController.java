@@ -3,9 +3,10 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package inventory;
+package returns;
 
 import dbquerries.InventoryQuery;
+import dbquerries.ReturnsQuery;
 import java.net.URL;
 import java.sql.SQLException;
 import java.util.Iterator;
@@ -29,6 +30,7 @@ import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyEvent;
 import javafx.stage.Stage;
 import models.InventoryModel;
+import models.ReturnsModel;
 import salesorder.SOItemsController;
 
 /**
@@ -36,13 +38,12 @@ import salesorder.SOItemsController;
  *
  * @author Steven
  */
-public class ItemSelectorController implements Initializable {
-    
-    @FXML
+public class ReturnSelectorController implements Initializable {
+@FXML
     private TextField qtyfld;
 
     @FXML
-    private TableView<InventoryModel> inventorytable;
+    private TableView<ReturnsModel> inventorytable;
 
     @FXML
     private Button saveitembtn;
@@ -65,20 +66,18 @@ public class ItemSelectorController implements Initializable {
     @FXML
     private ToggleGroup togglegroup1;
     
-    private InventoryModel item;
+    private ReturnsModel item;
     
     private boolean isCancelled = false;
     
-    private final InventoryQuery iq = new InventoryQuery();
+    private final ReturnsQuery rq = new ReturnsQuery();
     
     @FXML
     public void additem(ActionEvent event) throws SQLException {
         
         RadioButton selectedRadioButton = (RadioButton) this.togglegroup1.getSelectedToggle();
         
-        this.item = iq.getInventory(this.inventorytable.getSelectionModel().getSelectedItem().getIdinventory());
-        System.out.println(this.item.getIdinventory());
-        System.out.println(this.item.getDescription());
+        this.item = rq.getReturn(this.inventorytable.getSelectionModel().getSelectedItem().getIdreturns());
         this.item.setSoh(Integer.valueOf(this.qtyfld.getText()));
         Stage stage = (Stage) saveitembtn.getScene().getWindow();
         
@@ -112,18 +111,18 @@ public class ItemSelectorController implements Initializable {
     
     private void searchSKU(String sku) throws SQLException{
 
-        String[] arr = {"sku", "description", "uom", "wh", "soh", "csl"};
-        ObservableList<InventoryModel> data
+        String[] arr = {"sku", "skudesc", "retuom", "retwhs", "soh", "mov"};
+        ObservableList<ReturnsModel> data
                 = FXCollections.observableArrayList();
         
-        Iterator rs = iq.getInventories(sku);
+        Iterator rs = rq.getReturnsBySku(sku);
         
         while(rs.hasNext()){
-            data.add((InventoryModel)rs.next());
+            data.add((ReturnsModel)rs.next());
         }
         
-        ObservableList<TableColumn<InventoryModel, ?>> olist;
-        olist = (ObservableList<TableColumn<InventoryModel, ?>>) inventorytable.getColumns();
+        ObservableList<TableColumn<ReturnsModel, ?>> olist;
+        olist = (ObservableList<TableColumn<ReturnsModel, ?>>) inventorytable.getColumns();
 
         for (int i = 0; i < olist.size(); i++) {
             olist.get(i).setCellValueFactory(
@@ -133,7 +132,7 @@ public class ItemSelectorController implements Initializable {
         inventorytable.setItems(data);
     }
     
-    public InventoryModel getitem(){
+    public ReturnsModel getItem(){
         return item;
     }
 

@@ -137,7 +137,7 @@ public class SupplierQuery {
         
     }
     
-    private ArrayList<SupplierContactModel> getContacts(int id) throws SQLException{
+    public ArrayList<SupplierContactModel> getContacts(int id) throws SQLException{
         
         DBConnect dbc = DBConnect.getInstance();
         DBQuery dbq = DBQuery.getInstance();

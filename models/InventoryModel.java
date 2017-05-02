@@ -22,6 +22,7 @@ public class InventoryModel {
     private int csl;
     private double poprice;
     private double sellprice;
+    private String mov;
     private ArrayList<PricesModel> prices;
     
     public InventoryModel(){
@@ -174,6 +175,20 @@ public class InventoryModel {
      */
     public void setSellprice(double sellprice) {
         this.sellprice = sellprice;
+    }
+
+    /**
+     * @return the mov
+     */
+    public String getMov() {
+        return mov;
+    }
+
+    /**
+     * @param mov the mov to set
+     */
+    public void setMov(String mov) {
+        this.mov = mov;
     }
     
 }
