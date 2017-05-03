@@ -31,8 +31,17 @@ public class SupplierQuery {
     
     public void addSupplier(SupplierModel sup, int table) throws SQLException{
         
+        String query = "";
+        
+        if(table == 1){
+            query = "CALL `SUPPLIER_ADD` (?,?,?,?,?);";
+        }
+        else if(table == 2){
+            query = "CALL `MM_SUPPLIER_ADD` (?,?,?,?,?);";
+        }
+        
         DBConnect dbc = DBConnect.getInstance();
-        PreparedStatement st = dbc.getConnection().prepareStatement("CALL `SUPPLIER_ADD` (?,?,?,?,?);");
+        PreparedStatement st = dbc.getConnection().prepareStatement(query);
         
         st.setString(1, sup.getSupname());
         st.setString(2, sup.getSuptin());
@@ -60,9 +69,18 @@ public class SupplierQuery {
     }
     
     public void addContactSupplier(Iterator supcon, int supid, int table) throws SQLException{
+        
+        String query = "";
+        
+        if(table == 1){
+            query = "CALL `SUP_CONTACT_ADD`(?,?,?,?)";
+        }
+        else if(table == 2){
+            query = "CALL `MM_SUP_CONTACT_ADD`(?,?,?,?)";
+        }
         DBQuery dbq = DBQuery.getInstance();
         DBConnect dbc = DBConnect.getInstance();
-        PreparedStatement ps = dbc.getConnection().prepareStatement("CALL `SUP_CONTACT_ADD`(?,?,?,?)");
+        PreparedStatement ps = dbc.getConnection().prepareStatement(query);
         
         while(supcon.hasNext()){
             SupplierContactModel contact = (SupplierContactModel) supcon.next();
@@ -81,16 +99,34 @@ public class SupplierQuery {
     
     public void editContactSupplier(SupplierContactModel supcon, int table){
         
+        String query = "";
+        
+        if(table == 1){
+            query = "";
+        }
+        else if(table == 2){
+            query = "";
+        }
+        
     }
     
     public Iterator getAllSuppliers(int table) throws SQLException{
+        
+        String query = "";
+        
+        if(table == 1){
+            query = "SELECT * FROM bestchem_db2.suppliers;";
+        }
+        else if(table == 2){
+            query = "SELECT * FROM bestchem_db2.mm_suppliers;";
+        }
         
         DBConnect dbc = DBConnect.getInstance();
         DBQuery dbq = DBQuery.getInstance();
         System.out.println("TABLE: " + table);
         ArrayList<SupplierModel> list = new ArrayList();
         
-        PreparedStatement st = dbc.getConnection().prepareStatement("SELECT * FROM bestchem_db2.suppliers;");
+        PreparedStatement st = dbc.getConnection().prepareStatement(query);
         
         Iterator ir = dbq.getQueryResultSet(st);
         
@@ -112,12 +148,21 @@ public class SupplierQuery {
         return list.iterator();
     }
     
-    public SupplierModel getSupplier(int id) throws SQLException{
+    public SupplierModel getSupplier(int id, int table) throws SQLException{
+        
+        String query = "";
+        
+        if(table == 1){
+            query = "SELECT * FROM bestchem_db2.suppliers where idsuppliers = ?;";
+        }
+        else if(table == 2){
+            query = "SELECT * FROM bestchem_db2.mm_suppliers where idsuppliers = ?;";
+        }
         
         DBConnect dbc = DBConnect.getInstance();
         DBQuery dbq = DBQuery.getInstance();
         
-        PreparedStatement st = dbc.getConnection().prepareStatement("SELECT * FROM bestchem_db2.suppliers where idsuppliers = ?;");
+        PreparedStatement st = dbc.getConnection().prepareStatement(query);
         
         st.setInt(1, id);
         
@@ -137,13 +182,22 @@ public class SupplierQuery {
             
         }
         
-        supmod.setScm(this.getContacts(id));
+        supmod.setScm(this.getContacts(id, table));
         
         return supmod;
         
     }
     
-    public ArrayList<SupplierContactModel> getContacts(int id) throws SQLException{
+    public ArrayList<SupplierContactModel> getContacts(int id, int table) throws SQLException{
+        
+        String query = "";
+        
+        if(table == 1){
+            query = "";
+        }
+        else if(table == 2){
+            query = "";
+        }
         
         DBConnect dbc = DBConnect.getInstance();
         DBQuery dbq = DBQuery.getInstance();

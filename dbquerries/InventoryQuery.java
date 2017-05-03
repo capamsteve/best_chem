@@ -26,11 +26,20 @@ import models.PricesModel;
 public class InventoryQuery {
     
     public Iterator getInventories(int table) throws SQLException{
+        
+        String query = "";
+        
+        if(table == 1){
+            query = "call bestchem_db2.INVENTORY_GET_ALL()";
+        }
+        else if(table == 2){
+            query = "call bestchem_db2.MM_INVENTORY_GET_ALL()";
+        }
+        
         DBQuery db = DBQuery.getInstance();
         DBConnect dbc = DBConnect.getInstance();
         ArrayList<InventoryModel> list = new ArrayList();
-        System.out.println(table);
-        PreparedStatement st = dbc.getConnection().prepareStatement("call bestchem_db2.INVENTORY_GET_ALL()");
+        PreparedStatement st = dbc.getConnection().prepareStatement(query);
         
         Iterator rs = db.getQueryResultSet(st);
         
@@ -54,10 +63,20 @@ public class InventoryQuery {
     
     public void addInventory(InventoryModel im, int table) throws SQLException{
         System.out.println(table);
+        
+        String query = "";
+        
+        if(table == 1){
+            query = "call bestchem_db2.INVENTORY_PRICE_ADD(?,?,?,?,?,?,'0.0','0.0',?);";
+        }
+        else if(table == 2){
+            query = "call bestchem_db2.MM_INVENTORY_PRICE_ADD(?,?,?,?,?,?,'0.0','0.0',?);";;
+        }
+        System.out.println(query);
         DBQuery dbq = DBQuery.getInstance();
         DBConnect dbc = DBConnect.getInstance();
         
-        PreparedStatement st = dbc.getConnection().prepareStatement("call bestchem_db2.INVENTORY_PRICE_ADD(?,?,?,?,?,?,'0.0','0.0',?);");
+        PreparedStatement st = dbc.getConnection().prepareStatement(query);
         st.setString(1, im.getSku());
         st.setString(2, im.getDescription());
         st.setString(3, im.getUom());
@@ -74,11 +93,20 @@ public class InventoryQuery {
     
     public Iterator getInventories(String sku, int table) throws SQLException{
         System.out.println(table);
+        
+        String query = "";
+        
+        if(table == 1){
+            query = "SELECT * FROM bestchem_db2.inventory where sku LIKE ?;";
+        }
+        else if(table == 2){
+            query = "SELECT * FROM bestchem_db2.m_inventory where sku LIKE ?;";
+        }
         DBQuery dbq = DBQuery.getInstance();
         DBConnect dbc = DBConnect.getInstance();
         ArrayList<InventoryModel> list = new ArrayList();
         
-        PreparedStatement st = dbc.getConnection().prepareStatement("SELECT * FROM bestchem_db2.inventory where sku LIKE ?;");
+        PreparedStatement st = dbc.getConnection().prepareStatement(query);
         
         sku = "%" + sku + "%";
         
@@ -106,9 +134,18 @@ public class InventoryQuery {
     
     public InventoryModel getInventoryWPrice(int id, int table) throws SQLException{
         System.out.println(table);
+        
+        String query = "";
+        
+        if(table == 1){
+            query = "CALL INVENTORY_PRICE_GET(?)";
+        }
+        else if(table == 2){
+            query = "CALL MM_INVENTORY_PRICE_GET(?)";
+        }
         DBQuery dbq = DBQuery.getInstance();
         DBConnect dbc = DBConnect.getInstance();
-        PreparedStatement st = dbc.getConnection().prepareStatement("CALL INVENTORY_PRICE_GET(?)");
+        PreparedStatement st = dbc.getConnection().prepareStatement(query);
         st.setInt(1, id);
         
         InventoryModel im;
@@ -130,10 +167,19 @@ public class InventoryQuery {
     }
     
     public InventoryModel getInventory(int id, int table) throws SQLException{
+        
+        String query = "";
+        
+        if(table == 1){
+            query = "SELECT * FROM bestchem_db2.inventory where idinventory = ?";
+        }
+        else if(table == 2){
+            query = "SELECT * FROM bestchem_db2.mm_inventory where idinventory = ?";
+        }
         System.out.println(table);
         DBQuery dbq = DBQuery.getInstance();
         DBConnect dbc = DBConnect.getInstance();
-        PreparedStatement st = dbc.getConnection().prepareStatement("SELECT * FROM bestchem_db2.inventory where idinventory = ?");
+        PreparedStatement st = dbc.getConnection().prepareStatement(query);
         st.setInt(1, id);
         
         InventoryModel im;
@@ -155,14 +201,32 @@ public class InventoryQuery {
     
     public void editInventory(int table){
         
+        String query = "";
+        
+        if(table == 1){
+            query = "";
+        }
+        else if(table == 2){
+            query = "";
+        }
+        
     }
     
     public void addInventoryAdjustment(InventoryAdjustmentModel iam, int table) throws SQLException{
+        
+        String query = "";
+        
+        if(table == 1){
+            query = "CALL INVENTORY_ADJ_ADD(?,?,?,?)";
+        }
+        else if(table == 2){
+            query = "CALL MM_INVENTORY_ADJ_ADD(?,?,?,?)";
+        }
         System.out.println(table);
         DBQuery dbq = DBQuery.getInstance();
         DBConnect dbc = DBConnect.getInstance();
         
-        PreparedStatement st = dbc.getConnection().prepareStatement("CALL INVENTORY_ADJ_ADD(?,?,?,?)");
+        PreparedStatement st = dbc.getConnection().prepareStatement(query);
         
         st.setDate(1, Date.valueOf(iam.getIam_dte().toString()));
         st.setString(2, iam.getRefnum());
@@ -185,10 +249,19 @@ public class InventoryQuery {
     }
     
     public void addInventoryAdjustmentItems(Iterator items, int iam_id, int table) throws SQLException{
+        
+        String query = "";
+        
+        if(table == 1){
+            query = "call `INVENTORY_ADJ_ADD_ITEMS`(?,?,?,?,?);";
+        }
+        else if(table == 2){
+            query = "call `MM_INVENTORY_ADJ_ADD_ITEMS`(?,?,?,?,?);";
+        }
         System.out.println(table);
         DBConnect dbc = DBConnect.getInstance();
         
-        PreparedStatement ps = dbc.getConnection().prepareStatement("call `INVENTORY_ADJ_ADD_ITEMS`(?,?,?,?,?);");
+        PreparedStatement ps = dbc.getConnection().prepareStatement(query);
         while(items.hasNext()){
             InventoryModel item = (InventoryModel) items.next();
             
@@ -208,9 +281,18 @@ public class InventoryQuery {
     }
     
     public Iterator getAllPrices(int table) throws SQLException{
+        
+        String query = "";
+        
+        if(table == 1){
+            query = "call bestchem_db2.GET_PRICE_INVENTORY();";
+        }
+        else if(table == 2){
+            query = "call bestchem_db2.MM_GET_PRICE_INVENTORY();";
+        }
         DBQuery dbq = DBQuery.getInstance();
         DBConnect dbc = DBConnect.getInstance();
-        PreparedStatement st = dbc.getConnection().prepareStatement("call bestchem_db2.GET_PRICE_INVENTORY();");
+        PreparedStatement st = dbc.getConnection().prepareStatement(query);
         
         Iterator rs = dbq.getQueryResultSet(st);
 
@@ -219,10 +301,19 @@ public class InventoryQuery {
     
     public void addPrice(PricesModel price, int table) throws SQLException{
         
+        String query = "";
+        
+        if(table == 1){
+            query = "call PRICES_ADD(?,?,?,?)";
+        }
+        else if(table == 2){
+            query = "call MM_PRICES_ADD(?,?,?,?)";
+        }
+        
         DBQuery dbq = DBQuery.getInstance();
         DBConnect dbc = DBConnect.getInstance();
         
-        PreparedStatement st = dbc.getConnection().prepareStatement("call PRICES_ADD(?,?,?,?)");
+        PreparedStatement st = dbc.getConnection().prepareStatement(query);
         
         st.setDouble(1, price.getSellingprice());
         st.setDouble(2, price.getPoprice());

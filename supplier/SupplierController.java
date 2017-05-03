@@ -84,10 +84,11 @@ public class SupplierController extends AbstractController implements Initializa
     private final SupplierQuery sq = new SupplierQuery();
     
     public void AddMode(){
-        
+        this.idfld.setDisable(true);
     }
     
     public void EditMode(){
+        this.isEdit = true;
         
     }
 

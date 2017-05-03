@@ -246,7 +246,7 @@ public class PurchaseDocumentController extends AbstractController implements In
         this.addressfld.setText(this.supplier.getSupaddress());
         this.addressfld.setEditable(false);
         
-        ArrayList<SupplierContactModel> supcon = supq.getContacts(this.supplier.getSupid());
+        ArrayList<SupplierContactModel> supcon = supq.getContacts(this.supplier.getSupid(), super.getType());
         
         for(SupplierContactModel sup: supcon){
             this.contactbx.getItems().add(sup.getSupcname());

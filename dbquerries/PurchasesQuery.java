@@ -23,9 +23,18 @@ import models.PurchasesModel;
 public class PurchasesQuery {
     
     public void addPurchases(PurchasesModel pomod, int table) throws SQLException{
+        
+        String query = "";
+        
+        if(table == 1){
+            query = "call bestchem_db2.PURCHASE_ADD(?,?,?,?,?,?);";
+        }
+        else if(table == 2){
+            query = "call bestchem_db2.MM_PURCHASE_ADD(?,?,?,?,?,?);";
+        }
         DBConnect dbc = DBConnect.getInstance();
         
-        PreparedStatement st = dbc.getConnection().prepareStatement("call bestchem_db2.PURCHASE_ADD(?,?,?,?,?,?);", Statement.RETURN_GENERATED_KEYS);
+        PreparedStatement st = dbc.getConnection().prepareStatement(query, Statement.RETURN_GENERATED_KEYS);
         
         st.setInt(1, pomod.getSup_id());
         st.setString(2, pomod.getSupcname());
@@ -50,9 +59,18 @@ public class PurchasesQuery {
     
     public void addPurchaseItems(Iterator items, int poid, int table) throws SQLException{
         
+        String query = "";
+        
+        if(table == 1){
+            query = "call bestchem_db2.PURCHASE_ADD_ITEMS(?,?,?,?,?);";
+        }
+        else if(table == 2){
+            query = "call bestchem_db2.MM_PURCHASE_ADD_ITEMS(?,?,?,?,?);";
+        }
+        
         DBConnect dbc = DBConnect.getInstance();
         
-        PreparedStatement ps = dbc.getConnection().prepareStatement("call bestchem_db2.PURCHASE_ADD_ITEMS(?,?,?,?,?);");
+        PreparedStatement ps = dbc.getConnection().prepareStatement(query);
         while(items.hasNext()){
             PurchaseItemModel item = (PurchaseItemModel) items.next();
             
@@ -72,10 +90,19 @@ public class PurchasesQuery {
     
     public Iterator getPurchaseOrder(int sup_id, int table) throws SQLException{
         
+        String query = "";
+        
+        if(table == 1){
+            query = "SELECT * FROM bestchem_db2.purchases where sup_id = ?;";
+        }
+        else if(table == 2){
+            query = "SELECT * FROM bestchem_db2.mm_purchases where sup_id = ?;";
+        }
+        
         DBConnect dbc = DBConnect.getInstance();
         DBQuery dbq = DBQuery.getInstance();
         
-        PreparedStatement ps = dbc.getConnection().prepareStatement("SELECT * FROM bestchem_db2.purchases where sup_id = ?;");
+        PreparedStatement ps = dbc.getConnection().prepareStatement(query);
         ps.setInt(1, sup_id);
         
         Iterator rs = dbq.getQueryResultSet(ps);

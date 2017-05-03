@@ -95,6 +95,7 @@ public class InventoryItemController extends AbstractController implements Initi
         this.wrhsfld.getItems().addAll(whs);
         this.uomfld.getSelectionModel().selectFirst();
         this.wrhsfld.getSelectionModel().selectFirst();
+        this.initData(null, super.getType());
     }    
     
     
@@ -119,6 +120,8 @@ public class InventoryItemController extends AbstractController implements Initi
         inventory.setCsl(Integer.parseInt(this.cslfld.getText()));
         
         InventoryQuery iq = new InventoryQuery();
+        
+        System.out.println(super.getType());
         
         iq.addInventory(inventory, super.getType());
         

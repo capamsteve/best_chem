@@ -372,7 +372,7 @@ public class MainController extends AbstractController implements Initializable 
         FXMLLoader fxmlloader = new FXMLLoader(getClass().getResource("/supplier/SupplierView.fxml"));
         Parent root = (Parent) fxmlloader.load();
         
-        SupplierController sc = new SupplierController();
+        SupplierController sc = fxmlloader.<SupplierController>getController();
         sc.AddMode();
         sc.initData(null, super.getType());
 
@@ -473,13 +473,13 @@ public class MainController extends AbstractController implements Initializable 
         FXMLLoader fxmlloader = new FXMLLoader(getClass().getResource("/inventory/InventoryItemView.fxml"));
         Parent root = (Parent) fxmlloader.load();
         
-        InventoryItemController iic = new InventoryItemController();
+        InventoryItemController iic = fxmlloader.<InventoryItemController>getController();
         
         iic.AddMode();
         iic.initData(null, super.getType());
 
         Scene scene = new Scene(root);
-        Stage stage = (Stage) viewtransactbtn.getScene().getWindow();
+        Stage stage = (Stage) addInventorybtn.getScene().getWindow();
         Stage substage = new Stage();
         substage.setScene(scene);
         substage.setResizable(false);
@@ -497,13 +497,13 @@ public class MainController extends AbstractController implements Initializable 
         FXMLLoader fxmlloader = new FXMLLoader(getClass().getResource("/inventory/InventoryItemView.fxml"));
         Parent root = (Parent) fxmlloader.load();
         
-        InventoryItemController iic = new InventoryItemController();
+        InventoryItemController iic = fxmlloader.<InventoryItemController>getController();
         
         iic.EditMode();
         iic.initData(null, super.getType());
 
         Scene scene = new Scene(root);
-        Stage stage = (Stage) viewtransactbtn.getScene().getWindow();
+        Stage stage = (Stage) editInventorybtn.getScene().getWindow();
         Stage substage = new Stage();
         substage.setScene(scene);
         substage.setResizable(false);
@@ -519,7 +519,7 @@ public class MainController extends AbstractController implements Initializable 
         FXMLLoader fxmlloader = new FXMLLoader(getClass().getResource("/inventory/InventoryAdjustmentEntry.fxml"));
         Parent root = (Parent) fxmlloader.load();
         
-        InventoryAdjustmentEntryController iaec = new InventoryAdjustmentEntryController();
+        InventoryAdjustmentEntryController iaec = fxmlloader.<InventoryAdjustmentEntryController>getController();
         iaec.initData(null, super.getType());
         
         Scene scene = new Scene(root);
@@ -571,7 +571,7 @@ public class MainController extends AbstractController implements Initializable 
         FXMLLoader fxmlloader = new FXMLLoader(getClass().getResource("/returns/ReturnsView.fxml"));
         Parent root = (Parent) fxmlloader.load();
         
-        ReturnsController rc = new ReturnsController();
+        ReturnsController rc = fxmlloader.<ReturnsController>getController();
         rc.AddMode();
         rc.initData(null, super.getType());
         
@@ -606,7 +606,7 @@ public class MainController extends AbstractController implements Initializable 
         FXMLLoader fxmlloader = new FXMLLoader(getClass().getResource("/returns/ReturnsAdjustmentView.fxml"));
         Parent root = (Parent) fxmlloader.load();
         
-        ReturnsAdjustmentController rac = new ReturnsAdjustmentController();
+        ReturnsAdjustmentController rac = fxmlloader.<ReturnsAdjustmentController>getController();
         rac.initData(null, super.getType());
         
         Scene scene = new Scene(root);
@@ -659,7 +659,7 @@ public class MainController extends AbstractController implements Initializable 
         FXMLLoader fxmlloader = new FXMLLoader(getClass().getResource("/prices/AddPriceView.fxml"));
         Parent root = (Parent) fxmlloader.load();
         
-        AddPriceViewController apvc = new AddPriceViewController();
+        AddPriceViewController apvc = fxmlloader.<AddPriceViewController>getController();
         
         apvc.initData(null, super.getType());
 

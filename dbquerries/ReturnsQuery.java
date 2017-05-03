@@ -32,11 +32,20 @@ import models.ReturnsModel;
 public class ReturnsQuery {
     
     public void addReturns(ReturnsModel model, int table) throws SQLException{
+        
+        String query = "";
+        
+        if(table == 1){
+            query = "call bestchem_db2.RETURNS_ADD(?,?,?,?,?);";
+        }
+        else if(table == 2){
+            query = "call bestchem_db2.MM_RETURNS_ADD(?,?,?,?,?);";
+        }
                 
         DBQuery dbq = DBQuery.getInstance();
         DBConnect dbc = DBConnect.getInstance();
         
-        PreparedStatement st = dbc.getConnection().prepareStatement("call bestchem_db2.RETURNS_ADD(?,?,?,?,?);");
+        PreparedStatement st = dbc.getConnection().prepareStatement(query);
         st.setString(1, model.getSku());
         st.setString(2, model.getSkudesc());
         st.setString(3, model.getRetuom());
@@ -51,11 +60,20 @@ public class ReturnsQuery {
     
     public Iterator getReturns(int table) throws SQLException{
         
+        String query = "";
+        
+        if(table == 1){
+            query = "SELECT * FROM bestchem_db2.returns;";
+        }
+        else if(table == 2){
+            query = "SELECT * FROM bestchem_db2.mm_returns;";
+        }
+        
         DBQuery db = DBQuery.getInstance();
         DBConnect dbc = DBConnect.getInstance();
         ArrayList<ReturnsModel> list = new ArrayList();
         
-        PreparedStatement st = dbc.getConnection().prepareStatement("SELECT * FROM bestchem_db2.returns;");
+        PreparedStatement st = dbc.getConnection().prepareStatement(query);
         
         Iterator rs = db.getQueryResultSet(st);
         
@@ -79,11 +97,20 @@ public class ReturnsQuery {
     
     public ReturnsModel getReturn(int id, int table) throws SQLException{
         
+        String query = "";
+        
+        if(table == 1){
+            query = "SELECT * FROM bestchem_db2.returns where idreturns = ?;";
+        }
+        else if(table == 2){
+            query = "SELECT * FROM bestchem_db2.mm_returns where idreturns = ?;";
+        }
+        
         DBQuery db = DBQuery.getInstance();
         DBConnect dbc = DBConnect.getInstance();
         ReturnsModel returns = null;
         
-        PreparedStatement st = dbc.getConnection().prepareStatement("SELECT * FROM bestchem_db2.returns where idreturns = ?;");
+        PreparedStatement st = dbc.getConnection().prepareStatement(query);
         
         st.setInt(1, id);
         
@@ -107,11 +134,20 @@ public class ReturnsQuery {
     
     public Iterator getReturnsBySku(String sku, int table) throws SQLException{
         
+        String query = "";
+        
+        if(table == 1){
+            query = "SELECT * FROM bestchem_db2.returns where sku LIKE ?;";
+        }
+        else if(table == 2){
+            query = "SELECT * FROM bestchem_db2.mm_returns where sku LIKE ?;";
+        }
+        
         DBQuery dbq = DBQuery.getInstance();
         DBConnect dbc = DBConnect.getInstance();
         ArrayList<ReturnsModel> list = new ArrayList();
         
-        PreparedStatement st = dbc.getConnection().prepareStatement("SELECT * FROM bestchem_db2.returns where sku LIKE ?;");
+        PreparedStatement st = dbc.getConnection().prepareStatement(query);
         
         sku = "%" + sku + "%";
         
@@ -136,16 +172,34 @@ public class ReturnsQuery {
         return list.iterator();
     }
     
-    public void editReturns(){
+    public void editReturns(int table){
+        
+        String query = "";
+        
+        if(table == 1){
+            query = "";
+        }
+        else if(table == 2){
+            query = "";
+        }
         
     }
     
     public void addReturnAdjustment(ReturnAdjustmentModel ram, int table) throws SQLException{
         
+        String query = "";
+        
+        if(table == 1){
+            query = "CALL RETURNS_ADJ_ADD(?,?,?,?)";
+        }
+        else if(table == 2){
+            query = "CALL MM_RETURNS_ADJ_ADD(?,?,?,?)";
+        }
+        
         DBQuery dbq = DBQuery.getInstance();
         DBConnect dbc = DBConnect.getInstance();
         
-        PreparedStatement st = dbc.getConnection().prepareStatement("CALL RETURNS_ADJ_ADD(?,?,?,?)");
+        PreparedStatement st = dbc.getConnection().prepareStatement(query);
         
         st.setDate(1, Date.valueOf(ram.getRamdte().toString()));
         st.setString(2, ram.getRefnum());
@@ -170,9 +224,18 @@ public class ReturnsQuery {
     
     public void addReturnAdjustmentItems(Iterator items, int id, int table) throws SQLException{
         
+        String query = "";
+        
+        if(table == 1){
+            query = "call `RETURNS_ADJ_ADD_ITEMS`(?,?,?,?,?);";
+        }
+        else if(table == 2){
+            query = "call `MM_RETURNS_ADJ_ADD_ITEMS`(?,?,?,?,?);";
+        }
+        
         DBConnect dbc = DBConnect.getInstance();
         
-        PreparedStatement ps = dbc.getConnection().prepareStatement("call `RETURNS_ADJ_ADD_ITEMS`(?,?,?,?,?);");
+        PreparedStatement ps = dbc.getConnection().prepareStatement(query);
         while(items.hasNext()){
             ReturnsModel item = (ReturnsModel) items.next();
             
