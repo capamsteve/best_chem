@@ -1,0 +1,106 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.image.*?>
+<?import javafx.scene.text.*?>
+<?import java.lang.*?>
+<?import java.util.*?>
+<?import javafx.scene.*?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+
+<Pane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="662.0" prefWidth="734.0" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1" fx:controller="best_chem.ManualGoodsIssueController">
+   <children>
+      <Label layoutX="74.0" layoutY="21.0" text="Manual Goods Issue">
+         <font>
+            <Font name="Rockwell" size="26.0" />
+         </font>
+      </Label>
+      <Button fx:id="pendingbtn" layoutX="621.0" layoutY="625.0" mnemonicParsing="false" onAction="#saveHandler" onMousePressed="#PendingHandler" text="Post good Issue" />
+      <Label layoutX="31.0" layoutY="106.0" text="GI Date:">
+         <font>
+            <Font name="Arial" size="14.0" />
+         </font>
+      </Label>
+      <DatePicker fx:id="datefld" layoutX="97.0" layoutY="102.0" prefHeight="25.0" prefWidth="182.0" />
+      <TextField fx:id="customerfld" layoutX="143.0" layoutY="134.0" prefHeight="25.0" prefWidth="245.0" />
+      <ToolBar layoutX="16.0" layoutY="294.0" prefHeight="40.0" prefWidth="706.0">
+         <items>
+            <Button id="Addbtn" fx:id="addbtn" mnemonicParsing="false" onAction="#AddItem" text="Add" />
+            <Button fx:id="editbtn" mnemonicParsing="false" onAction="#EditItem" text="Edit" />
+            <Button fx:id="deletebtn" mnemonicParsing="false" onAction="#DeleteItem" text="Delete" />
+            <Button fx:id="resetbtn" mnemonicParsing="false" onAction="#ResetItems" text="Reset" />
+         </items>
+      </ToolBar>
+      <StackPane layoutX="16.0" layoutY="334.0" prefHeight="282.0" prefWidth="706.0">
+         <children>
+            <TableView fx:id="itemlist" prefHeight="282.0" prefWidth="60.0">
+               <columns>
+                  <TableColumn prefWidth="75.0" text="SKU#" />
+                  <TableColumn prefWidth="282.0" text="SKU Description" />
+                  <TableColumn prefWidth="139.0" text="Warehouse" />
+                  <TableColumn prefWidth="74.0" text="UOM" />
+                  <TableColumn minWidth="0.0" prefWidth="135.0" text="Stock Quantity" />
+               </columns>
+            </TableView>
+         </children>
+      </StackPane>
+      <Label layoutX="31.0" layoutY="138.0" text="Customer Name:">
+         <font>
+            <Font name="Arial" size="14.0" />
+         </font>
+      </Label>
+      <Label layoutX="471.0" layoutY="178.0" text="CBY:">
+         <font>
+            <Font name="Arial" size="14.0" />
+         </font>
+      </Label>
+      <TextField fx:id="cbyfld" layoutX="509.0" layoutY="175.0" prefHeight="25.0" prefWidth="210.0" />
+      <TextField fx:id="drifld" layoutX="510.0" layoutY="86.0" prefHeight="25.0" prefWidth="210.0" />
+      <Label layoutX="472.0" layoutY="91.0" text="DR#">
+         <font>
+            <Font name="Arial" size="14.0" />
+         </font>
+      </Label>
+      <Label layoutX="30.0" layoutY="208.0" text="Customer Address:">
+         <font>
+            <Font name="Arial" size="14.0" />
+         </font>
+      </Label>
+      <TextField fx:id="addressfld" layoutX="155.0" layoutY="204.0" prefHeight="25.0" prefWidth="564.0" />
+      <TextField fx:id="refnumfld" layoutX="555.0" layoutY="119.0" prefHeight="25.0" prefWidth="166.0" />
+      <Label layoutX="471.0" layoutY="124.0" text="Reference#">
+         <font>
+            <Font name="Arial" size="14.0" />
+         </font>
+      </Label>
+      <Label layoutX="31.0" layoutY="241.0" text="GI Description:">
+         <font>
+            <Font name="Arial" size="14.0" />
+         </font>
+      </Label>
+      <ImageView fitHeight="40.0" fitWidth="38.0" layoutX="24.0" layoutY="15.0" pickOnBounds="true" preserveRatio="true">
+         <image>
+            <Image url="@../res/BC.PNG" />
+         </image>
+      </ImageView>
+      <TextArea fx:id="descfld" layoutX="143.0" layoutY="236.0" prefHeight="49.0" prefWidth="577.0" />
+      <Label layoutX="30.0" layoutY="175.0" text="Contact Person">
+         <font>
+            <Font name="Arial" size="14.0" />
+         </font>
+      </Label>
+      <TextField fx:id="contactfld" layoutX="142.0" layoutY="171.0" prefHeight="25.0" prefWidth="245.0" />
+      <Label layoutX="31.0" layoutY="78.0" text="GI#">
+         <font>
+            <Font name="Arial" size="14.0" />
+         </font>
+      </Label>
+      <Label layoutX="471.0" layoutY="152.0" text="Attention:">
+         <font>
+            <Font name="Arial" size="14.0" />
+         </font>
+      </Label>
+      <TextField fx:id="attentionfld" layoutX="555.0" layoutY="147.0" prefHeight="25.0" prefWidth="166.0" />
+      <TextField fx:id="idfld" layoutX="69.0" layoutY="72.0" prefHeight="25.0" prefWidth="210.0" />
+   </children>
+</Pane>

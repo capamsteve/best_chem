@@ -181,11 +181,32 @@ public class CustomerQuery {
         dbc.closeConnection();
     }
     
-    public void editCustomer(CustomerModel customer){
+    public void editCustomer(CustomerModel customer) throws SQLException{
+        int is_auto = 0;
         
+        if(customer.isAuto_create()){
+            is_auto = 1;
+        }
+        
+        DBQuery dbq = DBQuery.getInstance();
+        DBConnect dbc = DBConnect.getInstance();
+        PreparedStatement st = dbc.getConnection().prepareStatement("CALL `CUSTOMER_EDIT` (?,?,?,?,?,?,?,?,?,?,?,?);");
+        st.setInt(1, Integer.valueOf(customer.getIdcustomer()));
+        st.setString(2, customer.getCompany());
+        st.setString(3, customer.getTin());
+        st.setString(4, customer.getBusinessstyle());
+        st.setString(5, customer.getAddress());
+        st.setString(6, customer.getPaymentterm());
+        st.setDouble(7, customer.getDiscount());
+        st.setString(8, customer.getUom());
+        st.setInt(9, customer.getPostal_code());
+        st.setString(10, customer.getVendor_code());
+        st.setDouble(11, customer.getVAT());
+        st.setString(12, String.valueOf(is_auto));
+        dbq.executeUpdateQuery(st);
     }
     
-    public void editContact(ContactModel contact){
+    public void editContact(Iterator contact){
         
     }
     

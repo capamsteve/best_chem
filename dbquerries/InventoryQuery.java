@@ -100,7 +100,7 @@ public class InventoryQuery {
             query = "SELECT * FROM bestchem_db2.inventory where sku LIKE ?;";
         }
         else if(table == 2){
-            query = "SELECT * FROM bestchem_db2.m_inventory where sku LIKE ?;";
+            query = "SELECT * FROM bestchem_db2.mm_inventory where sku LIKE ?;";
         }
         DBQuery dbq = DBQuery.getInstance();
         DBConnect dbc = DBConnect.getInstance();
@@ -199,16 +199,33 @@ public class InventoryQuery {
         return im;
     }
     
-    public void editInventory(int table){
+    public void editInventory(InventoryModel model, int table) throws SQLException{
+        
+        System.out.println(table);
         
         String query = "";
         
         if(table == 1){
-            query = "";
+            query = "call bestchem_db2.INVENTORY_EDIT(?,?,?,?,?,?);";
         }
         else if(table == 2){
-            query = "";
+            query = "call bestchem_db2.MM_INVENTORY_EDIT(?,?,?,?,?,?);";;
         }
+        System.out.println(query);
+        DBQuery dbq = DBQuery.getInstance();
+        DBConnect dbc = DBConnect.getInstance();
+        
+        PreparedStatement st = dbc.getConnection().prepareStatement(query);
+        st.setString(1, model.getSku());
+        st.setString(2, model.getDescription());
+        st.setString(3, model.getUom());
+        st.setString(4, model.getWh());
+        st.setInt(5, model.getCsl());
+        st.setInt(6, model.getIdinventory());
+        
+        dbq.executeUpdateQuery(st);
+        
+        dbc.closeConnection();
         
     }
     
@@ -319,6 +336,29 @@ public class InventoryQuery {
         st.setDouble(2, price.getPoprice());
         st.setDate(3, Date.valueOf(price.getEffdte().toString()));
         st.setInt(4, price.getIdinventory());
+        dbq.executeUpdateQuery(st); 
+    }
+    
+    public void editPrice(PricesModel price, int table) throws SQLException{
+        String query = "";
+        
+        if(table == 1){
+            query = "call PRICES_EDIT(?,?,?,?,?)";
+        }
+        else if(table == 2){
+            query = "call MM_PRICES_EDIT(?,?,?,?,?)";
+        }
+        
+        DBQuery dbq = DBQuery.getInstance();
+        DBConnect dbc = DBConnect.getInstance();
+        
+        PreparedStatement st = dbc.getConnection().prepareStatement(query);
+        
+        st.setInt(1, price.getIdprices());
+        st.setDouble(2, price.getSellingprice());
+        st.setDouble(3, price.getPoprice());
+        st.setDate(4, Date.valueOf(price.getEffdte().toString()));
+        st.setInt(5, price.getIdinventory());
         dbq.executeUpdateQuery(st); 
     }
 }

@@ -19,6 +19,7 @@ public class SupplierModel {
     private String supaddress;
     private String supbustyp;
     private String suppymttrm;
+    private String postal;
     
     private ArrayList<SupplierContactModel> scm;
     
@@ -122,6 +123,20 @@ public class SupplierModel {
      */
     public void setScm(ArrayList<SupplierContactModel> scm) {
         this.scm = scm;
+    }
+
+    /**
+     * @return the postal
+     */
+    public String getPostal() {
+        return postal;
+    }
+
+    /**
+     * @param postal the postal to set
+     */
+    public void setPostal(String postal) {
+        this.postal = postal;
     }
     
 }

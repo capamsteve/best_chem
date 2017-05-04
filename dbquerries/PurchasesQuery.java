@@ -110,4 +110,26 @@ public class PurchasesQuery {
         return rs;
     }
     
+    public Iterator getPurchaseOrderItems(int sup_id, int table) throws SQLException{
+        
+        String query = "";
+        
+        if(table == 1){
+            query = "SELECT * FROM bestchem_db2.purchaseitems where sup_id = ?;";
+        }
+        else if(table == 2){
+            query = "SELECT * FROM bestchem_db2.mm_purchaseitems where sup_id = ?;";
+        }
+        
+        DBConnect dbc = DBConnect.getInstance();
+        DBQuery dbq = DBQuery.getInstance();
+        
+        PreparedStatement ps = dbc.getConnection().prepareStatement(query);
+        ps.setInt(1, sup_id);
+        
+        Iterator rs = dbq.getQueryResultSet(ps);
+        
+        return rs;
+    }
+    
 }

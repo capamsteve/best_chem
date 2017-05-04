@@ -87,9 +87,82 @@ public class SupplierController extends AbstractController implements Initializa
         this.idfld.setDisable(true);
     }
     
-    public void EditMode(){
+    public void EditMode(SupplierModel supplier) throws SQLException{
         this.isEdit = true;
         
+        this.idfld.setText(String.valueOf(supplier.getSupid()));
+        this.compfld.setText(supplier.getSupname());
+        this.tinfld.setText(supplier.getSuptin());
+        this.bsnstylefld.setText(supplier.getSupbustyp());
+        this.addressfld.setText(supplier.getSupaddress());
+        this.pymtrmfld.setText(supplier.getSuppymttrm());
+        this.pstlcdfld.setText(supplier.getPostal());
+        
+        ArrayList<SupplierContactModel> scm = sq.getContacts(supplier.getSupid(), super.getType());
+        
+        String[] arr = {"supcname", "contact", "supemail"};
+        ObservableList<SupplierContactModel> data
+                = FXCollections.observableArrayList();
+        
+        for(int i = 0; i < contacts.size(); i++){
+            data.add(scm.get(i));
+        }
+        ObservableList<TableColumn<SupplierContactModel, ?>> olist = (ObservableList<TableColumn<SupplierContactModel, ?>>) contactList.getColumns();
+        
+        for (int i = 0; i < olist.size(); i++) {
+            olist.get(i).setCellValueFactory(
+                    new PropertyValueFactory<>(arr[i])
+            );
+        }
+        
+        contactList.setItems(data);
+    }
+    
+    public void ViewMode(SupplierModel supplier) throws SQLException{
+        this.idfld.setText(String.valueOf(supplier.getSupid()));
+        this.idfld.setEditable(false);
+        this.compfld.setText(supplier.getSupname());
+        this.compfld.setEditable(false);
+        this.tinfld.setText(supplier.getSuptin());
+        this.tinfld.setEditable(false);
+        this.bsnstylefld.setText(supplier.getSupbustyp());
+        this.bsnstylefld.setEditable(false);
+        this.addressfld.setText(supplier.getSupaddress());
+        this.addressfld.setEditable(false);
+        this.pymtrmfld.setText(supplier.getSuppymttrm());
+        this.pymtrmfld.setEditable(false);
+        this.pstlcdfld.setText(supplier.getPostal());
+        this.pstlcdfld.setEditable(false);
+        
+        this.addbtn.setDisable(true);
+        this.savebtn.setText("Save Supplier");
+        this.resetbtn.setDisable(true);
+        this.deletebtn.setDisable(true);
+        this.savebtn.setDisable(true);
+        
+        System.out.println("HERE");
+        
+        ArrayList<SupplierContactModel> scm = sq.getContacts(supplier.getSupid(), super.getType());
+        
+        System.out.println(scm.size());
+        
+        String[] arr = {"supcname", "contact", "supemail"};
+        ObservableList<SupplierContactModel> data
+                = FXCollections.observableArrayList();
+        
+        for(int i = 0; i < scm.size(); i++){
+            System.out.println(scm.get(i).getSupcname());
+            data.add(scm.get(i));
+        }
+        ObservableList<TableColumn<SupplierContactModel, ?>> olist = (ObservableList<TableColumn<SupplierContactModel, ?>>) contactList.getColumns();
+        
+        for (int i = 0; i < olist.size(); i++) {
+            olist.get(i).setCellValueFactory(
+                    new PropertyValueFactory<>(arr[i])
+            );
+        }
+        
+        contactList.setItems(data);
     }
 
     @FXML
@@ -186,6 +259,7 @@ public class SupplierController extends AbstractController implements Initializa
         supmod.setSupbustyp(this.bsnstylefld.getText());
         supmod.setSupaddress(this.addressfld.getText());
         supmod.setSuppymttrm(this.pymtrmfld.getText());
+        supmod.setPostal(this.pstlcdfld.getText());
         
         supmod.setScm(this.contacts);
         

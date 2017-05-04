@@ -38,19 +38,26 @@ import javafx.scene.Scene;
 import javafx.scene.control.Alert;
 import javafx.scene.control.Alert.AlertType;
 import javafx.scene.control.Button;
+import javafx.scene.control.Tab;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.text.Text;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
+import mgi.ManualGoodsIssueController;
+import models.InventoryAdjustmentModel;
+import models.MGIModel;
 import models.PricesModel;
+import models.PurchasesModel;
+import models.ReturnAdjustmentModel;
 import models.ReturnsModel;
 import models.SupplierModel;
 import models.UOMmodel;
 import models.UserModel;
 import models.WHSModel;
 import prices.AddPriceViewController;
+import prices.EditPriceViewController;
 import purchases.PurchaseController;
 import returns.ReturnsAdjustmentController;
 import returns.ReturnsController;
@@ -128,9 +135,6 @@ public class MainController extends AbstractController implements Initializable 
     private Button addsupbtn;
 
     @FXML
-    private TableView<?> purchasetable;
-
-    @FXML
     private Button editsupbtn;
 
     @FXML
@@ -150,6 +154,61 @@ public class MainController extends AbstractController implements Initializable 
     
     @FXML
     private Button returnsabtn;
+    
+    @FXML
+    private TableView<InventoryAdjustmentModel> inventoryadjtable;
+
+    @FXML
+    private TableView<MGIModel> mgitable;
+
+    @FXML
+    private Button addmgibtn;
+
+    @FXML
+    private Button editiabtn;
+
+    @FXML
+    private Button viewmgibtn;
+
+    @FXML
+    private Button editmgibtn;
+
+    @FXML
+    private Button viewiabtn;
+    
+    @FXML
+    private Tab customertab;
+
+    @FXML
+    private Tab suppliertab;
+
+    @FXML
+    private Tab inventorytab;
+
+    @FXML
+    private Tab returnstab;
+
+    @FXML
+    private Tab pricestab;
+
+    @FXML
+    private Tab reports;
+
+    @FXML
+    private Tab whstab;
+
+    @FXML
+    private Tab uomtab;
+    
+    @FXML
+    private Button viewreturnadjbtn;
+
+    @FXML
+    private Button editreturnadjbtn;
+    
+    @FXML
+    private TableView<ReturnAdjustmentModel> returnadjtable;
+
     
     //Queries
     private final CustomerQuery cq = new CustomerQuery();
@@ -172,8 +231,6 @@ public class MainController extends AbstractController implements Initializable 
     public void initData(UserModel user, int type) {
         super.setGlobalUser(user);
         super.setType(type);
-        System.out.println("YOH1: " + type);
-        System.out.println("YOH2: " + super.getType());
         useridfld.setText(String.valueOf(super.getGlobalUser().getId()));
         
         try {
@@ -184,6 +241,7 @@ public class MainController extends AbstractController implements Initializable 
              this.getPrices();
              
              this.getReturns();
+             this.getReturnsAdjustments();
              this.getUOMS();
              this.getWHS();
              this.getSuppliers();
@@ -391,13 +449,67 @@ public class MainController extends AbstractController implements Initializable 
     }
 
     @FXML
-    public void editSupplier(ActionEvent event) {
+    public void editSupplier(ActionEvent event) throws SQLException, IOException {
+        try{
+            FXMLLoader fxmlloader = new FXMLLoader(getClass().getResource("/supplier/SupplierView.fxml"));
+            Parent root = (Parent) fxmlloader.load();
 
+            SupplierController sc = fxmlloader.<SupplierController>getController();
+            sc.initData(null, super.getType());
+            sc.EditMode(this.suppliertable.getSelectionModel().getSelectedItem());
+
+            Scene scene = new Scene(root);
+            Stage stage = (Stage) this.editsupbtn.getScene().getWindow();
+            Stage substage = new Stage();
+            substage.setScene(scene);
+            substage.setResizable(false);
+            substage.sizeToScene();
+            substage.setTitle("Edit Supplier");
+            substage.initModality(Modality.WINDOW_MODAL);
+            substage.initOwner(stage);
+            substage.showAndWait();
+        
+            this.getSuppliers();
+        }catch(IOException e){
+            Alert alert = new Alert(AlertType.INFORMATION);
+            alert.setTitle("Information Dialog");
+            alert.setHeaderText(null);
+            alert.setContentText("Please Select A Supplier");
+
+            alert.showAndWait();
+        }
     }
 
     @FXML
-    public void viewSupplier(ActionEvent event) {
+    public void viewSupplier(ActionEvent event) throws IOException, SQLException {
+        try{
+            FXMLLoader fxmlloader = new FXMLLoader(getClass().getResource("/supplier/SupplierView.fxml"));
+            Parent root = (Parent) fxmlloader.load();
 
+            SupplierController sc = fxmlloader.<SupplierController>getController();
+            sc.initData(null, super.getType());
+            sc.ViewMode(this.suppliertable.getSelectionModel().getSelectedItem());
+
+            Scene scene = new Scene(root);
+            Stage stage = (Stage) this.viewsupbtn.getScene().getWindow();
+            Stage substage = new Stage();
+            substage.setScene(scene);
+            substage.setResizable(false);
+            substage.sizeToScene();
+            substage.setTitle("View Supplier");
+            substage.initModality(Modality.WINDOW_MODAL);
+            substage.initOwner(stage);
+            substage.showAndWait();
+        
+            this.getSuppliers();
+        }catch(IOException e){
+            Alert alert = new Alert(AlertType.INFORMATION);
+            alert.setTitle("Information Dialog");
+            alert.setHeaderText(null);
+            alert.setContentText("Please Select A Supplier");
+
+            alert.showAndWait();
+        }
     }
     
     @FXML
@@ -442,7 +554,6 @@ public class MainController extends AbstractController implements Initializable 
         
         
         while(rs.hasNext()){
-            //System.out.println("HELLO");
             SupplierModel sup = (SupplierModel) rs.next();
             System.out.println(sup.getSupname());
             data.add(sup);
@@ -493,13 +604,13 @@ public class MainController extends AbstractController implements Initializable 
     }
 
     @FXML
-    public void editInventory(ActionEvent event) throws IOException {
+    public void editInventory(ActionEvent event) throws IOException, SQLException {
         FXMLLoader fxmlloader = new FXMLLoader(getClass().getResource("/inventory/InventoryItemView.fxml"));
         Parent root = (Parent) fxmlloader.load();
         
         InventoryItemController iic = fxmlloader.<InventoryItemController>getController();
         
-        iic.EditMode();
+        iic.EditMode(this.inventorytable.getSelectionModel().getSelectedItem());
         iic.initData(null, super.getType());
 
         Scene scene = new Scene(root);
@@ -512,6 +623,8 @@ public class MainController extends AbstractController implements Initializable 
         substage.initModality(Modality.WINDOW_MODAL);
         substage.initOwner(stage);
         substage.showAndWait();
+        
+        this.getInventory();
     }
 
     @FXML
@@ -532,6 +645,45 @@ public class MainController extends AbstractController implements Initializable 
         substage.initModality(Modality.WINDOW_MODAL);
         substage.initOwner(stage);
         substage.showAndWait();
+    }
+    
+    @FXML
+    public void addMGI(ActionEvent event) throws IOException {
+        FXMLLoader fxmlloader = new FXMLLoader(getClass().getResource("/mgi/manualGoodsIssue.fxml"));
+        Parent root = (Parent) fxmlloader.load();
+        
+        ManualGoodsIssueController mgic = fxmlloader.<ManualGoodsIssueController>getController();
+        
+        Scene scene = new Scene(root);
+        Stage stage = (Stage) iabtn.getScene().getWindow();
+        Stage substage = new Stage();
+        substage.setScene(scene);
+        substage.setResizable(false);
+        substage.sizeToScene();
+        substage.setTitle("Inventory Adjustment Entry");
+        substage.initModality(Modality.WINDOW_MODAL);
+        substage.initOwner(stage);
+        substage.showAndWait();
+    }
+
+    @FXML
+    public void editAdjustment(ActionEvent event) {
+
+    }
+
+    @FXML
+    public void viewAdjustment(ActionEvent event) {
+
+    }
+
+    @FXML
+    public void editMGI(ActionEvent event) {
+
+    }
+
+    @FXML
+    public void viewMGI(ActionEvent event) {
+
     }
     
     public void getInventory() throws SQLException{
@@ -602,12 +754,58 @@ public class MainController extends AbstractController implements Initializable 
     
     @FXML
     public void returnsAdjustment(ActionEvent event) throws IOException {
+        FXMLLoader fxmlloader = new FXMLLoader(getClass().getResource("/returns/ReturnsAdjustmentView.fxml"));
+        Parent root = (Parent) fxmlloader.load();
+        
+        ReturnsAdjustmentController rac = fxmlloader.<ReturnsAdjustmentController>getController();
+        rac.initData(null, super.getType());
+        
+        Scene scene = new Scene(root);
+        Stage stage = (Stage) this.returnsabtn.getScene().getWindow();
+        Stage substage = new Stage();
+        substage.setScene(scene);
+        substage.setResizable(false);
+        substage.sizeToScene();
+        substage.setTitle("Returns Adjustment Entry");
+        substage.initModality(Modality.WINDOW_MODAL);
+        substage.initOwner(stage);
+        substage.showAndWait();
+
+    }
+    
+    @FXML
+    void editReturnAdjustment(ActionEvent event) throws IOException, SQLException {
+        FXMLLoader fxmlloader = new FXMLLoader(getClass().getResource("/returns/ReturnsAdjustmentView.fxml"));
+        Parent root = (Parent) fxmlloader.load();
+        
+        ReturnsAdjustmentController rac = fxmlloader.<ReturnsAdjustmentController>getController();
+        rac.initData(null, super.getType());
+        rac.EditMode();
+        
+        Scene scene = new Scene(root);
+        Stage stage = (Stage) this.returnsabtn.getScene().getWindow();
+        Stage substage = new Stage();
+        substage.setScene(scene);
+        substage.setResizable(false);
+        substage.sizeToScene();
+        substage.setTitle("Returns Adjustment Entry");
+        substage.initModality(Modality.WINDOW_MODAL);
+        substage.initOwner(stage);
+        substage.showAndWait();
+        
+        this.getReturnsAdjustments();
+
+    }
+
+    @FXML
+    void viewReturnAdjustment(ActionEvent event) throws IOException {
         
         FXMLLoader fxmlloader = new FXMLLoader(getClass().getResource("/returns/ReturnsAdjustmentView.fxml"));
         Parent root = (Parent) fxmlloader.load();
         
         ReturnsAdjustmentController rac = fxmlloader.<ReturnsAdjustmentController>getController();
         rac.initData(null, super.getType());
+        rac.ViewMode();
         
         Scene scene = new Scene(root);
         Stage stage = (Stage) this.returnsabtn.getScene().getWindow();
@@ -646,6 +844,31 @@ public class MainController extends AbstractController implements Initializable 
         this.returntable.setItems(data);
     }
     
+    public void getReturnsAdjustments() throws SQLException{
+        
+        ReturnsQuery rq = new ReturnsQuery();
+        
+        String[] arr = {"ramid", "ramdte", "refnum", "desc", "pgistat"};
+        ObservableList<ReturnAdjustmentModel> data
+                = FXCollections.observableArrayList();
+        
+        Iterator rs = rq.getReturnAdjustments(super.getType());
+        
+        while(rs.hasNext()){
+            data.add((ReturnAdjustmentModel)rs.next());
+        }
+        
+        ObservableList<TableColumn<ReturnAdjustmentModel, ?>> olist;
+        olist = (ObservableList<TableColumn<ReturnAdjustmentModel, ?>>) this.returnadjtable.getColumns();
+
+        for (int i = 0; i < olist.size(); i++) {
+            olist.get(i).setCellValueFactory(
+                    new PropertyValueFactory<>(arr[i])
+            );
+        }
+        this.returnadjtable.setItems(data);
+    }
+    
     /**
      * END OF RETURNS SECTION 
      */
@@ -678,8 +901,27 @@ public class MainController extends AbstractController implements Initializable 
     }
 
     @FXML
-    public void editPrice(ActionEvent event) {
+    public void editPrice(ActionEvent event) throws SQLException, IOException {
+        FXMLLoader fxmlloader = new FXMLLoader(getClass().getResource("/prices/EditPriceView.fxml"));
+        Parent root = (Parent) fxmlloader.load();
+        
+        EditPriceViewController epvc = fxmlloader.<EditPriceViewController>getController();
+        
+        epvc.initData(null, super.getType());
+        epvc.setPrice(this.pricetable.getSelectionModel().getSelectedItem());
 
+        Scene scene = new Scene(root);
+        Stage stage = (Stage) addPricebtn.getScene().getWindow();
+        Stage substage = new Stage();
+        substage.setScene(scene);
+        substage.setResizable(false);
+        substage.sizeToScene();
+        substage.setTitle("Add Prices");
+        substage.initModality(Modality.WINDOW_MODAL);
+        substage.initOwner(stage);
+        substage.showAndWait();
+        
+        this.getPrices();
     }
     
      @FXML
@@ -863,6 +1105,4 @@ public class MainController extends AbstractController implements Initializable 
     /**
      * REPORTS SECTION
      */
-    
-    
 }

@@ -12,9 +12,12 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.time.LocalDate;
+import java.util.HashMap;
 import java.util.Iterator;
 import models.DRItemsModel;
 import models.DRModel;
+import viewmodels.DRViewModel;
 
 /**
  *
@@ -148,6 +151,52 @@ public class DeliveryReceiptsQuery {
         dbc.closeConnection();
         
         return pass;
+    }
+    
+    public DRModel getDR(int id) throws SQLException{
+        
+        DBQuery dbq = DBQuery.getInstance();
+        DBConnect dbc = DBConnect.getInstance();
+        DRModel drvm = null;
+        
+        PreparedStatement st = dbc.getConnection().prepareStatement("SELECT * from deliveryorders where iddeliveryorders= ?");
+        
+        st.setInt(1, id);
+        
+        Iterator map = dbq.getQueryResultSet(st);
+        
+        while(map.hasNext()){
+            System.out.println("1");
+            HashMap temp = (HashMap) map.next();
+            
+            //System.out.println(temp.get("iddeliver").toString());
+            
+            drvm = new DRModel();
+            
+            drvm.setDrid(Integer.valueOf(temp.get("iddeliveryorders").toString()));
+            drvm.setDrdate(Date.valueOf(temp.get("drdate").toString()));
+            drvm.setPgi(temp.get("drpgi").toString());
+            drvm.setDrprint(temp.get("drprint").toString());
+            drvm.setDrstatus(temp.get("drstatus").toString());
+            drvm.setRemarks(temp.get("remarks").toString());
+        }
+        
+        return drvm;
+    }
+    
+    public Iterator getDRItems(int id) throws SQLException{
+        
+        DBQuery dbq = DBQuery.getInstance();
+        DBConnect dbc = DBConnect.getInstance();
+        DRModel drvm = null;
+        
+        PreparedStatement st = dbc.getConnection().prepareStatement("SELECT * FROM bestchem_db2.deliveryorderitems where drorder = ?");
+        
+        st.setInt(1, id);
+        
+        Iterator map = dbq.getQueryResultSet(st);
+        
+        return map;
     }
     
 }

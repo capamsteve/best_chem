@@ -11,7 +11,6 @@ import java.sql.Date;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -172,16 +171,30 @@ public class ReturnsQuery {
         return list.iterator();
     }
     
-    public void editReturns(int table){
+    public void editReturns(ReturnsModel model, int table) throws SQLException{
         
         String query = "";
         
         if(table == 1){
-            query = "";
+            query = "call bestchem_db2.RETURNS_EDIT(?,?,?,?,?);";
         }
         else if(table == 2){
-            query = "";
+            query = "call bestchem_db2.MM_RETURNS_EDIT(?,?,?,?,?);";
         }
+                
+        DBQuery dbq = DBQuery.getInstance();
+        DBConnect dbc = DBConnect.getInstance();
+        
+        PreparedStatement st = dbc.getConnection().prepareStatement(query);
+        st.setString(1, model.getSku());
+        st.setString(2, model.getSkudesc());
+        st.setString(3, model.getRetuom());
+        st.setString(4, model.getRetwhs());
+        st.setInt(5, model.getIdreturns());
+        
+        dbq.executeUpdateQuery(st);
+        
+        dbc.closeConnection();
         
     }
     
@@ -252,6 +265,41 @@ public class ReturnsQuery {
         
         dbc.closeConnection();
         
+    }
+    
+    public Iterator getReturnAdjustments(int table) throws SQLException{
+        String query = "";
+        
+        if(table == 1){
+            query = "SELECT * FROM bestchem_db2.returns_adjustments;";
+        }
+        else if(table == 2){
+            query = "SELECT * FROM bestchem_db2.mm_returns_adjustments;";
+        }
+        
+        ArrayList<ReturnAdjustmentModel> ramlist = new ArrayList();
+        
+        DBQuery db = DBQuery.getInstance();
+        DBConnect dbc = DBConnect.getInstance();
+        
+        PreparedStatement st = dbc.getConnection().prepareStatement(query);
+        
+        Iterator rs = db.getQueryResultSet(st);
+        
+        while(rs.hasNext()){
+            HashMap map = (HashMap) rs.next();
+            ReturnAdjustmentModel returnsadj = new ReturnAdjustmentModel();
+            returnsadj.setRamid(Integer.parseInt(map.get("idreturns_adjustments").toString()));
+            returnsadj.setRamdte(Date.valueOf(map.get("rs_dte").toString()));
+            returnsadj.setDesc(map.get("description").toString());
+            returnsadj.setRefnum(map.get("refnum").toString());
+            returnsadj.setPgistat(map.get("pgistat").toString());
+            
+            ramlist.add(returnsadj);
+        }
+        
+        dbc.closeConnection();
+        return ramlist.iterator();
     }
     
 }

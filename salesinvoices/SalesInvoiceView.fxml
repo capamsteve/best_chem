@@ -90,7 +90,7 @@
                         <Button fx:id="resetbtn" mnemonicParsing="false" onAction="#ResetItems" text="Reset" />
                      </items>
                   </ToolBar>
-                  <Button fx:id="pendingbtn" layoutX="663.0" layoutY="727.0" mnemonicParsing="false" onAction="#saveHandler" text="Save" />
+                  <Button fx:id="pendingbtn" layoutX="501.0" layoutY="728.0" mnemonicParsing="false" onAction="#saveHandler" text="Save" />
                   <Button fx:id="cancelbtn" layoutX="718.0" layoutY="727.0" mnemonicParsing="false" onAction="#cancelHandler" text="Cancel" />
                   <TextField fx:id="soidfld" layoutX="131.0" layoutY="238.0" prefHeight="25.0" prefWidth="314.0" />
                   <Label layoutX="15.0" layoutY="243.0" text="Sales Order #:">
@@ -195,6 +195,8 @@
                         <Font name="Arial" size="14.0" />
                      </font>
                   </Label>
+                  <Button fx:id="pgibtn" layoutX="600.0" layoutY="729.0" mnemonicParsing="false" onAction="#PostToInventory" text="Post Good Issue" />
+                  <Button fx:id="printbtn" layoutX="550.0" layoutY="729.0" mnemonicParsing="false" onAction="#export" text="Print" />
                </children>
             </Pane>
          </children></AnchorPane>

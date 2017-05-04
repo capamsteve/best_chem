@@ -128,6 +128,10 @@ public class TransactionItemsViewController extends AbstractController implement
         
     }
     
+    public void ViewMode(){
+        
+    }
+    
     public void RefreshItems(){
         String[] arr = {"sku", "desc", "qty", "uom", "uprice", "discnt", "amount", "vat"};
         ObservableList<SOItemModel> data

@@ -14,7 +14,11 @@ import java.sql.Date;
 import java.sql.SQLException;
 import java.time.LocalDate;
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Iterator;
 import java.util.ResourceBundle;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
@@ -245,21 +249,38 @@ public class PurchaseDocumentController extends AbstractController implements In
         this.pymttermfld.setEditable(false);
         this.addressfld.setText(this.supplier.getSupaddress());
         this.addressfld.setEditable(false);
+    }
+    
+    public void EditMode(PurchasesModel purchase){
         
-        ArrayList<SupplierContactModel> supcon = supq.getContacts(this.supplier.getSupid(), super.getType());
+    }
+    
+    public void ViewMode(PurchasesModel purchase) throws SQLException{
         
-        for(SupplierContactModel sup: supcon){
-            this.contactbx.getItems().add(sup.getSupcname());
+        this.poidfld.setDisable(true);
+        this.idlfd.setText(String.valueOf(this.supplier.getSupid()));
+        this.idlfd.setEditable(false);
+        this.compfld.setText(this.supplier.getSupname());
+        this.compfld.setEditable(false);
+        this.bsnstylefld.setText(this.supplier.getSupbustyp());
+        this.bsnstylefld.setEditable(false);
+        this.tinfld.setText(this.supplier.getSuptin());
+        this.tinfld.setEditable(false);
+        this.datefld.setValue(LocalDate.parse(purchase.getPo_dte().toString()));
+        this.pymttermfld.setText(this.supplier.getSuppymttrm());
+        this.pymttermfld.setEditable(false);
+        this.addressfld.setText(this.supplier.getSupaddress());
+        this.addressfld.setEditable(false);
+        this.drdatefld.setValue(LocalDate.parse(purchase.getPo_dr_dte().toString()));
+        this.contactbx.getSelectionModel().select(purchase.getSupcname());
+        
+        Iterator iterate = pq.getPurchaseOrderItems(purchase.getSup_id(), super.getType());
+        
+        while(iterate.hasNext()){
+            HashMap map = (HashMap) iterate.next();
+            
+            
         }
-        
-        this.contactbx.getSelectionModel().selectFirst();
-    }
-    
-    public void EditMode(){
-        
-    }
-    
-    public void ViewMode(){
         
     }
     
@@ -277,6 +298,19 @@ public class PurchaseDocumentController extends AbstractController implements In
     public void initData(UserModel user, int type) {
         super.setGlobalUser(user);
         super.setType(type);
+        
+        ArrayList<SupplierContactModel> supcon = new ArrayList();
+        try {
+            supcon = supq.getContacts(this.supplier.getSupid(), super.getType());
+        } catch (SQLException ex) {
+            Logger.getLogger(PurchaseDocumentController.class.getName()).log(Level.SEVERE, null, ex);
+        }
+        
+        for(SupplierContactModel sup: supcon){
+            this.contactbx.getItems().add(sup.getSupcname());
+        }
+        
+        this.contactbx.getSelectionModel().selectFirst();
     }
     
 }

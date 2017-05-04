@@ -65,7 +65,8 @@ public class InventoryItemController extends AbstractController implements Initi
     private Button savebtn;
 
     //Queries
-    UtilitiesQuery uq = new UtilitiesQuery();
+    private final UtilitiesQuery uq = new UtilitiesQuery();
+    private InventoryModel model;
     
     /**
      * Initializes the controller class.
@@ -103,8 +104,19 @@ public class InventoryItemController extends AbstractController implements Initi
         
     }
     
-    public void EditMode(){
+    public void EditMode(InventoryModel model){
+        this.isEdit = true;
         
+        this.model = model;
+        
+        this.skufld.setText(model.getSku());
+        this.sdescfld.setText(model.getDescription());
+        this.uomfld.getSelectionModel().select(model.getUom());
+        this.wrhsfld.getSelectionModel().select(model.getWh());
+        this.sohfld.setDisable(true);
+        this.cslfld.setText(String.valueOf(model.getCsl()));
+        
+        this.savebtn.setText("Save Item");
     }
     
     @FXML
@@ -116,14 +128,17 @@ public class InventoryItemController extends AbstractController implements Initi
         inventory.setDescription(this.sdescfld.getText());
         inventory.setUom(this.uomfld.getSelectionModel().getSelectedItem());
         inventory.setWh(this.wrhsfld.getSelectionModel().getSelectedItem());
-        inventory.setSoh(Integer.parseInt(this.sohfld.getText()));
         inventory.setCsl(Integer.parseInt(this.cslfld.getText()));
         
         InventoryQuery iq = new InventoryQuery();
         
-        System.out.println(super.getType());
-        
-        iq.addInventory(inventory, super.getType());
+        if(this.isEdit){
+            inventory.setIdinventory(this.model.getIdinventory());
+            iq.editInventory(inventory, super.getType());
+        }
+        else{
+            iq.addInventory(inventory, super.getType());
+        }
         
         Stage stage = (Stage) cancelbtn.getScene().getWindow();
         stage.close();

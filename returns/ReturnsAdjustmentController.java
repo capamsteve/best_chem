@@ -166,4 +166,16 @@ public class ReturnsAdjustmentController extends AbstractController implements I
     public void initData(UserModel user, int type) {
         super.setType(type);
     }
+    
+    public void AddMode(){
+        
+    }
+    
+    public void EditMode(){
+        
+    }
+    
+    public void ViewMode(){
+        
+    }
 }

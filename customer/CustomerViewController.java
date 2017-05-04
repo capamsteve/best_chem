@@ -11,7 +11,6 @@ import dbquerries.CustomerQuery;
 import dbquerries.UtilitiesQuery;
 import java.io.IOException;
 import java.net.URL;
-import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Iterator;
@@ -102,6 +101,7 @@ public class CustomerViewController implements Initializable {
     
     //Models
     private ArrayList<ContactModel> contacts = new ArrayList();
+    private ArrayList<ContactModel> removed = new ArrayList();
     private ArrayList<String> uoms = new ArrayList();
     
     //Queries
@@ -156,23 +156,38 @@ public class CustomerViewController implements Initializable {
             /**
              * Get id list of contacts to be deleted
              */
+            if(!contactList.getItems().isEmpty()){
+                int select = contactList.getSelectionModel().getFocusedIndex();
+
+                removed.add(contacts.remove(select));
+                contactList.getItems().remove(select);
+                this.RefreshItems();
+            }
+            
         }
-        
-        if(!contactList.getItems().isEmpty()){
-            int select = contactList.getSelectionModel().getFocusedIndex();
-        
-            contacts.remove(select);
-            contactList.getItems().remove(select);
-            this.RefreshItems();
+        else{
+            if(!contactList.getItems().isEmpty()){
+                int select = contactList.getSelectionModel().getFocusedIndex();
+
+                contacts.remove(select);
+                contactList.getItems().remove(select);
+                this.RefreshItems();
+            }
         }
     }
     
     //DONE
     @FXML
     public void resetContact(ActionEvent event) {
-        if(!contacts.isEmpty()){
-            contacts.clear();
-            this.RefreshItems();
+        
+        if(isEdit){
+            
+        }
+        else{
+            if(!contacts.isEmpty()){
+                contacts.clear();
+                this.RefreshItems();
+            }
         }
     }
     
@@ -216,21 +231,21 @@ public class CustomerViewController implements Initializable {
         
         
         if(isEdit){
-            
+            cq.editCustomer(customer);
         }
         else{
-            
+            cq.addCustomer(customer);
+        
+            customer = cq.getCustomer(customer.getCompany());
+        
+            for (ContactModel contact : contacts) {
+                contact.setCustomerid(Integer.valueOf(customer.getIdcustomer()));
+            }
+        
+            cq.addContact(contacts.iterator());
         }
         
-        cq.addCustomer(customer);
         
-        customer = cq.getCustomer(customer.getCompany());
-        
-        for (ContactModel contact : contacts) {
-            contact.setCustomerid(Integer.valueOf(customer.getIdcustomer()));
-        }
-        
-        cq.addContact(contacts.iterator());
         Stage stage = (Stage) cancelbtn.getScene().getWindow();
         stage.close();
     }
@@ -254,6 +269,7 @@ public class CustomerViewController implements Initializable {
         CustomerModel customer = cq.getCustomer(company);
         
         this.idfld.setText(customer.getIdcustomer());
+        this.idfld.setEditable(false);
         this.compfld.setText(customer.getCompany());
         this.tinfld.setText(customer.getTin());
         this.bsnstylefld.setText(customer.getBusinessstyle());

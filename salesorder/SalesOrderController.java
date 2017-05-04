@@ -247,8 +247,23 @@ public class SalesOrderController extends AbstractController implements Initiali
     }
 
     @FXML
-    public void editDR(ActionEvent event) {
-
+    public void editDR(ActionEvent event) throws SQLException, IOException {
+        FXMLLoader fxmlloader = new FXMLLoader(getClass().getResource("/delivery/DeliveryReceiptView.fxml"));
+        Parent root = (Parent) fxmlloader.load();
+        
+        DeliveryReceiptController drvc = fxmlloader.<DeliveryReceiptController>getController();
+        drvc.initData(this.getGlobalUser(), 0);
+        drvc.setInit(cust, this.salestble.getSelectionModel().getSelectedItem());
+        drvc.EditMode(this.drtable.getSelectionModel().getSelectedItem());
+        
+        Scene scene = new Scene(root);
+        Stage stage = (Stage) draddbtn.getScene().getWindow();
+        Stage substage = new Stage();
+        substage.setScene(scene);
+        substage.setTitle("Add Delivery Receipt");
+        substage.initModality(Modality.WINDOW_MODAL);
+        substage.initOwner(stage);
+        substage.showAndWait();
     }
 
     @FXML

@@ -8,7 +8,7 @@
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
 
-<Pane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="465.0" prefWidth="624.0" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1" fx:controller="salesorder.SOItemsController">
+<Pane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="161.0" prefWidth="344.0" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1" fx:controller="delivery.EditDeliveryQuantityController">
    <children>
       <Label layoutX="92.0" layoutY="23.0" text="Edit Item">
          <font>
@@ -20,22 +20,20 @@
             <Image url="@../res/BC.PNG" />
          </image>
       </ImageView>
-      <Label layoutX="24.0" layoutY="72.0" text="SKU#:">
+      <TextField fx:id="qtyfld" layoutX="154.0" layoutY="76.0" prefHeight="25.0" prefWidth="79.0" />
+      <Label layoutX="24.0" layoutY="79.0" text="Quantity to Deliver:">
          <font>
             <Font name="Arial" size="14.0" />
          </font>
       </Label>
-      <TextField fx:id="inventoryidfld" layoutX="77.0" layoutY="67.0" onKeyTyped="#searchSKU" prefHeight="25.0" prefWidth="245.0" />
-      <StackPane layoutX="23.0" layoutY="97.0" prefHeight="299.0" prefWidth="583.0" />
-      <TextField fx:id="qtyfld" layoutX="154.0" layoutY="405.0" prefHeight="25.0" prefWidth="79.0" />
-      <Label layoutX="24.0" layoutY="408.0" text="Quantity to Deliver:">
+      <Button fx:id="saveitembtn" layoutX="228.0" layoutY="122.0" mnemonicParsing="false" onAction="#saveItem" text="Add" />
+      <Button fx:id="cancelbtn" layoutX="283.0" layoutY="122.0" mnemonicParsing="false" onAction="#cancelHandler" text="Cancel" />
+      <Text layoutX="252.0" layoutY="92.0" strokeType="OUTSIDE" strokeWidth="0.0" text="/">
          <font>
             <Font name="Arial" size="14.0" />
          </font>
-      </Label>
-      <Button fx:id="saveitembtn" layoutX="499.0" layoutY="417.0" mnemonicParsing="false" onAction="#saveItem" text="Add" />
-      <Button fx:id="cancelbtn" layoutX="554.0" layoutY="417.0" mnemonicParsing="false" onAction="#cancelHandler" text="Cancel" />
-      <Text layoutX="252.0" layoutY="421.0" strokeType="OUTSIDE" strokeWidth="0.0" text="/ Quantity">
+      </Text>
+      <Text fx:id="limfld" layoutX="258.0" layoutY="92.0" strokeType="OUTSIDE" strokeWidth="0.0" text=" Quantity">
          <font>
             <Font name="Arial" size="14.0" />
          </font>

@@ -53,6 +53,8 @@ public class ReturnsController extends AbstractController implements Initializab
 
     @FXML
     private Button savebtn;
+    
+    private ReturnsModel retmod;
 
     //Queries
     UtilitiesQuery uq = new UtilitiesQuery();
@@ -91,11 +93,19 @@ public class ReturnsController extends AbstractController implements Initializab
     
     
     public void AddMode(){
-        
+        this.isEdit = false;
     }
     
-    public void EditMode(){
+    public void EditMode(ReturnsModel retmod){
+        this.retmod = retmod;
+        this.isEdit = true;
+        this.skufld.setText(retmod.getSku());
+        this.sdescfld.setText(retmod.getSkudesc());
+        this.uomfld.getSelectionModel().select(retmod.getRetuom());
+        this.wrhsfld.getSelectionModel().select(retmod.getRetwhs());
+        this.sohfld.setDisable(true);
         
+        this.savebtn.setText("Save Item");
     }
     
     public void ViewMode(){
@@ -120,8 +130,14 @@ public class ReturnsController extends AbstractController implements Initializab
         returns.setSoh(Integer.parseInt(this.sohfld.getText()));
         
         ReturnsQuery rq = new ReturnsQuery();
-        
-        rq.addReturns(returns, super.getType());
+ 
+        if(this.isEdit){
+            returns.setIdreturns(this.retmod.getIdreturns());
+            rq.editReturns(returns, super.getType());
+        }
+        else{
+            rq.addReturns(returns, super.getType());
+        }
         
         Stage stage = (Stage) cancelbtn.getScene().getWindow();
         stage.close();

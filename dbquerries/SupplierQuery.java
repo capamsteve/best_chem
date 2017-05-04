@@ -13,7 +13,6 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
-import models.ContactModel;
 import models.SupplierContactModel;
 import models.SupplierModel;
 
@@ -34,10 +33,10 @@ public class SupplierQuery {
         String query = "";
         
         if(table == 1){
-            query = "CALL `SUPPLIER_ADD` (?,?,?,?,?);";
+            query = "CALL `SUPPLIER_ADD` (?,?,?,?,?,?);";
         }
         else if(table == 2){
-            query = "CALL `MM_SUPPLIER_ADD` (?,?,?,?,?);";
+            query = "CALL `MM_SUPPLIER_ADD` (?,?,?,?,?,?);";
         }
         
         DBConnect dbc = DBConnect.getInstance();
@@ -48,6 +47,7 @@ public class SupplierQuery {
         st.setString(3, sup.getSupaddress());
         st.setString(4, sup.getSupbustyp());
         st.setString(5, sup.getSuppymttrm());
+        st.setString(6, sup.getPostal());
         
         ResultSet generatedKeys = st.executeQuery();
         
@@ -141,6 +141,7 @@ public class SupplierQuery {
             supmod.setSuptin(map.get("suptin").toString());
             supmod.setSupbustyp(map.get("supbusines").toString());
             supmod.setSuppymttrm(map.get("suppayment").toString());
+            supmod.setPostal(map.get("postal").toString());
             
             list.add(supmod);
         }
@@ -179,6 +180,7 @@ public class SupplierQuery {
             supmod.setSuptin(map.get("suptin").toString());
             supmod.setSupbustyp(map.get("supbusines").toString());
             supmod.setSuppymttrm(map.get("suppayment").toString());
+            supmod.setPostal(map.get("postal").toString());
             
         }
         
@@ -193,17 +195,17 @@ public class SupplierQuery {
         String query = "";
         
         if(table == 1){
-            query = "";
+            query = "SELECT * FROM bestchem_db2.supcontacts where sup_id = ?;";
         }
         else if(table == 2){
-            query = "";
+            query = "SELECT * FROM bestchem_db2.mm_supcontacts where sup_id = ?;";
         }
         
         DBConnect dbc = DBConnect.getInstance();
         DBQuery dbq = DBQuery.getInstance();
         ArrayList<SupplierContactModel> listahan = new ArrayList();
         
-        PreparedStatement st = dbc.getConnection().prepareStatement("SELECT * FROM bestchem_db2.supcontacts where sup_id = ?;");
+        PreparedStatement st = dbc.getConnection().prepareStatement(query);
         
         st.setInt(1, id);
         

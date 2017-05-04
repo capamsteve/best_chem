@@ -50,7 +50,7 @@
       <Button layoutX="907.0" layoutY="31.0" mnemonicParsing="false" text="Refresh" />
       <TabPane layoutX="11.0" layoutY="87.0" prefHeight="507.0" prefWidth="951.0" tabClosingPolicy="UNAVAILABLE">
          <tabs>
-            <Tab text="Supplier">
+            <Tab fx:id="suppliertab" text="Supplier">
                <content>
                   <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0">
                      <children>
@@ -74,7 +74,7 @@
                   </AnchorPane>
                </content>
             </Tab>
-            <Tab text="PM Inventory">
+            <Tab fx:id="inventorytab" text="PM Inventory">
                <content>
                   <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0">
                      <children>
@@ -102,30 +102,61 @@
                                              <items>
                                                 <Button fx:id="addInventorybtn" mnemonicParsing="false" onAction="#addInventory" text="Add Item" />
                                                 <Button fx:id="editInventorybtn" mnemonicParsing="false" onAction="#editInventory" text="Edit Item" />
-                                                <Button fx:id="iabtn" mnemonicParsing="false" onAction="#inventoryAdjustment" text="Inventory Adjustment" />
+                                                <Button fx:id="iabtn" mnemonicParsing="false" onAction="#inventoryAdjustment" text="Add Inventory Adjustment" />
+                                                <Button fx:id="addmgibtn" mnemonicParsing="false" onAction="#addMGI" text="Add Manual Goods Issue" />
                                              </items>
                                           </ToolBar>
                                        </children>
                                     </AnchorPane>
                                  </content>
                               </Tab>
-                              <Tab text="Transactions">
+                              <Tab text="Inventory Adjustments">
                                  <content>
                                     <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0">
                                        <children>
-                                          <DatePicker layoutX="57.0" layoutY="7.0" />
-                                          <DatePicker layoutX="284.0" layoutY="8.0" />
-                                          <Label layoutX="10.0" layoutY="12.0" text="From:">
-                                             <font>
-                                                <Font name="Arial" size="14.0" />
-                                             </font>
-                                          </Label>
-                                          <Label layoutX="255.0" layoutY="12.0" text="To:">
-                                             <font>
-                                                <Font name="Arial" size="14.0" />
-                                             </font>
-                                          </Label>
-                                          <Button layoutX="469.0" layoutY="8.0" mnemonicParsing="false" text="Export Report" />
+                                          <StackPane layoutX="-1.0" layoutY="39.0" prefHeight="390.0" prefWidth="944.0">
+                                             <children>
+                                                <TableView fx:id="inventoryadjtable" prefHeight="200.0" prefWidth="200.0">
+                                                   <columns>
+                                                      <TableColumn prefWidth="147.0" text="INVADJ#" />
+                                                      <TableColumn prefWidth="643.0" text="INVADJ Date" />
+                                                      <TableColumn minWidth="0.0" prefWidth="153.0" text="Status Y/N" />
+                                                   </columns>
+                                                </TableView>
+                                             </children>
+                                          </StackPane>
+                                          <ToolBar layoutX="-1.0" prefHeight="40.0" prefWidth="945.0">
+                                             <items>
+                                                <Button fx:id="editiabtn" mnemonicParsing="false" onAction="#editAdjustment" text="Edit Adjustment" />
+                                                <Button fx:id="viewiabtn" mnemonicParsing="false" onAction="#viewAdjustment" text="View Adjustment" />
+                                             </items>
+                                          </ToolBar>
+                                       </children>
+                                    </AnchorPane>
+                                 </content>
+                              </Tab>
+                              <Tab text="Mannual Goods Issued">
+                                 <content>
+                                    <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0">
+                                       <children>
+                                          <StackPane layoutX="-1.0" layoutY="39.0" prefHeight="390.0" prefWidth="944.0">
+                                             <children>
+                                                <TableView fx:id="mgitable" prefHeight="200.0" prefWidth="200.0">
+                                                   <columns>
+                                                      <TableColumn prefWidth="147.0" text="GI#" />
+                                                      <TableColumn prefWidth="257.0" text="GI Date" />
+                                                      <TableColumn minWidth="0.0" prefWidth="395.0" text="Customer Name" />
+                                                      <TableColumn prefWidth="144.0" text="PGI Status" />
+                                                   </columns>
+                                                </TableView>
+                                             </children>
+                                          </StackPane>
+                                          <ToolBar layoutX="-1.0" prefHeight="40.0" prefWidth="945.0">
+                                             <items>
+                                                <Button fx:id="editmgibtn" mnemonicParsing="false" onAction="#editMGI" text="Edit Manual Goods Issue" />
+                                                <Button fx:id="viewmgibtn" mnemonicParsing="false" onAction="#viewMGI" text="View Manual Goods Issue" />
+                                             </items>
+                                          </ToolBar>
                                        </children>
                                     </AnchorPane>
                                  </content>
@@ -136,7 +167,7 @@
                   </AnchorPane>
                </content>
             </Tab>
-            <Tab text="PM Returns">
+            <Tab fx:id="returnstab" text="PM Returns">
                <content>
                   <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0">
                      <children>
@@ -173,7 +204,28 @@
                               </Tab>
                               <Tab text="Transactions">
                                  <content>
-                                    <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0" />
+                                    <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0">
+                                       <children>
+                                          <StackPane layoutX="-1.0" layoutY="39.0" prefHeight="390.0" prefWidth="944.0">
+                                             <children>
+                                                <TableView fx:id="returnadjtable" prefHeight="200.0" prefWidth="200.0">
+                                                   <columns>
+                                                      <TableColumn prefWidth="115.0" text="RETADJ#" />
+                                                      <TableColumn minWidth="0.0" prefWidth="206.0" text="RETADJ Date" />
+                                                      <TableColumn minWidth="0.0" prefWidth="115.0" text="Reference#" />
+                                                      <TableColumn prefWidth="442.0" text="Description" />
+                                                      <TableColumn minWidth="0.0" prefWidth="65.0" text="Status" />
+                                                   </columns>
+                                                </TableView>
+                                             </children>
+                                          </StackPane>
+                                          <ToolBar layoutY="-1.0" prefHeight="40.0" prefWidth="945.0">
+                                             <items>
+                                                <Button fx:id="editreturnadjbtn" mnemonicParsing="false" onAction="#editReturnAdjustment" text="Edit Return Adjustment" />
+                                                <Button fx:id="viewreturnadjbtn" mnemonicParsing="false" onAction="#viewReturnAdjustment" text="View Return Adjustment" />
+                                             </items>
+                                          </ToolBar>
+                                       </children></AnchorPane>
                                  </content>
                               </Tab>
                            </tabs>
@@ -182,7 +234,7 @@
                   </AnchorPane>
                </content>
             </Tab>
-            <Tab text="PM Prices">
+            <Tab fx:id="pricestab" text="PM Prices">
                <content>
                   <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0">
                      <children>
@@ -206,7 +258,7 @@
                   </AnchorPane>
                </content>
             </Tab>
-            <Tab text="Reports">
+            <Tab fx:id="reports" text="Reports">
                <content>
                   <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="441.0" prefWidth="874.0">
                      <children>
@@ -344,7 +396,7 @@
                   </AnchorPane>
                </content>
             </Tab>
-            <Tab text="Warehouses">
+            <Tab fx:id="whstab" text="Warehouses">
                <content>
                   <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="441.0" prefWidth="874.0">
                      <children>
@@ -364,7 +416,7 @@
                   </AnchorPane>
                </content>
             </Tab>
-            <Tab text="Unit of Measurements (UOM)">
+            <Tab fx:id="uomtab" text="Unit of Measurements (UOM)">
                <content>
                   <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="441.0" prefWidth="874.0">
                      <children>
