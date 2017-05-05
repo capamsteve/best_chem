@@ -86,6 +86,12 @@ public class ManualGoodsIssueController extends AbstractController implements In
     @FXML
     private TextField drifld;
     
+    @FXML
+    private Button cancelbtn;
+
+    @FXML
+    private Button savebtn;
+
     private ArrayList<InventoryModel> items = new ArrayList();
     
     private InventoryQuery iq = new InventoryQuery();
@@ -99,6 +105,17 @@ public class ManualGoodsIssueController extends AbstractController implements In
     public void PendingHandler(ActionEvent event) {
 
     }
+    
+    @FXML
+    void postToInventory(ActionEvent event) {
+
+    }
+
+    @FXML
+    void cancelHandler(ActionEvent event) {
+
+    }
+    
 
     @FXML
     public void AddItem(ActionEvent event) throws IOException {
@@ -158,6 +175,7 @@ public class ManualGoodsIssueController extends AbstractController implements In
     }
     
     public void AddMode(){
+        this.idfld.setDisable(true);
         
     }
     
@@ -179,7 +197,8 @@ public class ManualGoodsIssueController extends AbstractController implements In
 
     @Override
     public void initData(UserModel user, int type) {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+        super.setGlobalUser(user);
+        super.setType(type);
     }
     
 }

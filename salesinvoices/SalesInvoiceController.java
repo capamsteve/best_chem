@@ -35,6 +35,7 @@ import models.SItemsModel;
 import models.SOItemModel;
 import models.UserModel;
 import viewmodels.DRViewModel;
+import viewmodels.SIViewModel;
 import viewmodels.SOViewModel;
 
 /**
@@ -122,6 +123,22 @@ public class SalesInvoiceController extends AbstractController implements Initia
     private final SalesInvoiceQuery siq = new SalesInvoiceQuery();
     
     private final DeliveryReceiptsQuery drq = new DeliveryReceiptsQuery();
+    
+    @FXML
+    private Button pgibtn;
+    
+    @FXML
+    private Button printbtn;
+
+    @FXML
+    void PostToInventory(ActionEvent event) {
+
+    }
+
+    @FXML
+    void export(ActionEvent event) {
+
+    }
 
     @FXML
     void EditItem(ActionEvent event) {
@@ -304,8 +321,119 @@ public class SalesInvoiceController extends AbstractController implements Initia
             );
         }
         this.itemlist1.setItems(data2);
-        
+    }
+    
+    public void EditMode(){
         
     }
     
+    public void ViewMode(SIViewModel simod) throws SQLException{
+        
+        siq.getSalesInvoice(simod.getInvnum());
+        
+        this.sidfld.setDisable(true);
+        this.cpofld.setText(this.sovm.getCustomerpo());
+        this.cpofld.setEditable(false);
+        this.compfld.setText(this.model.getCompany());
+        this.compfld.setEditable(false);
+        this.drdatefld.setValue(LocalDate.parse(this.sovm.getSodrdate()));
+        this.drdatefld.setEditable(false);
+        this.tinfld.setText(this.model.getTin());
+        this.tinfld.setEditable(false);
+        this.addressfld.setText(this.model.getAddress());
+        this.addressfld.setEditable(false);
+        this.pymttermfld.setText(this.model.getPaymentterm());
+        this.pymttermfld.setEditable(false);
+        this.bsnstylefld.setText(this.model.getBusinessstyle());
+        this.bsnstylefld.setEditable(false);
+        this.soidfld.setText(String.valueOf(this.sovm.getIdso()));
+        this.soidfld.setEditable(false);
+        this.sodtefld.setValue(LocalDate.parse(this.sovm.getSodate()));
+        this.sodtefld.setEditable(false);
+        this.cidlfd.setText(this.model.getIdcustomer());
+        this.cidlfd.setEditable(false);
+        this.vendrfld.setText(this.model.getVendor_code());
+        this.vendrfld.setEditable(false);
+        
+        this.statusfld.setText("open");
+        this.statusfld.setEditable(false);
+        
+        this.prntfld.setText("N");
+        this.prntfld.setEditable(false);
+        
+        drq.getDeliverReceipts(this.sovm.getIdso());
+        
+        String[] arr = {"drnum", "drdate", "prnt", "pgi", "status"};
+        
+        ObservableList<DRViewModel> data
+                = FXCollections.observableArrayList();
+        
+        Iterator map = this.drq.getDeliverReceipts(this.sovm.getIdso());
+        
+        while(map.hasNext()){
+            HashMap temp = (HashMap) map.next();
+            
+            //System.out.println(temp.get("iddeliver").toString());
+            
+            DRViewModel drvm = new DRViewModel();
+            
+            drvm.setDrnum(Integer.valueOf(temp.get("iddeliveryorders").toString()));
+            drvm.setDrdate(temp.get("drdate").toString());
+            drvm.setPgi(temp.get("drpgi").toString());
+            drvm.setPrnt(temp.get("drprint").toString());
+            drvm.setStatus(temp.get("drstatus").toString());
+            
+            data.add(drvm);
+        }
+        
+        ObservableList<TableColumn<DRViewModel, ?>> olist;
+        olist = (ObservableList<TableColumn<DRViewModel, ?>>) this.itemlist.getColumns();
+
+        for (int i = 0; i < arr.length; i++) {
+            olist.get(i).setCellValueFactory(
+                    new PropertyValueFactory<>(arr[i])
+            );
+        }
+        this.itemlist.setItems(data);
+        
+        //Get the line items
+        
+        String[] arr2 = {"sku", "desc", "qty", "uom", "uprice", "discnt", "amount", "vat"};
+        
+        ObservableList<SOItemModel> data2
+                = FXCollections.observableArrayList();
+        
+        Iterator map2 = this.siq.getLineItems(this.sovm.getIdso(), Integer.valueOf(this.model.getIdcustomer()));
+        
+        while(map2.hasNext()){
+            HashMap temp2 = (HashMap) map2.next();
+            
+            //System.out.println(temp.get("iddeliver").toString());
+            
+            SOItemModel soitem = new SOItemModel();
+            
+            soitem.setSku(temp2.get("sku").toString());
+            soitem.setDesc(temp2.get("skudesc").toString());
+            soitem.setUom(temp2.get("skuom").toString());
+            soitem.setQty(Double.valueOf(temp2.get("sumdrqty").toString()).intValue());
+            soitem.setIdinventory(Integer.valueOf(temp2.get("idinventory").toString()));
+            soitem.setDiscnt(this.model.getDiscount());
+            soitem.setUprice(Double.valueOf(temp2.get("sellingPrice").toString()));
+            soitem.setAmount(Double.valueOf(temp2.get("totamt").toString()));
+            soitem.setVat(Double.valueOf(temp2.get("vatinc").toString()));
+            
+            data2.add(soitem);
+        }
+        
+        ObservableList<TableColumn<SOItemModel, ?>> olist2;
+        olist2 = (ObservableList<TableColumn<SOItemModel, ?>>) this.itemlist1.getColumns();
+
+        for (int i = 0; i < arr2.length; i++) {
+            olist2.get(i).setCellValueFactory(
+                    new PropertyValueFactory<>(arr2[i])
+            );
+        }
+        this.itemlist1.setItems(data2);
+        
+    }
 }

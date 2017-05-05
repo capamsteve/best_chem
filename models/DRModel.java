@@ -18,9 +18,6 @@ public class DRModel {
     private Date drdate;
     private int custid;
     private int soid;
-    private String trnme;
-    private String drvrnme;
-    private String pltno;
     private String remarks;
     private int cby;
     private String drprint;
@@ -74,49 +71,7 @@ public class DRModel {
     public void setSoid(int soid) {
         this.soid = soid;
     }
-
-    /**
-     * @return the trnme
-     */
-    public String getTrnme() {
-        return trnme;
-    }
-
-    /**
-     * @param trnme the trnme to set
-     */
-    public void setTrnme(String trnme) {
-        this.trnme = trnme;
-    }
-
-    /**
-     * @return the drvrnme
-     */
-    public String getDrvrnme() {
-        return drvrnme;
-    }
-
-    /**
-     * @param drvrnme the drvrnme to set
-     */
-    public void setDrvrnme(String drvrnme) {
-        this.drvrnme = drvrnme;
-    }
-
-    /**
-     * @return the pltno
-     */
-    public String getPltno() {
-        return pltno;
-    }
-
-    /**
-     * @param pltno the pltno to set
-     */
-    public void setPltno(String pltno) {
-        this.pltno = pltno;
-    }
-
+    
     /**
      * @return the remarks
      */

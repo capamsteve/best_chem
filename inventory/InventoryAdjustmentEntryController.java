@@ -150,6 +150,18 @@ public class InventoryAdjustmentEntryController extends AbstractController imple
         stage.close();
     }
     
+    public void AddMode(){
+        this.invadjfld.setDisable(true);
+    }
+    
+    public void Edit(){
+        
+    }
+    
+    public void ViewMode(){
+        
+    }
+    
     /**
      * Initializes the controller class.
      */

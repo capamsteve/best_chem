@@ -89,6 +89,22 @@ public class SalesInvoiceQuery {
         return iterate;
     }
     
+    public SIModel getSalesInvoiceModel(int id){
+        
+        DBQuery dbq = DBQuery.getInstance();
+        DBConnect dbc = DBConnect.getInstance();
+        
+        PreparedStatement st = dbc.getConnection().prepareStatement("SELECT * FROM bestchem_db2.salesinvoices where soidinvc = ?;");
+        
+        st.setInt(1, soid);
+        
+        Iterator iterate = dbq.getQueryResultSet(st);
+        
+        return iterate;
+        
+        return null;
+    }
+    
     public Iterator getLineItems(int soid, int custid) throws SQLException{
         DBQuery dbq = DBQuery.getInstance();
         DBConnect dbc = DBConnect.getInstance();

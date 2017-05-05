@@ -26,6 +26,7 @@ import javafx.fxml.FXMLLoader;
 import javafx.fxml.Initializable;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
+import javafx.scene.control.Alert;
 import javafx.scene.control.Button;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
@@ -59,6 +60,33 @@ public class SalesOrderController extends AbstractController implements Initiali
 
     @FXML
     private TextField addfld;
+
+    @FXML
+    private Button addSalesOrder;
+    
+    @FXML
+    private Button editsobtn;
+    
+    @FXML
+    private Button viewsobtn;
+    
+    @FXML
+    private Button draddbtn;
+        
+    @FXML
+    private Button editdrbtn;
+
+    @FXML
+    private Button viewdrbtn;
+    
+    @FXML
+    private Button addinvoicebtn;
+    
+    @FXML
+    private Button editsibtn;
+    
+    @FXML
+    private Button viewsibtn;
     
     @FXML
     private TableView<SOViewModel> salestble;
@@ -85,8 +113,11 @@ public class SalesOrderController extends AbstractController implements Initiali
         this.cust = model;
         
         this.comfld.setText(this.cust.getCompany());
+        this.comfld.setEditable(false);
         this.tinfld.setText(this.cust.getTin());
+        this.tinfld.setEditable(false);
         this.addfld.setText(this.cust.getAddress());
+        this.addfld.setEditable(false);
         
         try {
             // TODO
@@ -115,58 +146,13 @@ public class SalesOrderController extends AbstractController implements Initiali
         });
     }
     
-    public void getDeliveryReceipts(int soid) throws SQLException{
-        
-//        private int drnum;
-//        private Date drdate;
-//        private String prnt;
-//        private String pgi;
-//        private String status;
-        
-        String[] arr = {"drnum", "drdate", "prnt", "pgi", "status"};
-        
-        ObservableList<DRViewModel> data
-                = FXCollections.observableArrayList();
-        
-        Iterator map = this.drq.getDeliverReceipts(soid);
-        
-        while(map.hasNext()){
-            HashMap temp = (HashMap) map.next();
-            
-            //System.out.println(temp.get("iddeliver").toString());
-            
-            DRViewModel drvm = new DRViewModel();
-            
-            drvm.setDrnum(Integer.valueOf(temp.get("iddeliveryorders").toString()));
-            drvm.setDrdate(temp.get("drdate").toString());
-            drvm.setPgi(temp.get("drpgi").toString());
-            drvm.setPrnt(temp.get("drprint").toString());
-            drvm.setStatus(temp.get("drstatus").toString());
-            
-            data.add(drvm);
-        }
-        
-        ObservableList<TableColumn<DRViewModel, ?>> olist;
-        olist = (ObservableList<TableColumn<DRViewModel, ?>>) this.drtable.getColumns();
-
-        for (int i = 0; i < arr.length; i++) {
-            olist.get(i).setCellValueFactory(
-                    new PropertyValueFactory<>(arr[i])
-            );
-        }
-        this.drtable.setItems(data);
-        
-    }
-    
-    @FXML
-    private Button addSalesOrder;
-
     @FXML
     public void addSalesOrder(ActionEvent event) throws IOException, SQLException {
         FXMLLoader fxmlloader = new FXMLLoader(getClass().getResource("/salesorder/TransactionItemsView.fxml"));
         Parent root = (Parent) fxmlloader.load();
         
         TransactionItemsViewController tivc = fxmlloader.<TransactionItemsViewController>getController();
+        tivc.initData(super.getGlobalUser(), 0);
         tivc.AddMode(this.cust);
 
         Scene scene = new Scene(root);
@@ -179,6 +165,82 @@ public class SalesOrderController extends AbstractController implements Initiali
         substage.showAndWait();
         
         this.getSalesOrders();
+    }
+    
+    @FXML
+    void ediSO(ActionEvent event) throws IOException, SQLException {
+        
+        try{
+            if(this.salestble.getSelectionModel().getSelectedItem().getStatus().equals("open")){
+                FXMLLoader fxmlloader = new FXMLLoader(getClass().getResource("/salesorder/TransactionItemsView.fxml"));
+                Parent root = (Parent) fxmlloader.load();
+
+                TransactionItemsViewController tivc = fxmlloader.<TransactionItemsViewController>getController();
+                tivc.initData(super.getGlobalUser(), 0);
+                tivc.EditMode(cust, this.salestble.getSelectionModel().getSelectedItem());
+
+                Scene scene = new Scene(root);
+                Stage stage = (Stage) addSalesOrder.getScene().getWindow();
+                Stage substage = new Stage();
+                substage.setScene(scene);
+                substage.setTitle("View Customer Orders");
+                substage.initModality(Modality.WINDOW_MODAL);
+                substage.initOwner(stage);
+                substage.showAndWait();
+
+                this.getSalesOrders();
+            }
+            else{
+                Alert alert = new Alert(Alert.AlertType.INFORMATION);
+                alert.setTitle("Information Dialog");
+                alert.setHeaderText(null);
+                alert.setContentText("This Sales Order is already cancelled.");
+
+                alert.showAndWait();
+            }
+        }catch(NullPointerException e){
+            Alert alert = new Alert(Alert.AlertType.INFORMATION);
+            alert.setTitle("Information Dialog");
+            alert.setHeaderText(null);
+            alert.setContentText("Please Select a sales order.");
+
+            alert.showAndWait();
+        }
+        
+        
+    }
+
+    @FXML
+    void viewSalesOrder(ActionEvent event) throws SQLException, IOException {
+        
+        try{
+            FXMLLoader fxmlloader = new FXMLLoader(getClass().getResource("/salesorder/TransactionItemsView.fxml"));
+            Parent root = (Parent) fxmlloader.load();
+
+            TransactionItemsViewController tivc = fxmlloader.<TransactionItemsViewController>getController();
+            tivc.initData(super.getGlobalUser(), 0);
+            tivc.ViewMode(cust, this.salestble.getSelectionModel().getSelectedItem());
+
+            Scene scene = new Scene(root);
+            Stage stage = (Stage) addSalesOrder.getScene().getWindow();
+            Stage substage = new Stage();
+            substage.setScene(scene);
+            substage.setTitle("View Customer Orders");
+            substage.initModality(Modality.WINDOW_MODAL);
+            substage.initOwner(stage);
+            substage.showAndWait();
+
+            this.getSalesOrders();
+        }catch(NullPointerException e){
+            Alert alert = new Alert(Alert.AlertType.INFORMATION);
+            alert.setTitle("Information Dialog");
+            alert.setHeaderText(null);
+            alert.setContentText("Please Select a sales order.");
+
+            alert.showAndWait();
+        }
+        
+        
     }
     
     public void getSalesOrders() throws SQLException{
@@ -216,34 +278,46 @@ public class SalesOrderController extends AbstractController implements Initiali
     }
     
     @FXML
-    private Button editdrbtn;
-
-    @FXML
-    private Button viewdrbtn;
-    
-    @FXML
-    private Button draddbtn;
-    
-    @FXML
     public void addDR(ActionEvent event) throws IOException, SQLException {
-        FXMLLoader fxmlloader = new FXMLLoader(getClass().getResource("/delivery/DeliveryReceiptView.fxml"));
-        Parent root = (Parent) fxmlloader.load();
         
-        DeliveryReceiptController drvc = fxmlloader.<DeliveryReceiptController>getController();
-        drvc.initData(this.getGlobalUser(), 0);
-        drvc.setInit(cust, this.salestble.getSelectionModel().getSelectedItem());
-        drvc.AddMode();
+        try{
+            if(this.salestble.getSelectionModel().getSelectedItem().getStatus().equals("open")){
+                FXMLLoader fxmlloader = new FXMLLoader(getClass().getResource("/delivery/DeliveryReceiptView.fxml"));
+                Parent root = (Parent) fxmlloader.load();
+
+                DeliveryReceiptController drvc = fxmlloader.<DeliveryReceiptController>getController();
+                drvc.initData(this.getGlobalUser(), 0);
+                drvc.setInit(cust, this.salestble.getSelectionModel().getSelectedItem());
+                drvc.AddMode();
+
+                Scene scene = new Scene(root);
+                Stage stage = (Stage) draddbtn.getScene().getWindow();
+                Stage substage = new Stage();
+                substage.setScene(scene);
+                substage.setTitle("Add Delivery Receipt");
+                substage.initModality(Modality.WINDOW_MODAL);
+                substage.initOwner(stage);
+                substage.showAndWait();
+
+                this.getDeliveryReceipts(this.salestble.getSelectionModel().getSelectedItem().getIdso());
+            }
+            else{
+                Alert alert = new Alert(Alert.AlertType.INFORMATION);
+                alert.setTitle("Information Dialog");
+                alert.setHeaderText(null);
+                alert.setContentText("This Sales Order is already cancelled.");
+
+                alert.showAndWait();
+            }
+        }catch(NullPointerException e){
+            Alert alert = new Alert(Alert.AlertType.INFORMATION);
+            alert.setTitle("Information Dialog");
+            alert.setHeaderText(null);
+            alert.setContentText("Please Select a sales order.");
+
+            alert.showAndWait();
+        }
         
-        Scene scene = new Scene(root);
-        Stage stage = (Stage) draddbtn.getScene().getWindow();
-        Stage substage = new Stage();
-        substage.setScene(scene);
-        substage.setTitle("Add Delivery Receipt");
-        substage.initModality(Modality.WINDOW_MODAL);
-        substage.initOwner(stage);
-        substage.showAndWait();
-        
-        this.getDeliveryReceipts(this.salestble.getSelectionModel().getSelectedItem().getIdso());
     }
 
     @FXML
@@ -264,45 +338,156 @@ public class SalesOrderController extends AbstractController implements Initiali
         substage.initModality(Modality.WINDOW_MODAL);
         substage.initOwner(stage);
         substage.showAndWait();
+        
+        this.getDeliveryReceipts(this.salestble.getSelectionModel().getSelectedItem().getIdso());
     }
 
     @FXML
-    public void viewDR(ActionEvent event) {
-
-    }
-    
-    @FXML
-    private Button addinvoicebtn;
-    
-    @FXML
-    public void addSI(ActionEvent event) throws IOException, SQLException {
-        FXMLLoader fxmlloader = new FXMLLoader(getClass().getResource("/salesinvoices/SalesInvoiceView.fxml"));
+    public void viewDR(ActionEvent event) throws SQLException, IOException {
+        FXMLLoader fxmlloader = new FXMLLoader(getClass().getResource("/delivery/DeliveryReceiptView.fxml"));
         Parent root = (Parent) fxmlloader.load();
         
-        SalesInvoiceController sivc = fxmlloader.<SalesInvoiceController>getController();
-        sivc.initData(this.getGlobalUser(), 0);
-        sivc.setInit(cust, this.salestble.getSelectionModel().getSelectedItem());
-        sivc.AddMode();
+        DeliveryReceiptController drvc = fxmlloader.<DeliveryReceiptController>getController();
+        drvc.initData(this.getGlobalUser(), 0);
+        drvc.setInit(cust, this.salestble.getSelectionModel().getSelectedItem());
+        drvc.ViewMode(this.drtable.getSelectionModel().getSelectedItem());
         
         Scene scene = new Scene(root);
-        Stage stage = (Stage) addinvoicebtn.getScene().getWindow();
+        Stage stage = (Stage) draddbtn.getScene().getWindow();
         Stage substage = new Stage();
         substage.setScene(scene);
-        substage.setTitle("Add Sales Invoice");
+        substage.setTitle("Add Delivery Receipt");
         substage.initModality(Modality.WINDOW_MODAL);
         substage.initOwner(stage);
         substage.showAndWait();
-        
-        this.getSalesInvoice(this.salestble.getSelectionModel().getSelectedItem().getIdso());
     }
     
+    public void getDeliveryReceipts(int soid) throws SQLException{
+        
+        String[] arr = {"drnum", "drdate", "prnt", "pgi", "status"};
+        
+        ObservableList<DRViewModel> data
+                = FXCollections.observableArrayList();
+        
+        Iterator map = this.drq.getDeliverReceipts(soid);
+        
+        while(map.hasNext()){
+            HashMap temp = (HashMap) map.next();
+            
+            //System.out.println(temp.get("iddeliver").toString());
+            
+            DRViewModel drvm = new DRViewModel();
+            
+            drvm.setDrnum(Integer.valueOf(temp.get("iddeliveryorders").toString()));
+            drvm.setDrdate(temp.get("drdate").toString());
+            drvm.setPgi(temp.get("drpgi").toString());
+            drvm.setPrnt(temp.get("drprint").toString());
+            drvm.setStatus(temp.get("drstatus").toString());
+            
+            data.add(drvm);
+        }
+        
+        ObservableList<TableColumn<DRViewModel, ?>> olist;
+        olist = (ObservableList<TableColumn<DRViewModel, ?>>) this.drtable.getColumns();
+
+        for (int i = 0; i < arr.length; i++) {
+            olist.get(i).setCellValueFactory(
+                    new PropertyValueFactory<>(arr[i])
+            );
+        }
+        this.drtable.setItems(data);
+        
+    }
+    
+    @FXML
+    public void addSI(ActionEvent event) throws IOException, SQLException {
+        
+        try{
+            if(this.salestble.getSelectionModel().getSelectedItem().getStatus().equals("open")){
+                FXMLLoader fxmlloader = new FXMLLoader(getClass().getResource("/salesinvoices/SalesInvoiceView.fxml"));
+                Parent root = (Parent) fxmlloader.load();
+
+                SalesInvoiceController sivc = fxmlloader.<SalesInvoiceController>getController();
+                sivc.initData(this.getGlobalUser(), 0);
+                sivc.setInit(cust, this.salestble.getSelectionModel().getSelectedItem());
+                sivc.AddMode();
+
+                Scene scene = new Scene(root);
+                Stage stage = (Stage) addinvoicebtn.getScene().getWindow();
+                Stage substage = new Stage();
+                substage.setScene(scene);
+                substage.setTitle("Add Sales Invoice");
+                substage.initModality(Modality.WINDOW_MODAL);
+                substage.initOwner(stage);
+                substage.showAndWait();
+
+                this.getSalesInvoice(this.salestble.getSelectionModel().getSelectedItem().getIdso());
+            }
+            else{
+                Alert alert = new Alert(Alert.AlertType.INFORMATION);
+                alert.setTitle("Information Dialog");
+                alert.setHeaderText(null);
+                alert.setContentText("This Sales Order is already cancelled.");
+
+                alert.showAndWait();
+            }
+        }catch(NullPointerException e){
+            Alert alert = new Alert(Alert.AlertType.INFORMATION);
+            alert.setTitle("Information Dialog");
+            alert.setHeaderText(null);
+            alert.setContentText("Please Select a sales order.");
+
+            alert.showAndWait();
+        }
+    }
+    
+    @FXML
+    void editSI(ActionEvent event) {
+
+    }
+
+    @FXML
+    void viewSI(ActionEvent event) throws SQLException, IOException {
+        try{
+            if(this.salestble.getSelectionModel().getSelectedItem().getStatus().equals("open")){
+                FXMLLoader fxmlloader = new FXMLLoader(getClass().getResource("/salesinvoices/SalesInvoiceView.fxml"));
+                Parent root = (Parent) fxmlloader.load();
+
+                SalesInvoiceController sivc = fxmlloader.<SalesInvoiceController>getController();
+                sivc.initData(this.getGlobalUser(), 0);
+                sivc.setInit(cust, this.salestble.getSelectionModel().getSelectedItem());
+                sivc.ViewMode(this.invoicetble.getSelectionModel().getSelectedItem());
+
+                Scene scene = new Scene(root);
+                Stage stage = (Stage) addinvoicebtn.getScene().getWindow();
+                Stage substage = new Stage();
+                substage.setScene(scene);
+                substage.setTitle("View Sales Invoice");
+                substage.initModality(Modality.WINDOW_MODAL);
+                substage.initOwner(stage);
+                substage.showAndWait();
+
+                this.getSalesInvoice(this.salestble.getSelectionModel().getSelectedItem().getIdso());
+            }
+            else{
+                Alert alert = new Alert(Alert.AlertType.INFORMATION);
+                alert.setTitle("Information Dialog");
+                alert.setHeaderText(null);
+                alert.setContentText("This Sales Invoice is already cancelled.");
+
+                alert.showAndWait();
+            }
+        }catch(NullPointerException e){
+            Alert alert = new Alert(Alert.AlertType.INFORMATION);
+            alert.setTitle("Information Dialog");
+            alert.setHeaderText(null);
+            alert.setContentText("Please Select a sales order.");
+
+            alert.showAndWait();
+        }
+    }
     
     public void getSalesInvoice(int soid) throws SQLException{
-        
-        //private int invnum;
-        //private String dte;
-        //private String print;
-        //private String Status;
         
         String[] arr = {"invnum", "dte", "print", "Status"};
         

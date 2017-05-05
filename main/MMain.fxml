@@ -167,6 +167,30 @@
                   </AnchorPane>
                </content>
             </Tab>
+            <Tab fx:id="suppliertab1" text="Bill Of Material (BOM)">
+               <content>
+                  <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0">
+                     <children>
+                        <StackPane layoutY="39.0" prefHeight="440.0" prefWidth="951.0">
+                           <children>
+                              <TableView fx:id="suppliertable1" prefHeight="200.0" prefWidth="200.0">
+                                 <columns>
+                                    <TableColumn prefWidth="147.0" text="SKU#" />
+                                    <TableColumn prefWidth="218.0" text="SKU Description" />
+                                    <TableColumn minWidth="0.0" prefWidth="58.0" text="UOM" />
+                                    <TableColumn prefWidth="96.0" text="Warehouse" />
+                                 </columns>
+                              </TableView>
+                           </children>
+                        </StackPane>
+                        <Button fx:id="viewsupbtn1" layoutX="199.0" layoutY="7.0" mnemonicParsing="false" onAction="#viewSupplier" text="View Supplier" />
+                        <Button fx:id="editsupbtn1" layoutX="105.0" layoutY="7.0" mnemonicParsing="false" onAction="#editSupplier" text="Edit Supplier" />
+                        <Button fx:id="addsupbtn1" layoutX="10.0" layoutY="7.0" mnemonicParsing="false" onAction="#addSupplier" text="Add Supplier" />
+                        <Button fx:id="viewPurchases1" layoutX="298.0" layoutY="7.0" mnemonicParsing="false" onAction="#viewPurchases" text="View Purchases" />
+                     </children>
+                  </AnchorPane>
+               </content>
+            </Tab>
             <Tab fx:id="returnstab" text="PM Returns">
                <content>
                   <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0">
@@ -193,7 +217,7 @@
                                           <ToolBar layoutY="-1.0" prefHeight="40.0" prefWidth="945.0">
                                              <items>
                                                 <Button fx:id="addreturnbtn" mnemonicParsing="false" onAction="#addReturns" text="Add Returns" />
-                                                <Button fx:id="removereturnbtn" mnemonicParsing="false" onAction="#removeReturns" text="Remove Returns" />
+                                                <Button fx:id="editreturnbtn" mnemonicParsing="false" onAction="#editReturns" text="Edit Returns" />
                                                 <Button fx:id="viewreturnbtn" mnemonicParsing="false" onAction="#viewReturns" text="View Returns" />
                                                 <Button fx:id="returnsabtn" mnemonicParsing="false" onAction="#returnsAdjustment" text="Returns Adjustment" />
                                              </items>

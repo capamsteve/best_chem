@@ -12,12 +12,10 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
-import java.time.LocalDate;
 import java.util.HashMap;
 import java.util.Iterator;
 import models.DRItemsModel;
 import models.DRModel;
-import viewmodels.DRViewModel;
 
 /**
  *
@@ -29,19 +27,15 @@ public class DeliveryReceiptsQuery {
         
         DBQuery dbq = DBQuery.getInstance();
         DBConnect dbc = DBConnect.getInstance();
-        PreparedStatement st = dbc.getConnection().prepareStatement("CALL bestchem_db2.DR_ADD (?,?,?,?,?,?,?,?,?,?,?);", Statement.RETURN_GENERATED_KEYS);
-        //drdte, cid, sid, trnm, drnm, pltn, rm, cby, drp, drs
+        PreparedStatement st = dbc.getConnection().prepareStatement("CALL bestchem_db2.DR_ADD (?,?,?,?,?,?,?,?);", Statement.RETURN_GENERATED_KEYS);
         st.setDate(1, Date.valueOf(dr.getDrdate().toString()));
         st.setInt(2, dr.getCustid());
         st.setInt(3, dr.getSoid());
-        st.setString(4, dr.getTrnme());
-        st.setString(5, dr.getDrstatus());
-        st.setString(6, dr.getPltno());
-        st.setString(7, dr.getRemarks());
-        st.setInt(8, dr.getCby());
-        st.setString(9, dr.getDrprint());
-        st.setString(10, dr.getDrstatus());
-        st.setString(11, dr.getPgi());
+        st.setString(4, dr.getRemarks());
+        st.setInt(5, dr.getCby());
+        st.setString(6, dr.getDrprint());
+        st.setString(7, dr.getDrstatus());
+        st.setString(8, dr.getPgi());
         
         ResultSet generatedKeys = st.executeQuery();
         
@@ -55,6 +49,37 @@ public class DeliveryReceiptsQuery {
         }catch(Exception e){
             e.printStackTrace();
         }
+        
+    }
+    
+    public int addDeliveryReceiptRet(DRModel dr) throws SQLException{
+        
+        DBQuery dbq = DBQuery.getInstance();
+        DBConnect dbc = DBConnect.getInstance();
+        PreparedStatement st = dbc.getConnection().prepareStatement("CALL bestchem_db2.DR_ADD (?,?,?,?,?,?,?,?);", Statement.RETURN_GENERATED_KEYS);
+        st.setDate(1, Date.valueOf(dr.getDrdate().toString()));
+        st.setInt(2, dr.getCustid());
+        st.setInt(3, dr.getSoid());
+        st.setString(4, dr.getRemarks());
+        st.setInt(5, dr.getCby());
+        st.setString(6, dr.getDrprint());
+        st.setString(7, dr.getDrstatus());
+        st.setString(8, dr.getPgi());
+        
+        ResultSet generatedKeys = st.executeQuery();
+        int salesid = 0;
+        try{
+            
+            if(generatedKeys.next()){
+                System.out.println(generatedKeys.getInt(1));
+                salesid = generatedKeys.getInt(1);
+                this.addDeliveryItemOrders(dr.getDritems().iterator(), salesid);
+            }
+        }catch(Exception e){
+            e.printStackTrace();
+        }
+        
+        return salesid;
         
     }
     
@@ -114,6 +139,32 @@ public class DeliveryReceiptsQuery {
     }
     
     public Iterator getSalesOrderItemsWRemaining(int soid) throws SQLException{
+        DBQuery dbq = DBQuery.getInstance();
+        DBConnect dbc = DBConnect.getInstance();
+        
+        PreparedStatement st = dbc.getConnection().prepareStatement("CALL `REMAINING_DR_TEMS` (?);");
+        
+        st.setInt(1, soid);
+        
+        Iterator iterate = dbq.getQueryResultSet(st);
+        
+        return iterate;
+    }
+    
+    public Iterator getDeliveryOrderItemsIfNull(int drid, int soid) throws SQLException{
+        DBQuery dbq = DBQuery.getInstance();
+        DBConnect dbc = DBConnect.getInstance();
+        
+        PreparedStatement st = dbc.getConnection().prepareStatement("CALL `REMAINING_DR_TEMS` (?);");
+        
+        st.setInt(1, soid);
+        
+        Iterator iterate = dbq.getQueryResultSet(st);
+        
+        return iterate;
+    }
+    
+    public Iterator getDeliverOrderItemsWRemaining(int drid, int soid) throws SQLException{
         DBQuery dbq = DBQuery.getInstance();
         DBConnect dbc = DBConnect.getInstance();
         

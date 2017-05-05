@@ -11,6 +11,7 @@ package models;
  */
 public class SOItemModel {
     
+    private int soitemid;
     private String sku;
     private String desc;
     private int qty;
@@ -20,6 +21,7 @@ public class SOItemModel {
     private double discnt;
     private double amount;
     private double vat;
+    private String stat;
 
     /**
      * @return the sku
@@ -145,6 +147,34 @@ public class SOItemModel {
      */
     public void setIdinventory(int idinventory) {
         this.idinventory = idinventory;
+    }
+
+    /**
+     * @return the stat
+     */
+    public String getStat() {
+        return stat;
+    }
+
+    /**
+     * @param stat the stat to set
+     */
+    public void setStat(String stat) {
+        this.stat = stat;
+    }
+
+    /**
+     * @return the soitemid
+     */
+    public int getSoitemid() {
+        return soitemid;
+    }
+
+    /**
+     * @param soitemid the soitemid to set
+     */
+    public void setSoitemid(int soitemid) {
+        this.soitemid = soitemid;
     }
     
 }

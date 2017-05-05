@@ -297,6 +297,40 @@ public class InventoryQuery {
         
     }
     
+    public Iterator getInventoryAdjustments(int table) throws SQLException{
+        String query = "";
+        
+        if(table == 1){
+            query = "SELECT * FROM bestchem_db2.inventory_adjustments;";
+        }
+        else if(table == 2){
+            query = "SELECT * FROM bestchem_db2.mm_inventory_adjustments;";
+        }
+        DBQuery dbq = DBQuery.getInstance();
+        DBConnect dbc = DBConnect.getInstance();
+        PreparedStatement st = dbc.getConnection().prepareStatement(query);
+        
+        Iterator rs = dbq.getQueryResultSet(st);
+        
+        ArrayList<InventoryAdjustmentModel> iams = new ArrayList();
+        
+        while(rs.hasNext()){
+            HashMap map = (HashMap) rs.next();
+            InventoryAdjustmentModel iam = new InventoryAdjustmentModel();
+            
+            iam.setIamid(Integer.parseInt(map.get("idadjustments").toString()));
+            iam.setIam_dte(Date.valueOf(map.get("iadte").toString()));
+            iam.setDesc(map.get("description").toString());
+            iam.setRefnum(map.get("refnum").toString());
+            iam.setPgistat(map.get("pgistat").toString());
+            
+            iams.add(iam);
+        }
+
+        return iams.iterator();
+        
+    }
+    
     public Iterator getAllPrices(int table) throws SQLException{
         
         String query = "";

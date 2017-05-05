@@ -122,5 +122,13 @@
       <TextField fx:id="totalfld" layoutX="56.0" layoutY="579.0" prefHeight="25.0" prefWidth="159.0" />
       <Button fx:id="pendingbtn" layoutX="663.0" layoutY="580.0" mnemonicParsing="false" onAction="#saveHandler" text="Save" />
       <Button fx:id="cancelbtn" layoutX="718.0" layoutY="580.0" mnemonicParsing="false" onAction="#cancelHandler" text="Cancel" />
+      <CheckBox fx:id="autochck" layoutX="691.0" layoutY="93.0" mnemonicParsing="false" text="Auto Invoice" />
+      <TextField fx:id="statfld" layoutX="518.0" layoutY="57.0" prefHeight="25.0" prefWidth="106.0" />
+      <Label layoutX="469.0" layoutY="62.0" text="Status:">
+         <font>
+            <Font name="Arial" size="14.0" />
+         </font>
+      </Label>
+      <Button fx:id="cancelsobtn" layoutX="539.0" layoutY="579.0" mnemonicParsing="false" onAction="#cancelSO" text="Cancel Sales Order" />
    </children>
 </Pane>

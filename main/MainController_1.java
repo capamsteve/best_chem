@@ -60,7 +60,7 @@ import utilities.WHSController;
 
 public class MainController_1 extends AbstractController implements Initializable {
 
-     @FXML
+    @FXML
     private Button adduombtn;
 
     @FXML
@@ -76,7 +76,7 @@ public class MainController_1 extends AbstractController implements Initializabl
     private TableView<SupplierModel> suppliertable;
 
     @FXML
-    private Button removereturnbtn;
+    private Button editreturnbtn;
 
     @FXML
     private Button editwhsbtn;
@@ -489,7 +489,7 @@ public class MainController_1 extends AbstractController implements Initializabl
     }
 
     @FXML
-    public void removeReturns(ActionEvent event) {
+    public void editReturns(ActionEvent event) {
 
     }
 

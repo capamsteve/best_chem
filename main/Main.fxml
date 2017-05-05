@@ -35,7 +35,7 @@
           </Menu>
         </menus>
       </MenuBar>
-      <TabPane layoutX="11.0" layoutY="87.0" prefHeight="507.0" prefWidth="951.0" tabClosingPolicy="UNAVAILABLE">
+      <TabPane fx:id="bstchmpane" layoutX="11.0" layoutY="87.0" prefHeight="507.0" prefWidth="951.0" tabClosingPolicy="UNAVAILABLE">
         <tabs>
           <Tab fx:id="customertab" text="Customers">
             <content>
@@ -129,8 +129,10 @@
                                                 <TableView fx:id="inventoryadjtable" prefHeight="200.0" prefWidth="200.0">
                                                    <columns>
                                                       <TableColumn prefWidth="147.0" text="INVADJ#" />
-                                                      <TableColumn prefWidth="643.0" text="INVADJ Date" />
-                                                      <TableColumn minWidth="0.0" prefWidth="153.0" text="Status Y/N" />
+                                                      <TableColumn prefWidth="150.0" text="INVADJ Date" />
+                                                      <TableColumn minWidth="0.0" prefWidth="463.0" text="Description" />
+                                                      <TableColumn minWidth="0.0" prefWidth="112.0" text="Reference#" />
+                                                      <TableColumn minWidth="0.0" prefWidth="71.0" text="Status Y/N" />
                                                    </columns>
                                                 </TableView>
                                              </children>
@@ -145,7 +147,7 @@
                                     </AnchorPane>
                                  </content>
                               </Tab>
-                              <Tab text="Mannual Goods Issued">
+                              <Tab text="Mannual Goods Issue">
                                  <content>
                                     <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0">
                                        <children>
@@ -203,7 +205,7 @@
                                           <ToolBar layoutY="-1.0" prefHeight="40.0" prefWidth="945.0">
                                              <items>
                                                 <Button fx:id="addreturnbtn" mnemonicParsing="false" onAction="#addReturns" text="Add Returns" />
-                                                <Button fx:id="removereturnbtn" mnemonicParsing="false" onAction="#removeReturns" text="Edit Returns" />
+                                                <Button fx:id="editreturnbtn" mnemonicParsing="false" onAction="#editReturns" text="Edit Returns" />
                                                 <Button fx:id="returnsabtn" mnemonicParsing="false" onAction="#returnsAdjustment" text="Returns Adjustment" />
                                              </items>
                                           </ToolBar>

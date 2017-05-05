@@ -74,8 +74,8 @@ public class PurchaseController extends AbstractController implements Initializa
         Parent root = (Parent) fxmlloader.load();
         
         PurchaseDocumentController povc = fxmlloader.<PurchaseDocumentController>getController();
-        povc.initData(super.getGlobalUser(), super.getType());
         povc.setSupplier(this.supplier);
+        povc.initData(super.getGlobalUser(), super.getType());
         povc.AddMode();
 
         Scene scene = new Scene(root);

@@ -202,7 +202,7 @@ public class DeliveryReceiptController extends AbstractController implements Ini
             }
         }
         else{
-            iterate = drq.getSalesOrderItems(this.sovm.getIdso());
+            iterate = drq.getSalesOrderItemsWRemaining(this.sovm.getIdso());
             
             while(iterate.hasNext()){
                 HashMap map = (HashMap) iterate.next();
@@ -228,6 +228,7 @@ public class DeliveryReceiptController extends AbstractController implements Ini
         this.isEdit = true;
         
         this.dridfld.setText(String.valueOf(dr.getDrnum()));
+        this.dridfld.setEditable(false);
         this.cpofld.setText(this.sovm.getCustomerpo());
         this.cpofld.setEditable(false);
         this.compfld.setText(this.model.getCompany());
@@ -283,6 +284,7 @@ public class DeliveryReceiptController extends AbstractController implements Ini
     public void ViewMode(DRViewModel dr) throws SQLException{
         
         this.dridfld.setText(String.valueOf(dr.getDrnum()));
+        this.dridfld.setEditable(false);
         this.cpofld.setText(this.sovm.getCustomerpo());
         this.cpofld.setEditable(false);
         this.compfld.setText(this.model.getCompany());
@@ -314,12 +316,67 @@ public class DeliveryReceiptController extends AbstractController implements Ini
         }
         
         this.rmksfld.setText(drm.getRemarks());
+        this.rmksfld.setEditable(false);
         this.pgifld.setText(dr.getPgi());
         this.pgifld.setEditable(false);
         this.statusfld.setText(drm.getDrstatus());
         this.statusfld.setEditable(false);
         this.prntdfld.setText(drm.getDrprint());
         this.prntdfld.setEditable(false);
+
+        this.pendingbtn.setDisable(true);
+        
+        /**
+         * GETS ALL THE LINE ITEMS READY FOR PGI
+         */
+        
+        // Get all of the Sales Order items
+        Iterator iterate = null;
+        
+        iterate = drq.getDeliverOrderItemsWRemaining(dr.getDrnum(), sovm.getIdso());
+        
+        if(iterate == null){
+            drq.getDeliveryOrderItemsIfNull(dr.getDrnum(), sovm.getIdso());
+            
+            while(iterate.hasNext()){
+                HashMap map = (HashMap) iterate.next();
+                DRItemViewModel viewm = new DRItemViewModel();
+                viewm.setIdsoitem(Integer.valueOf(map.get("idsalesorderitem").toString()));
+                viewm.setSku(map.get("sku").toString());
+                viewm.setDeliveryqty(0);
+                //System.out.println(map.get("Remaining_Quantity").toString());
+                viewm.setQtyremaining(Integer.parseInt(map.get("ordrqty").toString()));
+                viewm.setSkudesc(map.get("skudesc").toString());
+                viewm.setOrdrqty(Integer.parseInt(map.get("ordrqty").toString()));
+                viewm.setUom(map.get("skuom").toString());
+
+                this.items.add(viewm);
+            }
+        }
+        else{
+            
+        }
+//        }
+//        else{
+//            iterate = drq.getDeliverOrderItemsWRemaining(, soid)
+//            
+//            while(iterate.hasNext()){
+//                HashMap map = (HashMap) iterate.next();
+//                DRItemViewModel viewm = new DRItemViewModel();
+//                viewm.setIdsoitem(Integer.valueOf(map.get("idsalesorderitem").toString()));
+//                viewm.setSku(map.get("sku").toString());
+//                viewm.setDeliveryqty(0);
+//                //System.out.println(map.get("Remaining_Quantity").toString());
+//                viewm.setQtyremaining(Double.valueOf(map.get("Remaining_Quantity").toString()).intValue());
+//                viewm.setSkudesc(map.get("skudesc").toString());
+//                viewm.setOrdrqty(Integer.parseInt(map.get("ordrqty").toString()));
+//                viewm.setUom(map.get("skuom").toString());
+//
+//                this.items.add(viewm);
+//            }
+//        }
+        
+        //this.RefreshItems();
         
     }
     
