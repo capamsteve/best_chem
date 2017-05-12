@@ -13,7 +13,7 @@ import java.util.ArrayList;
  */
 public class InventoryModel {
     
-    private int idinventory;
+    private Integer idinventory;
     private String sku;
     private String description;
     private String uom;
@@ -23,16 +23,29 @@ public class InventoryModel {
     private double poprice;
     private double sellprice;
     private String mov;
+    private int iadjid;
+    private int iadjid_item;
+    private int mgi_id;
+    private int mgiid_item;
+    private String pgistat;
     private ArrayList<PricesModel> prices;
     
-    public InventoryModel(){
+    //public InventoryModel(){
+    //    this.prices = new ArrayList();
+    //}
+    public InventoryModel(Integer id){
         this.prices = new ArrayList();
+        this.idinventory = id;
     }
 
     /**
      * @return the idinventory
      */
     public int getIdinventory() {
+        return idinventory;
+    }
+    
+    public Integer getId() {
         return idinventory;
     }
 
@@ -189,6 +202,96 @@ public class InventoryModel {
      */
     public void setMov(String mov) {
         this.mov = mov;
+    }
+    
+    @Override
+    public int hashCode() {
+        int hash = 0;
+        hash += (getId() != null ? getId().hashCode() : 0);
+        return hash;
+    }
+
+    @Override
+    public boolean equals(Object object) {
+        // TODO: Warning - this method won't work in the case the id fields are not set
+        if (!(object instanceof InventoryModel)) {
+            return false;
+        }
+        InventoryModel other = (InventoryModel) object;
+        if ((this.getId() == null && other.getId() != null) || (this.getId() != null && !this.getId().equals(other.getId()))) {
+            return false;
+        }
+        return true;
+    }
+
+    /**
+     * @return the iadjid
+     */
+    public int getIadjid() {
+        return iadjid;
+    }
+
+    /**
+     * @param iadjid the iadjid to set
+     */
+    public void setIadjid(int iadjid) {
+        this.iadjid = iadjid;
+    }
+
+    /**
+     * @return the iadjid_item
+     */
+    public int getIadjid_item() {
+        return iadjid_item;
+    }
+
+    /**
+     * @param iadjid_item the iadjid_item to set
+     */
+    public void setIadjid_item(int iadjid_item) {
+        this.iadjid_item = iadjid_item;
+    }
+
+    /**
+     * @return the mgi_id
+     */
+    public int getMgi_id() {
+        return mgi_id;
+    }
+
+    /**
+     * @param mgi_id the mgi_id to set
+     */
+    public void setMgi_id(int mgi_id) {
+        this.mgi_id = mgi_id;
+    }
+
+    /**
+     * @return the mgiid_item
+     */
+    public int getMgiid_item() {
+        return mgiid_item;
+    }
+
+    /**
+     * @param mgiid_item the mgiid_item to set
+     */
+    public void setMgiid_item(int mgiid_item) {
+        this.mgiid_item = mgiid_item;
+    }
+
+    /**
+     * @return the pgistat
+     */
+    public String getPgistat() {
+        return pgistat;
+    }
+
+    /**
+     * @param pgistat the pgistat to set
+     */
+    public void setPgistat(String pgistat) {
+        this.pgistat = pgistat;
     }
     
 }

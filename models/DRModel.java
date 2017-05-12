@@ -14,7 +14,7 @@ import java.util.Date;
  */
 public class DRModel {
     
-    private int drid;
+    private Integer drid;
     private Date drdate;
     private int custid;
     private int soid;
@@ -26,7 +26,8 @@ public class DRModel {
     
     private ArrayList<DRItemsModel> dritems;
     
-    public DRModel(){
+    public DRModel(Integer id){
+        this.drid = id;
         this.dritems = new ArrayList();
     }
 
@@ -148,6 +149,10 @@ public class DRModel {
     public int getDrid() {
         return drid;
     }
+    
+    public Integer getId() {
+        return drid;
+    }
 
     /**
      * @param drid the drid to set
@@ -170,6 +175,24 @@ public class DRModel {
         this.pgi = pgi;
     }
     
-    
+    @Override
+    public int hashCode() {
+        int hash = 0;
+        hash += (getId() != null ? getId().hashCode() : 0);
+        return hash;
+    }
+
+    @Override
+    public boolean equals(Object object) {
+        // TODO: Warning - this method won't work in the case the id fields are not set
+        if (!(object instanceof DRModel)) {
+            return false;
+        }
+        DRModel other = (DRModel) object;
+        if ((this.getId() == null && other.getId() != null) || (this.getId() != null && !this.getId().equals(other.getId()))) {
+            return false;
+        }
+        return true;
+    }
     
 }

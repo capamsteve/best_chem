@@ -11,7 +11,7 @@ package models;
  */
 public class DRItemsModel {
     
-    private int dritemid;
+    private Integer dritemid;
     private int drordrid;
     private int siditem;
     private int drqty;
@@ -74,6 +74,26 @@ public class DRItemsModel {
      */
     public void setDrordrid(int drordrid) {
         this.drordrid = drordrid;
+    }
+    
+    @Override
+    public int hashCode() {
+        int hash = 0;
+        hash += (Integer.valueOf(dritemid) != null ? Integer.valueOf(dritemid).hashCode() : 0);
+        return hash;
+    }
+
+    @Override
+    public boolean equals(Object object) {
+        // TODO: Warning - this method won't work in the case the id fields are not set
+        if (!(object instanceof DRItemsModel)) {
+            return false;
+        }
+        DRItemsModel other = (DRItemsModel) object;
+        if ((Integer.valueOf(dritemid) == null && Integer.valueOf(other.dritemid) != null) || (Integer.valueOf(this.dritemid) != null && ! Integer.valueOf(this.dritemid).equals(Integer.valueOf(other.dritemid)))) {
+            return false;
+        }
+        return true;
     }
     
 }

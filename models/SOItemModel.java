@@ -11,18 +11,26 @@ package models;
  */
 public class SOItemModel {
     
-    private int soitemid;
+    private Integer soitemid;
     private String sku;
     private String desc;
     private int qty;
     private String uom;
-    private int idinventory;
+    private Integer idinventory;
     private double uprice;
     private double discnt;
     private double amount;
     private double vat;
     private String stat;
-
+    
+    public SOItemModel(Integer idinventory){
+        this.idinventory = idinventory;
+    }
+    
+    public Integer getId(){
+        return idinventory;
+    }
+    
     /**
      * @return the sku
      */
@@ -166,7 +174,11 @@ public class SOItemModel {
     /**
      * @return the soitemid
      */
-    public int getSoitemid() {
+    public int getSoitemid1() {
+        return soitemid;
+    }
+    
+    public Integer getSoitemid() {
         return soitemid;
     }
 
@@ -177,4 +189,23 @@ public class SOItemModel {
         this.soitemid = soitemid;
     }
     
+    @Override
+    public int hashCode() {
+        int hash = 0;
+        hash += (getId() != null ? getId().hashCode() : 0);
+        return hash;
+    }
+
+    @Override
+    public boolean equals(Object object) {
+        // TODO: Warning - this method won't work in the case the id fields are not set
+        if (!(object instanceof SOItemModel)) {
+            return false;
+        }
+        SOItemModel other = (SOItemModel) object;
+        if ((this.getId() == null && other.getId() != null) || (this.getId() != null && !this.getId().equals(other.getId()))) {
+            return false;
+        }
+        return true;
+    }
 }

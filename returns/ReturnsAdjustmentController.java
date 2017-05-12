@@ -6,14 +6,14 @@
 package returns;
 
 import best_chem.AbstractController;
-import dbquerries.InventoryQuery;
 import dbquerries.ReturnsQuery;
-import inventory.ItemSelectorController;
 import java.io.IOException;
 import java.net.URL;
 import java.sql.Date;
 import java.sql.SQLException;
+import java.time.LocalDate;
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.ResourceBundle;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
@@ -23,6 +23,7 @@ import javafx.fxml.FXMLLoader;
 import javafx.fxml.Initializable;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
+import javafx.scene.control.Alert;
 import javafx.scene.control.Button;
 import javafx.scene.control.DatePicker;
 import javafx.scene.control.Label;
@@ -33,8 +34,6 @@ import javafx.scene.control.TextField;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
-import models.InventoryAdjustmentModel;
-import models.InventoryModel;
 import models.ReturnAdjustmentModel;
 import models.ReturnsModel;
 import models.UserModel;
@@ -79,7 +78,12 @@ public class ReturnsAdjustmentController extends AbstractController implements I
     @FXML
     private Button addbtn;
     
+    private boolean isEdit;
+    
     private ArrayList<ReturnsModel> items = new ArrayList();
+    private ArrayList<ReturnsModel> deleted = new ArrayList();
+    
+    private ReturnAdjustmentModel ram_og;
     
     private ReturnsQuery rq = new ReturnsQuery();
 
@@ -95,7 +99,30 @@ public class ReturnsAdjustmentController extends AbstractController implements I
         
         ram.setItems(items);
         
-        rq.addReturnAdjustment(ram, super.getType());
+        ArrayList<ReturnsModel> addedinEdit = new ArrayList();
+        
+        if(isEdit){
+            ram.setRamid(Integer.parseInt(this.invadjfld.getText()));
+            rq.editReturnAdjustment(ram, super.getType());
+            if(!this.items.isEmpty()){
+                for(ReturnsModel mod : this.items){
+                    if(mod.getRetadjitemid() == 0){
+                        addedinEdit.add(mod);
+                    }
+                }
+                rq.addReturnAdjustmentItems(addedinEdit.iterator(), ram.getRamid(), super.getType());
+            }
+            if(!this.deleted.isEmpty()){
+                rq.editReturnAdjustmentItems(this.deleted.iterator(), super.getType());
+            }
+        }else{
+            rq.addReturnAdjustment(ram, super.getType());
+        }
+        
+        
+        
+        Stage stage = (Stage) cancelbtn.getScene().getWindow();
+        stage.close();
     }
 
     @FXML
@@ -115,8 +142,21 @@ public class ReturnsAdjustmentController extends AbstractController implements I
         substage.initOwner(stage);
         substage.showAndWait();
         
-        this.items.add(roic.getItem());
-        this.RefreshItems();
+        ReturnsModel ro = roic.getItem();
+        
+        if(!this.items.contains(ro)){
+            this.items.add(ro);
+            this.RefreshItems();
+        }
+        else{
+            Alert alert = new Alert(Alert.AlertType.INFORMATION);
+            alert.setTitle("Information Dialog");
+            alert.setHeaderText(null);
+            alert.setContentText("You have already added this item.");
+
+            alert.showAndWait();
+        }
+        
     }
     
     public void RefreshItems(){
@@ -134,17 +174,36 @@ public class ReturnsAdjustmentController extends AbstractController implements I
                     new PropertyValueFactory<>(arr[i])
             );
         }
+        this.itemlist.getItems().clear();
         this.itemlist.setItems(data);
     }
 
     @FXML
     public void removeItem(ActionEvent event) {
-
+        if(isEdit){
+            if(!this.items.isEmpty()){
+                this.deleted.add(this.items.remove(this.itemlist.getSelectionModel().getFocusedIndex()));
+                this.RefreshItems();
+            }
+        }else{
+            if(!this.items.isEmpty()){
+                this.items.remove(this.itemlist.getSelectionModel().getSelectedItem());
+                this.RefreshItems();
+            }
+        }
+        
     }
 
     @FXML
-    public void postToInventory(ActionEvent event) {
-
+    public void postToInventory(ActionEvent event) throws SQLException {
+        /**
+         * Get ITEMS convert to Y
+         */
+        
+        rq.PostReturnAdjustment(this.items.iterator(), this.ram_og.getRamid());
+        
+        Stage stage = (Stage) cancelbtn.getScene().getWindow();
+        stage.close();
     }
 
     @FXML
@@ -168,14 +227,65 @@ public class ReturnsAdjustmentController extends AbstractController implements I
     }
     
     public void AddMode(){
+        this.isEdit = false;
+        this.datefld.setValue(LocalDate.now());
+        this.invadjfld.setDisable(true);
+        this.postbtn.setDisable(true);
+    }
+    
+    public void EditMode(ReturnAdjustmentModel ram) throws SQLException{
+        this.isEdit = true;
+        this.ram_og = ram;
+        this.datefld.setValue(LocalDate.parse(ram.getRamdte().toString()));
+        this.reffld.setText(ram.getRefnum());
+        this.ptifld.setText(ram.getPgistat());
+        this.invadjfld.setText(String.valueOf(ram.getRamid()));
+        this.invadjfld.setEditable(false);
+        this.descriptionfld.setText(ram.getDesc());
+        
+        Iterator ir = rq.getReturnAdjustmentItems(ram.getRamid(), super.getType());
+        
+        int i = 0;
+        while(ir.hasNext()){
+            ReturnsModel rm = (ReturnsModel) ir.next();
+            
+            items.add(rm);
+            i++;
+        }
+        
+        System.out.println(i);
+        this.postbtn.setDisable(true);
+        this.RefreshItems();
         
     }
     
-    public void EditMode(){
+    public void ViewMode(ReturnAdjustmentModel ram) throws SQLException{
+        this.ram_og = ram;
+        this.datefld.setValue(LocalDate.parse(ram.getRamdte().toString()));
+        this.datefld.setEditable(false);
+        this.reffld.setText(ram.getRefnum());
+        this.reffld.setEditable(false);
+        this.ptifld.setText(ram.getPgistat());
+        this.invadjfld.setText(String.valueOf(ram.getRamid()));
+        this.invadjfld.setEditable(false);
+        this.descriptionfld.setText(ram.getDesc());
+        this.descriptionfld.setEditable(false);
         
-    }
-    
-    public void ViewMode(){
+        Iterator ir = rq.getReturnAdjustmentItems(ram.getRamid(), super.getType());
         
+        while(ir.hasNext()){
+            ReturnsModel rm = (ReturnsModel) ir.next();
+            
+            items.add(rm);
+        }
+        
+        this.RefreshItems();
+        this.pendingbtn.setDisable(true);
+        this.addbtn.setDisable(true);
+        this.editbtn.setDisable(true);
+        
+        if(ram.getPgistat().equals("Y")){
+            this.postbtn.setDisable(true);
+        }
     }
 }

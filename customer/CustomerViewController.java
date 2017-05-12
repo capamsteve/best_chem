@@ -102,6 +102,7 @@ public class CustomerViewController implements Initializable {
     //Models
     private ArrayList<ContactModel> contacts = new ArrayList();
     private ArrayList<ContactModel> removed = new ArrayList();
+    private ArrayList<ContactModel> addedinEdit = new ArrayList();
     private ArrayList<String> uoms = new ArrayList();
     
     //Queries
@@ -109,7 +110,7 @@ public class CustomerViewController implements Initializable {
     private CustomerQuery cq = new CustomerQuery();
     
     //Checks
-    boolean isEdit = false;
+    private boolean isEdit = false;
 
     @FXML
     public void addContact(ActionEvent event) throws IOException {
@@ -157,10 +158,16 @@ public class CustomerViewController implements Initializable {
              * Get id list of contacts to be deleted
              */
             if(!contactList.getItems().isEmpty()){
-                int select = contactList.getSelectionModel().getFocusedIndex();
-
-                removed.add(contacts.remove(select));
-                contactList.getItems().remove(select);
+                int select = contactList.getSelectionModel().getSelectedIndex();
+                
+                ContactModel con = contactList.getItems().get(select);
+                
+                System.out.println(con.getContactName());
+                System.out.println(con.getContactid());
+                
+                removed.add(con);
+                contacts.remove(con);
+                //contactList.getItems().remove(select);
                 this.RefreshItems();
             }
             
@@ -181,7 +188,12 @@ public class CustomerViewController implements Initializable {
     public void resetContact(ActionEvent event) {
         
         if(isEdit){
-            
+            int size =  contacts.size();
+            for(int i = 0; i < size; i++){
+                removed.add(contacts.get(i));
+            }
+            this.contacts.clear();
+            this.RefreshItems();
         }
         else{
             if(!contacts.isEmpty()){
@@ -231,18 +243,41 @@ public class CustomerViewController implements Initializable {
         
         
         if(isEdit){
+            customer.setIdcustomer(this.idfld.getText());
             cq.editCustomer(customer);
+            if(!contacts.isEmpty()){
+
+                for (int i = 0; i < contacts.size(); i++){
+                    if(contacts.get(i).getContactid() == 0){
+                        System.out.println(contacts.get(i).getContactName());
+                        addedinEdit.add(contacts.get(i));
+                    }
+                }
+                
+                cq.editContact(contacts.iterator());
+            }
+            if(!removed.isEmpty()){
+                cq.deleteContacts(removed.iterator());
+            }
+            if(!addedinEdit.isEmpty()){
+                for (ContactModel contact : addedinEdit) {
+                    contact.setCustomerid(Integer.valueOf(customer.getIdcustomer()));
+                }
+                cq.addContact(addedinEdit.iterator());
+            }
         }
         else{
             cq.addCustomer(customer);
         
             customer = cq.getCustomer(customer.getCompany());
-        
-            for (ContactModel contact : contacts) {
-                contact.setCustomerid(Integer.valueOf(customer.getIdcustomer()));
+            
+            if(!contacts.isEmpty()){
+                for (ContactModel contact : contacts) {
+                    contact.setCustomerid(Integer.valueOf(customer.getIdcustomer()));
+                }
+                cq.addContact(contacts.iterator());
             }
-        
-            cq.addContact(contacts.iterator());
+            
         }
         
         
@@ -259,10 +294,12 @@ public class CustomerViewController implements Initializable {
     public void AddMode(){
         this.idfld.setDisable(true);
         this.savebtn.setText("Add Customer");
+        this.vatfld.setText("12");
     }
     
     public void EditMode(String company) throws SQLException{
         System.out.println(company);
+        this.isEdit = true;
         this.idfld.setEditable(false);
         this.savebtn.setText("Edit Customer");
         
@@ -289,24 +326,11 @@ public class CustomerViewController implements Initializable {
         
         Iterator rs = cq.getContacts(Integer.parseInt(customer.getIdcustomer()));
         
-        String[] arr = {"contactName", "contactNumber", "contactEmail"};
-        ObservableList<ContactModel> data
-                = FXCollections.observableArrayList();
-        
         while(rs.hasNext()){
-            data.add((ContactModel) rs.next());
-        }
-      
-        ObservableList<TableColumn<ContactModel, ?>> olist = (ObservableList<TableColumn<ContactModel, ?>>) contactList.getColumns();
-        
-        for (int i = 0; i < olist.size(); i++) {
-            olist.get(i).setCellValueFactory(
-                    new PropertyValueFactory<>(arr[i])
-            );
+            contacts.add((ContactModel) rs.next());
         }
         
-        contactList.setItems(data);
-        //Add the Contacts
+        this.RefreshItems();
     }
     
     public void ViewMode(String company) throws SQLException{
@@ -351,25 +375,15 @@ public class CustomerViewController implements Initializable {
         this.addbtn.setDisable(true);
         this.deletebtn.setDisable(true);
         this.resetbtn.setDisable(true);
+        this.savebtn.setDisable(true);
         
         Iterator rs = cq.getContacts(Integer.parseInt(customer.getIdcustomer()));
         
-        String[] arr = {"contactName", "contactNumber", "contactEmail"};
-        ObservableList<ContactModel> data
-                = FXCollections.observableArrayList();
-        
         while(rs.hasNext()){
-            data.add((ContactModel) rs.next());
+            contacts.add((ContactModel) rs.next());
         }
-      
-        ObservableList<TableColumn<ContactModel, ?>> olist = (ObservableList<TableColumn<ContactModel, ?>>) contactList.getColumns();
         
-        for (int i = 0; i < olist.size(); i++) {
-            olist.get(i).setCellValueFactory(
-                    new PropertyValueFactory<>(arr[i])
-            );
-        }
-        contactList.setItems(data);
+        this.RefreshItems();
     }
     
     /**

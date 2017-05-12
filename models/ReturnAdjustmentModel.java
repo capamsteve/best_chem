@@ -14,7 +14,7 @@ import java.util.Date;
  */
 public class ReturnAdjustmentModel {
     
-    private int ramid;
+    private Integer ramid;
     private Date ramdte;
     private String refnum;
     private String desc;

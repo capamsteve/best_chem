@@ -14,6 +14,7 @@ import java.util.Date;
  */
 public class SIModel {
     
+    private Integer siid;
     private int customerid;
     private int soidnvc;
     private String remarks;
@@ -183,6 +184,20 @@ public class SIModel {
      */
     public void setPrntstat(String prntstat) {
         this.prntstat = prntstat;
+    }
+
+    /**
+     * @return the siid
+     */
+    public int getSiid() {
+        return siid;
+    }
+
+    /**
+     * @param siid the siid to set
+     */
+    public void setSiid(int siid) {
+        this.siid = siid;
     }
     
 }

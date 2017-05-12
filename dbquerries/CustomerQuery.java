@@ -206,8 +206,48 @@ public class CustomerQuery {
         dbq.executeUpdateQuery(st);
     }
     
-    public void editContact(Iterator contact){
+    public void editContact(Iterator contacts) throws SQLException{
         
+        DBQuery dbq = DBQuery.getInstance();
+        DBConnect dbc = DBConnect.getInstance();
+        PreparedStatement ps = dbc.getConnection().prepareStatement("CALL `CONTACT_EDIT`(?,?,?,?,?)");
+        
+        while(contacts.hasNext()){
+            ContactModel contact = (ContactModel) contacts.next();
+            if(contact.getContactid() != 0){
+                ps.setInt(1, contact.getContactid());
+                ps.setInt(2, contact.getCustomerid());
+                ps.setString(3, contact.getContactName());
+                ps.setString(4, contact.getContactNumber());
+                ps.setString(5, contact.getContactEmail());
+
+                ps.addBatch();
+            }
+        }
+        
+        ps.executeBatch();
+        
+        dbc.closeConnection();
+    }
+    
+    public void deleteContacts(Iterator contacts) throws SQLException{
+        DBQuery dbq = DBQuery.getInstance();
+        DBConnect dbc = DBConnect.getInstance();
+        PreparedStatement ps = dbc.getConnection().prepareStatement("CALL `CONTACT_DELETE`(?)");
+        
+        while(contacts.hasNext()){
+            ContactModel contact = (ContactModel) contacts.next();
+            if(contact.getContactid() != 0){
+                ps.setInt(1, contact.getContactid());
+            
+                ps.addBatch();
+            }
+            
+        }
+        
+        ps.executeBatch();
+        
+        dbc.closeConnection();
     }
     
 }

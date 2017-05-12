@@ -12,11 +12,13 @@ import java.util.Iterator;
 import java.util.ResourceBundle;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import javafx.beans.value.ObservableValue;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
+import javafx.scene.control.Alert;
 import javafx.scene.control.Button;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
@@ -61,12 +63,32 @@ public class SOItemsController implements Initializable {
     @FXML
     public void saveItem(ActionEvent event) throws SQLException {
         
-        System.out.println(this.inventorytable.getSelectionModel().getSelectedItem().getIdinventory());
+        //System.out.println(this.inventorytable.getSelectionModel().getSelectedItem().getIdinventory());
         
-        item = iq.getInventoryWPrice(this.inventorytable.getSelectionModel().getSelectedItem().getIdinventory(), 1);
+        try{
+            if(!this.qtyfld.getText().isEmpty()){
+                item = iq.getInventoryWPrice(this.inventorytable.getSelectionModel().getSelectedItem().getIdinventory(), 1);
+            
+                Stage stage = (Stage) cancelbtn.getScene().getWindow();
+                stage.close();
+            }
+            else{
+                Alert alert = new Alert(Alert.AlertType.INFORMATION);
+                alert.setTitle("Information Dialog");
+                alert.setHeaderText(null);
+                alert.setContentText("Please Enter a Quantity");
+
+                alert.showAndWait();
+            }
+        }catch(NullPointerException e){
+            Alert alert = new Alert(Alert.AlertType.INFORMATION);
+            alert.setTitle("Information Dialog");
+            alert.setHeaderText(null);
+            alert.setContentText("Please select an item");
+
+            alert.showAndWait();
+        }
         
-        Stage stage = (Stage) cancelbtn.getScene().getWindow();
-        stage.close();
     }
 
     @FXML
@@ -125,12 +147,51 @@ public class SOItemsController implements Initializable {
             }
         });
         
+        this.inventoryidfld.textProperty().addListener((ObservableValue<? extends String> observable, String oldValue, String newValue) -> {
+            if (!newValue.matches("\\d*")) {
+                inventoryidfld.setText(newValue.replaceAll("[^\\d]", ""));
+            }
+        });
+        
         this.searchbtn.setOnAction((ActionEvent event) -> {
             System.out.println(inventoryidfld.getText());
             try {
                 this.searchSKU(inventoryidfld.getText());
             } catch (SQLException ex) {
                 Logger.getLogger(SOItemsController.class.getName()).log(Level.SEVERE, null, ex);
+            }
+        });
+        
+        this.qtyfld.setOnKeyPressed((KeyEvent event) -> {
+            if(event.getCode().equals(KeyCode.ENTER)){
+                System.out.println(inventoryidfld.getText());
+                try {
+                    try{
+                        if(!this.qtyfld.getText().isEmpty()){
+                            item = iq.getInventoryWPrice(this.inventorytable.getSelectionModel().getSelectedItem().getIdinventory(), 1);
+
+                            Stage stage = (Stage) cancelbtn.getScene().getWindow();
+                            stage.close();
+                        }
+                        else{
+                            Alert alert = new Alert(Alert.AlertType.INFORMATION);
+                            alert.setTitle("Information Dialog");
+                            alert.setHeaderText(null);
+                            alert.setContentText("Please Enter a Quantity");
+
+                            alert.showAndWait();
+                        }
+                    }catch(NullPointerException e){
+                        Alert alert = new Alert(Alert.AlertType.INFORMATION);
+                        alert.setTitle("Information Dialog");
+                        alert.setHeaderText(null);
+                        alert.setContentText("Please select an item");
+
+                        alert.showAndWait();
+                    }
+                } catch (SQLException ex) {
+                    Logger.getLogger(SOItemsController.class.getName()).log(Level.SEVERE, null, ex);
+                }
             }
         });
     }    

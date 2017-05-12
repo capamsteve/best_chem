@@ -10,7 +10,7 @@ package models;
  * @author Steven
  */
 public class ContactModel {
-    private int contactid;
+    private Integer contactid;
     private int customerid;
     private String contactName;
     private String contactNumber;

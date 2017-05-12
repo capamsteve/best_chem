@@ -78,8 +78,7 @@ public class ReturnsQuery {
         
         while(rs.hasNext()){
             HashMap map = (HashMap) rs.next();
-            ReturnsModel returns = new ReturnsModel();
-            returns.setIdreturns((int) map.get("idreturns"));
+            ReturnsModel returns = new ReturnsModel(Integer.valueOf(map.get("idreturns").toString()));
             returns.setSku((String) map.get("sku"));
             returns.setSkudesc((String) map.get("desc"));
             returns.setRetuom((String) map.get("retuom"));
@@ -117,8 +116,7 @@ public class ReturnsQuery {
         
         while(rs.hasNext()){
             HashMap map = (HashMap) rs.next();
-            returns = new ReturnsModel();
-            returns.setIdreturns((int) map.get("idreturns"));
+            returns = new ReturnsModel(Integer.valueOf(map.get("idreturns").toString()));
             returns.setSku((String) map.get("sku"));
             returns.setSkudesc((String) map.get("desc"));
             returns.setRetuom((String) map.get("retuom"));
@@ -156,8 +154,7 @@ public class ReturnsQuery {
         
         while(rs.hasNext()){
             HashMap map = (HashMap) rs.next();
-            ReturnsModel returns = new ReturnsModel();
-            returns.setIdreturns((int) map.get("idreturns"));
+            ReturnsModel returns = new ReturnsModel(Integer.valueOf(map.get("idreturns").toString()));
             returns.setSku((String) map.get("sku"));
             returns.setSkudesc((String) map.get("desc"));
             returns.setRetuom((String) map.get("retuom"));
@@ -235,6 +232,26 @@ public class ReturnsQuery {
         
     }
     
+    public void editReturnAdjustment(ReturnAdjustmentModel ram, int table) throws SQLException{
+        String query = "";
+        
+        if(table == 1){
+            query = "CALL RETURNS_ADJ_EDIT(?,?,?,?)";
+        }
+        
+        DBQuery dbq = DBQuery.getInstance();
+        DBConnect dbc = DBConnect.getInstance();
+        
+        PreparedStatement st = dbc.getConnection().prepareStatement(query);
+        
+        st.setDate(1, Date.valueOf(ram.getRamdte().toString()));
+        st.setString(2, ram.getRefnum());
+        st.setString(3, ram.getDesc());
+        st.setInt(4, ram.getRamid());
+        
+        st.executeUpdate();
+    }
+    
     public void addReturnAdjustmentItems(Iterator items, int id, int table) throws SQLException{
         
         String query = "";
@@ -259,6 +276,33 @@ public class ReturnsQuery {
             ps.setInt(5, id);
             
             ps.addBatch();
+        }
+        
+        ps.executeBatch();
+        
+        dbc.closeConnection();
+        
+    }
+    
+    public void editReturnAdjustmentItems(Iterator items, int table) throws SQLException{
+        String query = "";
+        
+        if(table == 1){
+            query = "call `RETURNS_ADJ_EDIT_ITEMS`(?);";
+        }
+        
+        DBConnect dbc = DBConnect.getInstance();
+        
+        PreparedStatement ps = dbc.getConnection().prepareStatement(query);
+        while(items.hasNext()){
+            ReturnsModel item = (ReturnsModel) items.next();
+            
+            if(item.getRetadjitemid() != 0){
+                ps.setInt(1, item.getRetadjitemid());
+
+                ps.addBatch();
+            }
+            
         }
         
         ps.executeBatch();
@@ -300,6 +344,88 @@ public class ReturnsQuery {
         
         dbc.closeConnection();
         return ramlist.iterator();
+    }
+    
+    public Iterator getReturnAdjustmentItems(int ramid, int table) throws SQLException{
+        String query = "";
+        
+        if(table == 1){
+            query = "CALL `RETURNS_ADJ_GET_ITEMS`(?)";
+        }
+        else if(table == 2){
+            query = "SELECT * FROM bestchem_db2.returns_adjustments_items where return_id = ?;";
+        }
+        
+        ArrayList<ReturnsModel> ramlist = new ArrayList();
+        
+        DBQuery db = DBQuery.getInstance();
+        DBConnect dbc = DBConnect.getInstance();
+        
+        PreparedStatement st = dbc.getConnection().prepareStatement(query);
+        st.setInt(1, ramid);
+        
+        Iterator rs = db.getQueryResultSet(st);
+        
+        int i = 0;
+        while(rs.hasNext()){
+            HashMap map = (HashMap) rs.next();
+            ReturnsModel returnsadj = new ReturnsModel(Integer.parseInt(map.get("return_id").toString()));
+            returnsadj.setRetadjid(Integer.parseInt(map.get("retadj_id").toString()));
+            returnsadj.setRetadjitemid(Integer.parseInt(map.get("idretadtems").toString()));
+            returnsadj.setSoh(Integer.parseInt(map.get("stock_qty").toString()));
+            returnsadj.setSku(map.get("sku").toString());
+            returnsadj.setSkudesc(map.get("desc").toString());
+            returnsadj.setMov(map.get("mov").toString());
+            returnsadj.setRetwhs(map.get("retwhs").toString());
+            returnsadj.setRetuom(map.get("retuom").toString());
+            
+            ramlist.add(returnsadj);
+            i++;
+        }
+        System.out.println(i);
+        
+        dbc.closeConnection();
+        return ramlist.iterator();
+    }
+    
+    public void PostReturnAdjustment(Iterator items, int ramid) throws SQLException{
+        
+        DBConnect dbc = DBConnect.getInstance();
+        
+        PreparedStatement ps = dbc.getConnection().prepareStatement("CALL `RETURNS_ADJ_PGI_STAT`(?)");
+        PreparedStatement ps1 = dbc.getConnection().prepareStatement("CALL `UPDATE_RETURNS_DEC`(?,?,?)");
+        PreparedStatement ps2 = dbc.getConnection().prepareStatement("CALL `UPDATE_RETURNS_INC`(?,?,?)");
+        
+        ps.setInt(1, ramid);
+        
+        while(items.hasNext()){
+            ReturnsModel item = (ReturnsModel) items.next();
+            
+            if(item.getMov().equals("INC")){
+                
+                ps2.setInt(1, item.getRetadjitemid());
+                ps2.setInt(2, item.getIdreturns());
+                ps2.setInt(3, item.getSoh());
+                
+                ps2.addBatch();
+            }else if(item.getMov().equals("DEC")){
+                
+                ps1.setInt(1, item.getRetadjitemid());
+                ps1.setInt(2, item.getIdreturns());
+                ps1.setInt(3, item.getSoh());
+                
+                ps1.addBatch();
+            }
+            
+            
+        }
+        
+        ps.executeUpdate();
+        ps1.executeBatch();
+        ps2.executeBatch();
+        
+        dbc.closeConnection();
+        
     }
     
 }

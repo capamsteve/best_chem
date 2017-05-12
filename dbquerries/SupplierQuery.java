@@ -56,7 +56,10 @@ public class SupplierQuery {
             if(generatedKeys.next()){
                 System.out.println(generatedKeys.getInt(1));
                 int supid = generatedKeys.getInt(1);
-                this.addContactSupplier(sup.getScm().iterator(), supid, table);
+                
+                if(!sup.getScm().isEmpty()){
+                    this.addContactSupplier(sup.getScm().iterator(), supid, table);
+                }
             }
         }catch(Exception e){
             e.printStackTrace();
@@ -64,7 +67,86 @@ public class SupplierQuery {
         
     }
     
-    public void editSupplier(SupplierModel sup, int table){
+    public void editSupplier(SupplierModel sup, int table) throws SQLException{
+        String query = "";
+        
+        if(table == 1){
+            query = "CALL `SUPPLIER_EDIT` (?,?,?,?,?,?,?);";
+        }
+        else if(table == 2){
+        }
+        
+        DBConnect dbc = DBConnect.getInstance();
+        PreparedStatement st = dbc.getConnection().prepareStatement(query);
+        
+        st.setString(1, sup.getSupname());
+        st.setString(2, sup.getSuptin());
+        st.setString(3, sup.getSupaddress());
+        st.setString(4, sup.getSupbustyp());
+        st.setString(5, sup.getSuppymttrm());
+        st.setString(6, sup.getPostal());
+        st.setInt(7, sup.getSupid());
+        
+        st.executeUpdate();
+    }
+    
+    public void editContactSupplier(Iterator supcon, int table) throws SQLException{
+        String query = "";
+        
+        if(table == 1){
+            query = "CALL `SUP_CONTACT_EDIT`(?,?,?,?)";
+        }
+        else if(table == 2){
+        }
+        DBQuery dbq = DBQuery.getInstance();
+        DBConnect dbc = DBConnect.getInstance();
+        PreparedStatement ps = dbc.getConnection().prepareStatement(query);
+        
+        while(supcon.hasNext()){
+            SupplierContactModel contact = (SupplierContactModel) supcon.next();
+            if(contact.getCid() != 0){
+                ps.setString(1, contact.getSupcname());
+                ps.setString(2, contact.getContact());
+                ps.setString(3, contact.getSupemail());
+                ps.setInt(4, contact.getCid());
+
+                ps.addBatch();
+            }
+            
+        }
+        
+        ps.executeBatch();
+        
+        dbc.closeConnection();
+        
+    }
+    
+    public void deleteContacts(Iterator supcon, int table) throws SQLException{
+        String query = "";
+        
+        if(table == 1){
+            query = "CALL `SUP_CONTACT_DEL`(?)";
+        }
+        else if(table == 2){
+
+        }
+        DBQuery dbq = DBQuery.getInstance();
+        DBConnect dbc = DBConnect.getInstance();
+        PreparedStatement ps = dbc.getConnection().prepareStatement(query);
+        
+        while(supcon.hasNext()){
+            SupplierContactModel contact = (SupplierContactModel) supcon.next();
+            if(contact.getCid() != 0){
+                ps.setInt(1, contact.getCid());
+            
+                ps.addBatch();
+            }
+            
+        }
+        
+        ps.executeBatch();
+        
+        dbc.closeConnection();
         
     }
     
@@ -97,18 +179,7 @@ public class SupplierQuery {
         dbc.closeConnection();
     }
     
-    public void editContactSupplier(SupplierContactModel supcon, int table){
-        
-        String query = "";
-        
-        if(table == 1){
-            query = "";
-        }
-        else if(table == 2){
-            query = "";
-        }
-        
-    }
+    
     
     public Iterator getAllSuppliers(int table) throws SQLException{
         

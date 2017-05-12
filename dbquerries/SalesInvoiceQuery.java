@@ -12,6 +12,8 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.time.LocalDate;
+import java.util.HashMap;
 import java.util.Iterator;
 import models.SIModel;
 import models.SItemsModel;
@@ -89,20 +91,35 @@ public class SalesInvoiceQuery {
         return iterate;
     }
     
-    public SIModel getSalesInvoiceModel(int id){
+    public SIModel getSalesInvoiceModel(int id) throws SQLException{
         
         DBQuery dbq = DBQuery.getInstance();
         DBConnect dbc = DBConnect.getInstance();
         
-        PreparedStatement st = dbc.getConnection().prepareStatement("SELECT * FROM bestchem_db2.salesinvoices where soidinvc = ?;");
+        PreparedStatement st = dbc.getConnection().prepareStatement("SELECT * FROM bestchem_db2.salesinvoices where idsalesinvoices = ?;");
         
-        st.setInt(1, soid);
+        st.setInt(1, id);
+        
+        SIModel model = null;
         
         Iterator iterate = dbq.getQueryResultSet(st);
         
-        return iterate;
+        while(iterate.hasNext()){
+            HashMap map = (HashMap) iterate.next();
+            model = new SIModel();
+            
+            model.setSiid(Integer.parseInt(map.get("idsalesinvoices").toString()));
+            model.setRemarks(map.get("remarks").toString());
+            model.setStatus(map.get("status").toString());
+            model.setTrcnme(map.get("truckername").toString());
+            model.setPlateno(map.get("plateno").toString());
+            model.setDrvnme(map.get("drivername").toString());
+            model.setDte(Date.valueOf(map.get("sidte").toString()));
+            
+            
+        }
         
-        return null;
+        return model;
     }
     
     public Iterator getLineItems(int soid, int custid) throws SQLException{
@@ -117,6 +134,73 @@ public class SalesInvoiceQuery {
         Iterator iterate = dbq.getQueryResultSet(st);
         
         return iterate;
+    }
+    
+    public void Print(int siid, int biid, String rep) throws SQLException{
+        
+        
+        if(rep.equals("Print")){
+            DBQuery dbq = DBQuery.getInstance();
+            DBConnect dbc = DBConnect.getInstance();
+
+            PreparedStatement st = dbc.getConnection().prepareStatement("CALL `PRINT_ADD`(?,?,?,?)");
+
+            st.setInt(1, siid);
+            st.setInt(3, biid);
+            st.setString(2, "PRINT");
+            st.setDate(4, Date.valueOf(LocalDate.now()));
+
+            st.execute();
+            dbc.closeConnection();
+        }else if(rep.equals("Re-print")){
+            
+            DBQuery dbq = DBQuery.getInstance();
+            DBConnect dbc = DBConnect.getInstance();
+
+            PreparedStatement st = dbc.getConnection().prepareStatement("SELECT * FROM bestchem_db2.print_invoice where billing_id = ? and `status` = 'PRINT';");
+
+            st.setInt(1, biid);
+
+            Iterator ir = dbq.getQueryResultSet(st);
+            int prnt_id = 0;
+            
+            while(ir.hasNext()){
+                HashMap map = (HashMap) ir.next();
+                
+                prnt_id = Integer.parseInt(map.get("idprint_invoice").toString());
+            }
+            
+
+            PreparedStatement st2 = dbc.getConnection().prepareStatement("UPDATE `bestchem_db2`.`print_invoice` SET `status`='CANCELLED' WHERE `idprint_invoice`=?;");
+
+            st2.setInt(1, prnt_id);
+            
+            st2.executeUpdate();
+            
+            PreparedStatement st3 = dbc.getConnection().prepareStatement("CALL `PRINT_ADD`(?,?,?,?)");
+
+            st3.setInt(1, siid);
+            st3.setInt(3, biid);
+            st3.setString(2, "PRINT");
+            st3.setDate(4, Date.valueOf(LocalDate.now()));
+
+            st3.execute();
+            dbc.closeConnection();
+            
+        }
+        
+    }
+    
+    public void changePrintStatus(int biid) throws SQLException{
+        
+        DBQuery dbq = DBQuery.getInstance();
+        DBConnect dbc = DBConnect.getInstance();
+
+        PreparedStatement st = dbc.getConnection().prepareStatement("UPDATE `bestchem_db2`.`salesinvoices` SET `printstat`='Y' WHERE `idsalesinvoices`=?;");
+
+        st.setInt(1, biid);
+        
+        st.executeUpdate();
     }
     
 }

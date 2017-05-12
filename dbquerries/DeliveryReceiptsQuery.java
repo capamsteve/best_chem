@@ -7,11 +7,13 @@ package dbquerries;
 
 import dbconn.DBConnect;
 import dbconn.DBQuery;
+import delivery.DRItemViewModel;
 import java.sql.Date;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
 import models.DRItemsModel;
@@ -42,7 +44,6 @@ public class DeliveryReceiptsQuery {
         try{
             
             if(generatedKeys.next()){
-                System.out.println(generatedKeys.getInt(1));
                 int salesid = generatedKeys.getInt(1);
                 this.addDeliveryItemOrders(dr.getDritems().iterator(), salesid);
             }
@@ -71,7 +72,6 @@ public class DeliveryReceiptsQuery {
         try{
             
             if(generatedKeys.next()){
-                System.out.println(generatedKeys.getInt(1));
                 salesid = generatedKeys.getInt(1);
                 this.addDeliveryItemOrders(dr.getDritems().iterator(), salesid);
             }
@@ -109,14 +109,29 @@ public class DeliveryReceiptsQuery {
         
     }
     
-    public Iterator getDeliverReceipts(int soid) throws SQLException{
+    public Iterator getAllDeliveryReceipts(int soid) throws SQLException{
+        DBQuery dbq = DBQuery.getInstance();
+        DBConnect dbc = DBConnect.getInstance();
+        
+        PreparedStatement st = dbc.getConnection().prepareStatement("SELECT * from deliveryorders where soid = ?;");
+        
+        st.setInt(1, soid);
+        
+        Iterator iterate = dbq.getQueryResultSet(st);
+        
+        return iterate;
+    }
+    
+    public Iterator getDeliverReceipts(int soid, String status1, String status2) throws SQLException{
         
         DBQuery dbq = DBQuery.getInstance();
         DBConnect dbc = DBConnect.getInstance();
         
-        PreparedStatement st = dbc.getConnection().prepareStatement("SELECT * from deliveryorders where soid = ?");
+        PreparedStatement st = dbc.getConnection().prepareStatement("SELECT * from deliveryorders where soid = ? and drpgi = ? and drstatus =?;");
         
         st.setInt(1, soid);
+        st.setString(2, status1);
+        st.setString(3, status2);
         
         Iterator iterate = dbq.getQueryResultSet(st);
         
@@ -124,14 +139,15 @@ public class DeliveryReceiptsQuery {
         
     }
     
-    public Iterator getSalesOrderItems(int soid) throws SQLException{
+    public Iterator getSalesOrderItems(int soid, String stat) throws SQLException{
         
         DBQuery dbq = DBQuery.getInstance();
         DBConnect dbc = DBConnect.getInstance();
         
-        PreparedStatement st = dbc.getConnection().prepareStatement("CALL `SALES_ORDERITEMS_GET` (?);");
+        PreparedStatement st = dbc.getConnection().prepareStatement("CALL `SALES_ORDERITEMS_GET` (?,?);");
         
         st.setInt(1, soid);
+        st.setString(2, stat);
         
         Iterator iterate = dbq.getQueryResultSet(st);
         
@@ -151,20 +167,7 @@ public class DeliveryReceiptsQuery {
         return iterate;
     }
     
-    public Iterator getDeliveryOrderItemsIfNull(int drid, int soid) throws SQLException{
-        DBQuery dbq = DBQuery.getInstance();
-        DBConnect dbc = DBConnect.getInstance();
-        
-        PreparedStatement st = dbc.getConnection().prepareStatement("CALL `REMAINING_DR_TEMS` (?);");
-        
-        st.setInt(1, soid);
-        
-        Iterator iterate = dbq.getQueryResultSet(st);
-        
-        return iterate;
-    }
-    
-    public Iterator getDeliverOrderItemsWRemaining(int drid, int soid) throws SQLException{
+    public Iterator getDeliveryOrderItems(int drid, int soid) throws SQLException{
         DBQuery dbq = DBQuery.getInstance();
         DBConnect dbc = DBConnect.getInstance();
         
@@ -181,7 +184,7 @@ public class DeliveryReceiptsQuery {
         
         DBConnect dbc = DBConnect.getInstance();
         
-        PreparedStatement st = dbc.getConnection().prepareStatement("SELECT count(*) from deliveryorders where deliveryorders.soid = ?;");
+        PreparedStatement st = dbc.getConnection().prepareStatement("SELECT count(*) from deliveryorders where deliveryorders.soid = ? and drstatus = 'open';");
         
         st.setInt(1, soid);
         
@@ -192,7 +195,32 @@ public class DeliveryReceiptsQuery {
         try{
             
             if(rs.next()){
-                System.out.println(rs.getInt(1));
+                pass = rs.getInt(1);
+            }
+        }catch(Exception e){
+            e.printStackTrace();
+        }
+        
+        dbc.closeConnection();
+        
+        return pass;
+    }
+    
+    public int getDRPGICount(int soid) throws SQLException{
+        
+        DBConnect dbc = DBConnect.getInstance();
+        
+        PreparedStatement st = dbc.getConnection().prepareStatement("SELECT count(*) from deliveryorders where deliveryorders.soid = ? and deliveryorders.drpgi = 'N' and drstatus = 'open';");
+        
+        st.setInt(1, soid);
+        
+        ResultSet rs = st.executeQuery();
+        
+        int pass = 0;
+        
+        try{
+            
+            if(rs.next()){
                 pass = rs.getInt(1);
             }
         }catch(Exception e){
@@ -217,14 +245,12 @@ public class DeliveryReceiptsQuery {
         Iterator map = dbq.getQueryResultSet(st);
         
         while(map.hasNext()){
-            System.out.println("1");
             HashMap temp = (HashMap) map.next();
             
             //System.out.println(temp.get("iddeliver").toString());
             
-            drvm = new DRModel();
-            
-            drvm.setDrid(Integer.valueOf(temp.get("iddeliveryorders").toString()));
+            drvm = new DRModel(Integer.valueOf(temp.get("iddeliveryorders").toString()));
+
             drvm.setDrdate(Date.valueOf(temp.get("drdate").toString()));
             drvm.setPgi(temp.get("drpgi").toString());
             drvm.setDrprint(temp.get("drprint").toString());
@@ -241,7 +267,7 @@ public class DeliveryReceiptsQuery {
         DBConnect dbc = DBConnect.getInstance();
         DRModel drvm = null;
         
-        PreparedStatement st = dbc.getConnection().prepareStatement("SELECT * FROM bestchem_db2.deliveryorderitems where drorder = ?");
+        PreparedStatement st = dbc.getConnection().prepareStatement("CALL `DR_ITEM_GET`(?)");
         
         st.setInt(1, id);
         
@@ -250,4 +276,118 @@ public class DeliveryReceiptsQuery {
         return map;
     }
     
+    public void changePGIStatusItems(Iterator ir) throws SQLException{
+        
+        DBQuery dbq = DBQuery.getInstance();
+        DBConnect dbc = DBConnect.getInstance();
+        
+        PreparedStatement st = dbc.getConnection().prepareStatement("CALL`DR_UPDATE_ITEMS`(?)");
+        
+        while(ir.hasNext()){
+            DRItemViewModel item = (DRItemViewModel) ir.next();
+            System.out.println(item.getDritemid());
+            st.setInt(1, item.getDritemid());
+
+            st.addBatch();
+        }
+        
+        st.executeBatch();
+    }
+    
+    public void changePGIStatusDR(int drid) throws SQLException{
+        
+        DBQuery dbq = DBQuery.getInstance();
+        DBConnect dbc = DBConnect.getInstance();
+        
+        PreparedStatement st = dbc.getConnection().prepareStatement("CALL `DR_CHANGE_PGI`(?,?);");
+        
+        st.setInt(1, drid);
+        st.setString(2, "Y");
+        
+        st.execute();
+    }
+    
+    public void changeStatusDR(int drid) throws SQLException{
+        DBQuery dbq = DBQuery.getInstance();
+        DBConnect dbc = DBConnect.getInstance();
+        
+        PreparedStatement st = dbc.getConnection().prepareStatement("CALL `DR_CHANGE_STATUS`(?,?);");
+        
+        st.setInt(1, drid);
+        st.setString(2, "cancelled");
+        
+        st.execute();
+    }
+    
+    public void editDR(DRModel dr) throws SQLException{
+        DBQuery dbq = DBQuery.getInstance();
+        DBConnect dbc = DBConnect.getInstance();
+        PreparedStatement st = dbc.getConnection().prepareStatement("CALL `DR_EDIT`(?,?,?);");
+        st.setDate(1, Date.valueOf(dr.getDrdate().toString()));
+        st.setString(2, dr.getRemarks());
+        st.setInt(3, dr.getDrid());
+        
+        st.executeUpdate();
+    }
+    
+    public void editDRItems(Iterator items) throws SQLException{
+        DBConnect dbc = DBConnect.getInstance();
+        
+        PreparedStatement ps = dbc.getConnection().prepareStatement("call DR_ITEM_EDIT(?,?);");
+        while(items.hasNext()){
+            DRItemsModel item = (DRItemsModel) items.next();
+            System.out.println(item.getDrqty());
+            ps.setInt(1, item.getDritemid());
+            ps.setInt(2, item.getDrqty());
+            
+            ps.addBatch();
+        }
+        
+        ps.executeBatch();
+        
+        dbc.closeConnection();
+    }
+    
+    public Iterator getDRbyID(String soid) throws SQLException{
+        
+        DBQuery dbq = DBQuery.getInstance();
+        DBConnect dbc = DBConnect.getInstance();
+        ArrayList<DRModel> list = new ArrayList();
+        
+        PreparedStatement st = dbc.getConnection().prepareStatement("SELECT * FROM bestchem_db2.deliveryorders where soid = ? and drpgi = 'N' and drstatus ='open';");
+        
+        soid = "%" + soid + "%";
+        
+        st.setString(1, soid);
+        
+        Iterator rs = dbq.getQueryResultSet(st);
+        
+        while(rs.hasNext()){
+            HashMap temp = (HashMap) rs.next();
+            DRModel drvm = new DRModel(Integer.valueOf(temp.get("iddeliveryorders").toString()));
+
+            drvm.setDrdate(Date.valueOf(temp.get("drdate").toString()));
+            drvm.setPgi(temp.get("drpgi").toString());
+            drvm.setDrprint(temp.get("drprint").toString());
+            drvm.setDrstatus(temp.get("drstatus").toString());
+            drvm.setRemarks(temp.get("remarks").toString());
+            list.add(drvm);
+        }
+        
+        dbc.closeConnection();
+        return list.iterator();
+    }
+    
+    public void changeDRPrint(int drid) throws SQLException{
+        
+        DBQuery dbq = DBQuery.getInstance();
+        DBConnect dbc = DBConnect.getInstance();
+        
+        PreparedStatement st = dbc.getConnection().prepareStatement("UPDATE `bestchem_db2`.`deliveryorders` SET `drprint`='Y' WHERE `iddeliveryorders`=?;");
+        
+        st.setInt(1, drid);
+        
+        st.execute();
+        
+    }
 }

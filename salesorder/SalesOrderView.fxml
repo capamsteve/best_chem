@@ -9,11 +9,11 @@
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
 
-<ScrollPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="882.0" prefWidth="961.0" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1" fx:controller="salesorder.SalesOrderController">
+<ScrollPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="756.0" prefWidth="961.0" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1" fx:controller="salesorder.SalesOrderController">
    <content>
-      <Pane prefHeight="882.0" prefWidth="961.0">
+      <Pane prefHeight="746.0" prefWidth="961.0">
          <children>
-            <Pane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="882.0" prefWidth="961.0">
+            <Pane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="751.0" prefWidth="961.0">
                <children>
                   <ImageView fitHeight="40.0" fitWidth="38.0" layoutX="30.0" layoutY="18.0" pickOnBounds="true" preserveRatio="true">
                      <image>
@@ -44,9 +44,9 @@
                   </Label>
                   <TextField fx:id="tinfld" layoutX="594.0" layoutY="68.0" prefHeight="25.0" prefWidth="325.0" />
                   <Button layoutX="863.0" layoutY="25.0" mnemonicParsing="false" text="Refresh" />
-                  <StackPane layoutX="31.0" layoutY="191.0" prefHeight="316.0" prefWidth="892.0">
+                  <StackPane layoutX="31.0" layoutY="191.0" prefHeight="219.0" prefWidth="892.0">
                      <children>
-                        <TableView fx:id="salestble" prefHeight="200.0" prefWidth="200.0">
+                        <TableView fx:id="salestble" prefHeight="178.0" prefWidth="892.0">
                            <columns>
                               <TableColumn prefWidth="180.0" text="SO#" />
                               <TableColumn prefWidth="196.0" text="SO DATE" />
@@ -57,7 +57,7 @@
                         </TableView>
                      </children>
                   </StackPane>
-                  <StackPane layoutX="31.0" layoutY="566.0" prefHeight="294.0" prefWidth="442.0">
+                  <StackPane layoutX="31.0" layoutY="476.0" prefHeight="248.0" prefWidth="442.0">
                      <children>
                         <TableView fx:id="drtable" prefHeight="200.0" prefWidth="200.0">
                            <columns>
@@ -70,11 +70,11 @@
                         </TableView>
                      </children>
                   </StackPane>
-                  <StackPane layoutX="504.0" layoutY="566.0" prefHeight="294.0" prefWidth="421.0">
+                  <StackPane layoutX="504.0" layoutY="476.0" prefHeight="248.0" prefWidth="421.0">
                      <children>
                         <TableView fx:id="invoicetble" prefHeight="200.0" prefWidth="200.0">
                            <columns>
-                              <TableColumn prefWidth="131.0" text="INVOICE#" />
+                              <TableColumn prefWidth="131.0" text="Billing Document#" />
                               <TableColumn prefWidth="137.0" text="INVOICE DATE" />
                               <TableColumn prefWidth="66.0" text="Print" />
                               <TableColumn prefWidth="86.0" text="Status" />
@@ -89,6 +89,16 @@
                         <Button fx:id="viewsobtn" mnemonicParsing="false" onAction="#viewSalesOrder" text="VIEW" />
                         <Button fx:id="draddbtn" mnemonicParsing="false" onAction="#addDR" text="ADD DELIVERY RECEIPT" />
                         <Button fx:id="addinvoicebtn" mnemonicParsing="false" onAction="#addSI" text="ADD SALES INVOICE" />
+                        <TextField fx:id="sofld" promptText="Search SO#" />
+                        <Button fx:id="searchbtn" mnemonicParsing="false">
+                           <graphic>
+                              <ImageView fitHeight="15.0" fitWidth="21.0" pickOnBounds="true" preserveRatio="true">
+                                 <image>
+                                    <Image url="@../res/searchicon.png" />
+                                 </image>
+                              </ImageView>
+                           </graphic>
+                        </Button>
                      </items>
                   </ToolBar>
                   <Label layoutX="36.0" layoutY="136.0" text="SALES ORDERS">
@@ -99,7 +109,7 @@
                         <Insets right="20.0" />
                      </padding>
                   </Label>
-                  <Label layoutX="36.0" layoutY="514.0" text="DELIVERY RECEIPTS">
+                  <Label layoutX="36.0" layoutY="424.0" text="DELIVERY RECEIPTS">
                      <font>
                         <Font name="System Bold" size="15.0" />
                      </font>
@@ -107,13 +117,13 @@
                         <Insets right="20.0" />
                      </padding>
                   </Label>
-                  <ToolBar layoutX="31.0" layoutY="531.0" prefHeight="35.0" prefWidth="442.0">
+                  <ToolBar layoutX="31.0" layoutY="441.0" prefHeight="35.0" prefWidth="442.0">
                      <items>
                         <Button fx:id="editdrbtn" mnemonicParsing="false" onAction="#editDR" text="EDIT" />
                         <Button fx:id="viewdrbtn" mnemonicParsing="false" onAction="#viewDR" text="VIEW" />
                      </items>
                   </ToolBar>
-                  <Label layoutX="509.0" layoutY="514.0" text="SALES INVOICES">
+                  <Label layoutX="509.0" layoutY="424.0" text="SALES INVOICES">
                      <font>
                         <Font name="System Bold" size="15.0" />
                      </font>
@@ -121,7 +131,7 @@
                         <Insets right="20.0" />
                      </padding>
                   </Label>
-                  <ToolBar layoutX="504.0" layoutY="532.0" prefHeight="35.0" prefWidth="421.0">
+                  <ToolBar layoutX="504.0" layoutY="442.0" prefHeight="35.0" prefWidth="421.0">
                      <items>
                         <Button fx:id="editsibtn" mnemonicParsing="false" onAction="#editSI" text="EDIT" />
                         <Button fx:id="viewsibtn" mnemonicParsing="false" onAction="#viewSI" text="VIEW" />

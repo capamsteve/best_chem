@@ -15,14 +15,14 @@
             <Font name="Rockwell" size="26.0" />
          </font>
       </Label>
-      <Button fx:id="pendingbtn" layoutX="506.0" layoutY="623.0" mnemonicParsing="false" onAction="#postToInventory" text="Post good Issue" />
-      <Label layoutX="31.0" layoutY="106.0" text="GI Date:">
+      <Button fx:id="pgibtn" layoutX="506.0" layoutY="623.0" mnemonicParsing="false" onAction="#postToInventory" text="Post good Issue" />
+      <Label layoutX="471.0" layoutY="115.0" text="GI Date:">
          <font>
             <Font name="Arial" size="14.0" />
          </font>
       </Label>
-      <DatePicker fx:id="datefld" layoutX="97.0" layoutY="102.0" prefHeight="25.0" prefWidth="182.0" />
-      <TextField fx:id="customerfld" layoutX="143.0" layoutY="134.0" prefHeight="25.0" prefWidth="245.0" />
+      <DatePicker fx:id="datefld" layoutX="537.0" layoutY="111.0" prefHeight="25.0" prefWidth="182.0" />
+      <TextField fx:id="customerfld" layoutX="143.0" layoutY="121.0" prefHeight="25.0" prefWidth="245.0" />
       <ToolBar layoutX="16.0" layoutY="294.0" prefHeight="40.0" prefWidth="706.0">
          <items>
             <Button id="Addbtn" fx:id="addbtn" mnemonicParsing="false" onAction="#AddItem" text="Add" />
@@ -44,19 +44,7 @@
             </TableView>
          </children>
       </StackPane>
-      <Label layoutX="31.0" layoutY="138.0" text="Customer Name:">
-         <font>
-            <Font name="Arial" size="14.0" />
-         </font>
-      </Label>
-      <Label layoutX="471.0" layoutY="178.0" text="CBY:">
-         <font>
-            <Font name="Arial" size="14.0" />
-         </font>
-      </Label>
-      <TextField fx:id="cbyfld" layoutX="509.0" layoutY="175.0" prefHeight="25.0" prefWidth="210.0" />
-      <TextField fx:id="drifld" layoutX="510.0" layoutY="86.0" prefHeight="25.0" prefWidth="210.0" />
-      <Label layoutX="472.0" layoutY="91.0" text="DR#">
+      <Label layoutX="31.0" layoutY="125.0" text="Customer Name:">
          <font>
             <Font name="Arial" size="14.0" />
          </font>
@@ -67,8 +55,8 @@
          </font>
       </Label>
       <TextField fx:id="addressfld" layoutX="155.0" layoutY="204.0" prefHeight="25.0" prefWidth="564.0" />
-      <TextField fx:id="refnumfld" layoutX="555.0" layoutY="119.0" prefHeight="25.0" prefWidth="166.0" />
-      <Label layoutX="471.0" layoutY="124.0" text="Reference#">
+      <TextField fx:id="refnumfld" layoutX="554.0" layoutY="144.0" prefHeight="25.0" prefWidth="166.0" />
+      <Label layoutX="470.0" layoutY="149.0" text="Reference#">
          <font>
             <Font name="Arial" size="14.0" />
          </font>
@@ -84,24 +72,24 @@
          </image>
       </ImageView>
       <TextArea fx:id="descfld" layoutX="143.0" layoutY="236.0" prefHeight="49.0" prefWidth="577.0" />
-      <Label layoutX="30.0" layoutY="175.0" text="Contact Person">
+      <Label layoutX="30.0" layoutY="162.0" text="Contact Person">
          <font>
             <Font name="Arial" size="14.0" />
          </font>
       </Label>
-      <TextField fx:id="contactfld" layoutX="142.0" layoutY="171.0" prefHeight="25.0" prefWidth="245.0" />
-      <Label layoutX="31.0" layoutY="78.0" text="GI#">
+      <TextField fx:id="contactfld" layoutX="142.0" layoutY="158.0" prefHeight="25.0" prefWidth="245.0" />
+      <Label layoutX="31.0" layoutY="92.0" text="GI#">
          <font>
             <Font name="Arial" size="14.0" />
          </font>
       </Label>
-      <Label layoutX="471.0" layoutY="152.0" text="Attention:">
+      <Label layoutX="470.0" layoutY="177.0" text="Attention:">
          <font>
             <Font name="Arial" size="14.0" />
          </font>
       </Label>
-      <TextField fx:id="attentionfld" layoutX="555.0" layoutY="147.0" prefHeight="25.0" prefWidth="166.0" />
-      <TextField fx:id="idfld" layoutX="69.0" layoutY="72.0" prefHeight="25.0" prefWidth="210.0" />
+      <TextField fx:id="attentionfld" layoutX="554.0" layoutY="172.0" prefHeight="25.0" prefWidth="166.0" />
+      <TextField fx:id="idfld" layoutX="69.0" layoutY="86.0" prefHeight="25.0" prefWidth="210.0" />
       <Button fx:id="savebtn" layoutX="615.0" layoutY="623.0" mnemonicParsing="false" onAction="#saveHandler" text="Save" />
       <Button fx:id="cancelbtn" layoutX="667.0" layoutY="623.0" mnemonicParsing="false" onAction="#cancelHandler" text="Cancel" />
    </children>

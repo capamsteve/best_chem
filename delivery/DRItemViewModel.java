@@ -11,8 +11,10 @@ package delivery;
  */
 public class DRItemViewModel {
     
+    private int dritemid;
     private int idsoitem;
     private String sku;
+    private int inventory_id;
     private String skudesc;
     private int ordrqty;
     private int deliveryqty;
@@ -115,6 +117,34 @@ public class DRItemViewModel {
      */
     public void setIdsoitem(int idsoitem) {
         this.idsoitem = idsoitem;
+    }
+
+    /**
+     * @return the inventory_id
+     */
+    public int getInventory_id() {
+        return inventory_id;
+    }
+
+    /**
+     * @param inventory_id the inventory_id to set
+     */
+    public void setInventory_id(int inventory_id) {
+        this.inventory_id = inventory_id;
+    }
+
+    /**
+     * @return the dritemid
+     */
+    public int getDritemid() {
+        return dritemid;
+    }
+
+    /**
+     * @param dritemid the dritemid to set
+     */
+    public void setDritemid(int dritemid) {
+        this.dritemid = dritemid;
     }
     
 }

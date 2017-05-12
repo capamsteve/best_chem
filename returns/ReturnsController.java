@@ -104,6 +104,7 @@ public class ReturnsController extends AbstractController implements Initializab
         this.uomfld.getSelectionModel().select(retmod.getRetuom());
         this.wrhsfld.getSelectionModel().select(retmod.getRetwhs());
         this.sohfld.setDisable(true);
+        this.sohfld.setText(String.valueOf(retmod.getSoh()));
         
         this.savebtn.setText("Save Item");
     }
@@ -122,12 +123,12 @@ public class ReturnsController extends AbstractController implements Initializab
     void saveReturns(ActionEvent event) throws SQLException {
         ReturnsModel returns;
         
-        returns = new ReturnsModel();
+        returns = new ReturnsModel(null);
         returns.setSku(this.skufld.getText());
         returns.setSkudesc(this.sdescfld.getText());
         returns.setRetuom(this.uomfld.getSelectionModel().getSelectedItem());
         returns.setRetwhs(this.wrhsfld.getSelectionModel().getSelectedItem());
-        returns.setSoh(Integer.parseInt(this.sohfld.getText()));
+        
         
         ReturnsQuery rq = new ReturnsQuery();
  
@@ -136,6 +137,7 @@ public class ReturnsController extends AbstractController implements Initializab
             rq.editReturns(returns, super.getType());
         }
         else{
+            returns.setSoh(Integer.parseInt(this.sohfld.getText()));
             rq.addReturns(returns, super.getType());
         }
         

@@ -6,13 +6,25 @@
 package salesorder;
 
 import best_chem.AbstractController;
+import com.itextpdf.io.font.FontConstants;
+import com.itextpdf.kernel.font.PdfFont;
+import com.itextpdf.kernel.font.PdfFontFactory;
+import com.itextpdf.kernel.pdf.PdfDocument;
+import com.itextpdf.kernel.pdf.PdfWriter;
+import com.itextpdf.layout.Document;
+import com.itextpdf.layout.element.List;
+import com.itextpdf.layout.element.ListItem;
+import com.itextpdf.layout.element.Paragraph;
+import customer.CustomerViewController;
 import dbquerries.DeliveryReceiptsQuery;
 import dbquerries.SalesInvoiceQuery;
 import dbquerries.SalesOrderQuery;
+import java.io.File;
 import java.io.IOException;
 import java.net.URL;
 import java.sql.Date;
 import java.sql.SQLException;
+import java.text.SimpleDateFormat;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -33,9 +45,11 @@ import javafx.scene.control.Button;
 import javafx.scene.control.ButtonType;
 import javafx.scene.control.CheckBox;
 import javafx.scene.control.DatePicker;
+import javafx.scene.control.Label;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
 import javafx.scene.control.TextField;
+import javafx.scene.control.TextInputDialog;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
@@ -65,13 +79,7 @@ public class TransactionItemsViewController extends AbstractController implement
     private Button resetbtn;
     
     @FXML
-    private TextField addressfld;
-
-    @FXML
-    private TextField compfld;
-
-    @FXML
-    private TextField tinfld;
+    private Button vcbtn;
 
     @FXML
     private TextField soidfld;
@@ -81,9 +89,6 @@ public class TransactionItemsViewController extends AbstractController implement
 
     @FXML
     private Button cancelbtn;
-    
-    @FXML
-    private TextField bsnstylefld;
 
     @FXML
     private TextField totalfld;
@@ -92,17 +97,8 @@ public class TransactionItemsViewController extends AbstractController implement
     private TextField cpofld;
 
     @FXML
-    private TextField pymttermfld;
-
-    @FXML
     private DatePicker datefld;
-
-    @FXML
-    private TextField idlfd;
     
-    @FXML
-    private CheckBox autochck;
-
     @FXML
     private Button pendingbtn;
     
@@ -112,12 +108,24 @@ public class TransactionItemsViewController extends AbstractController implement
     @FXML
     private Button cancelsobtn;
     
+    @FXML
+    private Label itemNum;
+    
+    @FXML
+    private Button prntbtn;
+    
+    private boolean isEdit;
+    
+    private SOViewModel sovm1;
+    
     private ArrayList<SOItemModel> itemsList = new ArrayList();
+    private ArrayList<SOItemModel> deletedList = new ArrayList();
     private CustomerModel customer;
     
     private SalesOrderQuery soq = new SalesOrderQuery();
     private DeliveryReceiptsQuery drq = new DeliveryReceiptsQuery();
     private SalesInvoiceQuery siq = new SalesInvoiceQuery();
+    
     
     /**
      * Initializes the controller class.
@@ -128,35 +136,19 @@ public class TransactionItemsViewController extends AbstractController implement
     }
     
     public void AddMode(CustomerModel cust){
+        this.isEdit = false;
         this.customer = cust;
         this.statfld.setText("open");
         this.statfld.setEditable(false);
         this.soidfld.setDisable(true);
-        this.compfld.setText(cust.getCompany());
-        this.compfld.setEditable(false);
-        this.idlfd.setText(cust.getIdcustomer());
-        this.idlfd.setEditable(false);
-        this.bsnstylefld.setText(cust.getBusinessstyle());
-        this.bsnstylefld.setEditable(false);
-        this.tinfld.setText(cust.getTin());
-        this.tinfld.setEditable(false);
-        this.addressfld.setText(cust.getAddress());
-        this.addressfld.setEditable(false);
-        this.pymttermfld.setText(cust.getPaymentterm());
-        this.pymttermfld.setEditable(false);
         this.datefld.setValue(LocalDate.now());
-        if(customer.isAuto_create()){
-            this.autochck.setSelected(true);
-        }
-        else{
-            this.autochck.setSelected(false);
-        }
-        
         this.cancelsobtn.setDisable(true);
-        this.autochck.setDisable(true);
+        this.prntbtn.setDisable(true);
     }
     
     public void EditMode(CustomerModel cust, SOViewModel somodel) throws SQLException{
+        this.isEdit = true;
+        this.sovm1 = somodel;
         this.customer = cust;
         this.statfld.setText(somodel.getStatus());
         this.statfld.setEditable(false);
@@ -165,42 +157,24 @@ public class TransactionItemsViewController extends AbstractController implement
         this.cpofld.setText(somodel.getCustomerpo());
         this.datefld.setValue(LocalDate.parse(somodel.getSodate()));
         this.drdatefld.setValue(LocalDate.parse(somodel.getSodrdate()));
-        this.compfld.setText(cust.getCompany());
-        this.compfld.setEditable(false);
-        this.idlfd.setText(cust.getIdcustomer());
-        this.idlfd.setEditable(false);
-        this.bsnstylefld.setText(cust.getBusinessstyle());
-        this.bsnstylefld.setEditable(false);
-        this.tinfld.setText(cust.getTin());
-        this.tinfld.setEditable(false);
-        this.addressfld.setText(cust.getAddress());
-        this.addressfld.setEditable(false);
-        this.pymttermfld.setText(cust.getPaymentterm());
-        this.pymttermfld.setEditable(false);
-        this.datefld.setValue(LocalDate.now());
         
         this.cancelsobtn.setDisable(true);
-        
-        if(customer.isAuto_create()){
-            this.autochck.setSelected(true);
-        }
-        else{
-            this.autochck.setSelected(false);
+        if(somodel.getStatus().equals("WithDR")){
+            this.addbtn.setDisable(true);
+            this.editbtn.setDisable(true);
+            this.resetbtn.setDisable(true);
         }
         
-        this.autochck.setDisable(true);
-        
-        Iterator ir = soq.getSalesOrderItems(somodel.getIdso(), 1);
+        Iterator ir = soq.getSalesOrderItems(somodel.getIdso(), "OPEN");
         while(ir.hasNext()){
             HashMap map = (HashMap) ir.next();
-            SOItemModel model = new SOItemModel();
+            SOItemModel model = new SOItemModel(Integer.parseInt(map.get("inventory_idinventory").toString()));
             
             model.setSoitemid(Integer.parseInt(map.get("idsalesorderitem").toString()));
-            model.setIdinventory(Integer.parseInt(map.get("inventory_idinventory").toString()));
             model.setSku(map.get("sku").toString());
             model.setDesc(map.get("skudesc").toString());
             model.setQty(Integer.parseInt(map.get("ordrqty").toString()));
-            model.setUprice(Double.parseDouble(map.get("sellingPrice").toString()));
+            model.setUprice(Double.parseDouble(map.get("unitprice").toString()));
             model.setUom(map.get("skuom").toString());
             model.setDiscnt(Double.parseDouble(map.get("discnt").toString()));
             model.setAmount(Double.parseDouble(map.get("amount").toString()));
@@ -210,6 +184,8 @@ public class TransactionItemsViewController extends AbstractController implement
         }
         
         this.RefreshItems();
+        this.itemNum.setText(String.valueOf(this.itemsList.size()));
+        this.prntbtn.setDisable(true);
         this.computeTotal();
     }
     
@@ -227,18 +203,6 @@ public class TransactionItemsViewController extends AbstractController implement
         this.datefld.setEditable(false);
         this.drdatefld.setValue(LocalDate.parse(somodel.getSodrdate()));
         this.drdatefld.setEditable(false);
-        this.compfld.setText(cust.getCompany());
-        this.compfld.setEditable(false);
-        this.idlfd.setText(cust.getIdcustomer());
-        this.idlfd.setEditable(false);
-        this.bsnstylefld.setText(cust.getBusinessstyle());
-        this.bsnstylefld.setEditable(false);
-        this.tinfld.setText(cust.getTin());
-        this.tinfld.setEditable(false);
-        this.addressfld.setText(cust.getAddress());
-        this.addressfld.setEditable(false);
-        this.pymttermfld.setText(cust.getPaymentterm());
-        this.pymttermfld.setEditable(false);
         this.datefld.setValue(LocalDate.now());
         
         this.resetbtn.setDisable(true);
@@ -247,26 +211,16 @@ public class TransactionItemsViewController extends AbstractController implement
         this.deletebtn.setDisable(true);
         this.pendingbtn.setDisable(true);
         
-        if(customer.isAuto_create()){
-            this.autochck.setSelected(true);
-        }
-        else{
-            this.autochck.setSelected(false);
-        }
-        
-        this.autochck.setDisable(true);
-        
-        Iterator ir = soq.getSalesOrderItems(somodel.getIdso(), 1);
+        Iterator ir = soq.getSalesOrderItems(somodel.getIdso(), "OPEN");
         while(ir.hasNext()){
             HashMap map = (HashMap) ir.next();
-            SOItemModel model = new SOItemModel();
+            SOItemModel model = new SOItemModel(Integer.parseInt(map.get("inventory_idinventory").toString()));
             
             model.setSoitemid(Integer.parseInt(map.get("idsalesorderitem").toString()));
-            model.setIdinventory(Integer.parseInt(map.get("inventory_idinventory").toString()));
             model.setSku(map.get("sku").toString());
             model.setDesc(map.get("skudesc").toString());
             model.setQty(Integer.parseInt(map.get("ordrqty").toString()));
-            model.setUprice(Double.parseDouble(map.get("sellingPrice").toString()));
+            model.setUprice(Double.parseDouble(map.get("unitprice").toString()));
             model.setUom(map.get("skuom").toString());
             model.setDiscnt(Double.parseDouble(map.get("discnt").toString()));
             model.setAmount(Double.parseDouble(map.get("amount").toString()));
@@ -275,17 +229,18 @@ public class TransactionItemsViewController extends AbstractController implement
             itemsList.add(model);
         }
         
-        if(somodel.getStatus().equals("cancelled")){
+        if(somodel.getStatus().equals("cancelled") || somodel.getStatus().equals("Patially Delivered") || somodel.getStatus().equals("complete")){
             this.cancelsobtn.setDisable(true);
         }
         
         this.RefreshItems();
+        this.itemNum.setText(String.valueOf(this.itemsList.size()));
         this.computeTotal();
         
     }
     
     public void RefreshItems(){
-        String[] arr = {"sku", "desc", "qty", "uom", "uprice", "discnt", "amount", "vat"};
+        String[] arr = {"sku", "desc", "qty", "uom", "uprice", "amount", "vat"};
         ObservableList<SOItemModel> data
                 = FXCollections.observableArrayList();
         
@@ -305,44 +260,67 @@ public class TransactionItemsViewController extends AbstractController implement
     
     @FXML
     public void AddItem(ActionEvent event) throws IOException, SQLException {
-        FXMLLoader fxmlloader = new FXMLLoader(getClass().getResource("/salesorder/SOItems.fxml"));
-        Parent root = (Parent) fxmlloader.load();
         
-        SOItemsController soic = fxmlloader.<SOItemsController>getController();
+        if(this.itemsList.size() != 26){
+            
+            FXMLLoader fxmlloader = new FXMLLoader(getClass().getResource("/salesorder/SOItems.fxml"));
+            Parent root = (Parent) fxmlloader.load();
 
-        Scene scene = new Scene(root);
-        Stage stage = (Stage) addbtn.getScene().getWindow();
-        Stage substage = new Stage();
-        substage.setScene(scene);
-        substage.setTitle("Add Sales Order");
-        substage.initModality(Modality.WINDOW_MODAL);
-        substage.initOwner(stage);
-        substage.showAndWait();
-        
-        if(!soic.IsCancelled()){
-            SOItemModel soitem = new SOItemModel();
-            InventoryModel item = soic.getItem();
-            soitem.setSku(item.getSku());
-            soitem.setDesc(item.getDescription());
-            soitem.setUom(item.getUom());
-            soitem.setQty(soic.getQty());
-            soitem.setIdinventory(item.getIdinventory());
-            soitem.setDiscnt(this.customer.getDiscount());
-            soitem.setUprice(item.getSellprice());
-            double amount = item.getSellprice() * soic.getQty();
-            
-            double vatVal = 1 + (this.customer.getVAT() / 100);
-            double vat = amount * vatVal;
-            vat = Math.round(vat * 100.0)/100.0;
-            System.out.println(vat);
-            
-            soitem.setAmount(amount);
-            soitem.setVat(vat);
-            itemsList.add(soitem);
-            
-            this.RefreshItems();
-            this.computeTotal();
+            SOItemsController soic = fxmlloader.<SOItemsController>getController();
+
+            Scene scene = new Scene(root);
+            Stage stage = (Stage) addbtn.getScene().getWindow();
+            Stage substage = new Stage();
+            substage.setScene(scene);
+            substage.setTitle("Add Sales Order");
+            substage.initModality(Modality.WINDOW_MODAL);
+            substage.initOwner(stage);
+            substage.showAndWait();
+
+            if(!soic.IsCancelled()){
+                InventoryModel item = soic.getItem();
+                SOItemModel soitem = new SOItemModel(item.getId());
+                soitem.setSku(item.getSku());
+                soitem.setDesc(item.getDescription());
+                soitem.setUom(item.getUom());
+                soitem.setQty(soic.getQty());
+                soitem.setDiscnt(this.customer.getDiscount());
+                soitem.setUprice(item.getSellprice());
+                double amount = item.getSellprice() * soic.getQty();
+
+                double vatVal = 1 + (this.customer.getVAT() / 100);
+                double vat = amount * vatVal;
+                vat = Math.round(vat * 100.0)/100.0;
+                System.out.println(vat);
+
+                soitem.setAmount(amount);
+                soitem.setVat(vat);
+                if(!itemsList.contains(soitem)){
+                    System.out.println("Nope");
+                    itemsList.add(soitem);
+                }else{
+                    Alert alert = new Alert(Alert.AlertType.INFORMATION);
+                    alert.setTitle("Information Dialog");
+                    alert.setHeaderText(null);
+                    alert.setContentText("You have already selected this item.");
+
+                    alert.showAndWait();
+                }
+                
+                this.itemNum.setText(String.valueOf(itemsList.size()));
+                this.RefreshItems();
+                this.computeTotal();
+            }
         }
+        else{
+            Alert alert = new Alert(Alert.AlertType.INFORMATION);
+            alert.setTitle("Information Dialog");
+            alert.setHeaderText(null);
+            alert.setContentText("You have exceeded the maximum line items.");
+
+            alert.showAndWait();
+        }
+        
     }
     
     public void computeTotal(){
@@ -358,27 +336,75 @@ public class TransactionItemsViewController extends AbstractController implement
 
     @FXML
     public void EditItem(ActionEvent event) {
+        
+        TextInputDialog dialog = new TextInputDialog();
+        dialog.setTitle("Edit Item Quantity");
+        dialog.setHeaderText("Item: " + this.itemlist.getSelectionModel().getSelectedItem().getSku() + "-" 
+                + this.itemlist.getSelectionModel().getSelectedItem().getDesc() + "\n" 
+                + "Current Quantity: " + this.itemlist.getSelectionModel().getSelectedItem().getQty());
 
+        Optional<String> result = dialog.showAndWait();
+
+        if (result.isPresent()) {
+            
+            System.out.println(this.itemlist.getSelectionModel().getSelectedIndex());
+            System.out.println(this.itemlist.getSelectionModel().getFocusedIndex());
+            
+            double amount = this.itemlist.getSelectionModel().getSelectedItem().getUprice() * Integer.valueOf(result.get());
+
+            double vatVal = 1 + (this.customer.getVAT() / 100);
+            double vat = amount * vatVal;
+            vat = Math.round(vat * 100.0)/100.0;
+            System.out.println(vat);
+          
+            this.itemsList.get(this.itemlist.getSelectionModel().getSelectedIndex()).setQty(Integer.valueOf(result.get()));
+            this.itemsList.get(this.itemlist.getSelectionModel().getSelectedIndex()).setAmount(amount);
+            this.itemsList.get(this.itemlist.getSelectionModel().getSelectedIndex()).setVat(vat);
+            this.itemlist.getItems().clear();
+            this.RefreshItems();
+            this.computeTotal();
+        }
     }
 
     @FXML
     public void DeleteItem(ActionEvent event) {
         
-        if(!this.itemsList.isEmpty()){
-            this.itemsList.remove(this.itemlist.getSelectionModel().getSelectedItem());
-            this.computeTotal();
-            this.RefreshItems();
+        if(isEdit){
+            if(!this.itemsList.isEmpty()){
+                this.deletedList.add(this.itemsList.remove(this.itemlist.getSelectionModel().getFocusedIndex()));
+                this.computeTotal();
+                this.RefreshItems();
+            }
+        }else{
+            if(!this.itemsList.isEmpty()){
+                this.itemsList.remove(this.itemlist.getSelectionModel().getSelectedItem());
+                this.computeTotal();
+                this.RefreshItems();
+            }
         }
+        
         
     }
 
     @FXML
     public void ResetItems(ActionEvent event) {
         
-        if(!this.itemsList.isEmpty()){
-            this.itemsList.clear();
-            this.totalfld.setText("0.0");
-            this.RefreshItems();
+        if(isEdit){
+            if(!this.itemsList.isEmpty()){
+                for(SOItemModel mod : this.itemsList){
+                    this.deletedList.add(mod);
+                }
+                this.itemsList.clear();
+                this.totalfld.setText("0.0");
+                this.RefreshItems();
+            }
+            
+        }else{
+            if(!this.itemsList.isEmpty()){
+                this.itemsList.clear();
+                this.totalfld.setText("0.0");
+                this.RefreshItems();
+            }
         }
 
     }
@@ -410,12 +436,40 @@ public class TransactionItemsViewController extends AbstractController implement
         somodel.setDeliverydate(Date.valueOf(this.drdatefld.getValue()));
         somodel.setSoItems(itemsList);
         
-        if(this.customer.isAuto_create()){
-            soq.autoAddDRandInvoice(somodel, super.getGlobalUser().getId());
+        if(isEdit){
+            somodel.setSoid(Integer.valueOf(this.soidfld.getText()));
+            ArrayList<SOItemModel> models = new ArrayList();
+            for(SOItemModel mod: this.itemsList){
+                if(mod.getSoitemid() == null){
+                    models.add(mod);
+                }
+            }
+            soq.editSalesOrder(somodel);
+            if(!this.itemsList.isEmpty()){
+                soq.editSalesOrderItems(itemsList.iterator(), somodel.getSoid());
+            }
+            if(!this.deletedList.isEmpty()){
+                soq.deleteSalesOrdetItems(this.deletedList.iterator(), somodel.getSoid());
+            }
+            if(!models.isEmpty()){
+                soq.addSalesOrderItems(models.iterator(), somodel.getSoid());
+            }
+            
+            
         }else{
-            soq.addSalesOrder(somodel);
+            if(!this.itemsList.isEmpty()){
+                soq.addSalesOrder(somodel);
+            }else{
+                Alert alert = new Alert(Alert.AlertType.INFORMATION);
+                alert.setTitle("Information Dialog");
+                alert.setHeaderText(null);
+                alert.setContentText("No items have been selected.");
+
+                alert.showAndWait();
+            }
+            
         }
-        
+
         Stage stage = (Stage) cancelbtn.getScene().getWindow();
         stage.close();
     }
@@ -431,4 +485,92 @@ public class TransactionItemsViewController extends AbstractController implement
         super.setGlobalUser(user);
     }
     
+    @FXML
+    void viewCustomer(ActionEvent event) throws SQLException, IOException {
+        
+        FXMLLoader fxmlloader = new FXMLLoader(getClass().getResource("/customer/CustomerView.fxml"));
+        Parent root = (Parent) fxmlloader.load();
+
+        CustomerViewController cvc = fxmlloader.<CustomerViewController>getController();
+        cvc.ViewMode(this.customer.getCompany());
+
+        Scene scene = new Scene(root);
+        Stage stage = (Stage) this.vcbtn.getScene().getWindow();
+        Stage substage = new Stage();
+        substage.setScene(scene);
+        substage.setResizable(false);
+        substage.sizeToScene();
+        substage.setTitle("View Customer");
+        substage.initModality(Modality.WINDOW_MODAL);
+        substage.initOwner(stage);
+        substage.showAndWait();
+
+    }
+    
+    @FXML
+    void Export(ActionEvent event) throws IOException {
+        String currentUsersHomeDir = System.getProperty("user.home");
+        File dir = new File(currentUsersHomeDir + "\\Documents\\Exports");
+        if(!dir.exists()){
+            System.out.println("Directory Created");
+            dir.mkdir();
+        }
+        
+        java.util.Date date = new java.util.Date();
+        SimpleDateFormat sdf = new SimpleDateFormat("MM-dd-yyyy h:mm:ss a");
+        String formattedDate = sdf.format(date);
+        System.out.println(formattedDate.replaceAll("[\\s-:]",""));
+        
+        String filename = "[SALESORDER]" + this.customer.getCompany() + "(" + this.soidfld.getText() + ")_" + datefld.getValue().toString().replace("/", "") + "-" + formattedDate.replaceAll("[\\s-:]","") + ".pdf";
+        File file = new File(dir.getAbsolutePath()+ "\\" + filename);
+        if(!file.exists()){
+            file.createNewFile();
+        }
+        PdfWriter writer = new PdfWriter(dir.getAbsolutePath()+ "\\" + filename);
+        PdfDocument pdf = new PdfDocument(writer);
+        Document document = new Document(pdf);
+        // Create a PdfFont
+        PdfFont font = PdfFontFactory.createFont(FontConstants.TIMES_ROMAN);
+        
+        document.add(new Paragraph("").setFont(font));
+        document.add(new Paragraph("\nSold To:" + this.customer.getCompany()
+                + "\nBusiness: " + this.customer.getBusinessstyle()
+                + "\nCustomer PO: " + this.cpofld.getText()
+                + "\nAdddress: " + this.customer.getAddress()
+        ).setFont(font));
+
+        List list = new List()
+            .setSymbolIndent(12)
+            .setListSymbol("\u00a0")
+            .setFont(font);
+
+        for(int i = 0; i < this.itemsList.size(); i++){
+            list.add(new ListItem(this.itemsList.get(i).getSku() + "\u00a0 \u00a0 \u00a0 \u00a0"
+                    + this.itemsList.get(i).getDesc() + "\u00a0 \u00a0 \u00a0 \u00a0"
+                    + this.itemsList.get(i).getQty() + "\u00a0 \u00a0 \u00a0 \u00a0"
+                    + this.itemsList.get(i).getUprice() + "\u00a0 \u00a0 \u00a0 \u00a0"
+                    + this.itemsList.get(i).getAmount() + "\u00a0 \u00a0 \u00a0 \u00a0"
+                    + ""));
+        }
+       
+        // Add the list
+        list.add(new ListItem("\u00a0 \u00a0 \u00a0 \u00a0 **************Nothing Follows**************"));
+        document.add(list.setFont(font));
+        
+        document.add(new Paragraph("Total: " + this.totalfld.getText()).setFont(font));
+        
+        document.close();
+
+        System.out.println("HHHHHH");
+        
+        Alert alert = new Alert(Alert.AlertType.INFORMATION);
+        alert.setTitle("Information Dialog");
+        alert.setHeaderText(null);
+        alert.setContentText("Please check the export in My Documents/Export");
+
+        alert.showAndWait();
+        
+        Stage stage = (Stage) this.prntbtn.getScene().getWindow();
+        stage.close();
+    }
 }

@@ -13,7 +13,7 @@ import java.util.Date;
  */
 public class PricesModel {
     
-    private int idprices;
+    private Integer idprices;
     private double poprice;
     private double sellingprice;
     private Date effdte;

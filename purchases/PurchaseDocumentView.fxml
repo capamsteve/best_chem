@@ -103,13 +103,15 @@
          </font>
       </Label>
       <TextField fx:id="totalfld" layoutX="56.0" layoutY="579.0" prefHeight="25.0" prefWidth="159.0" />
-      <Button fx:id="pendingbtn" layoutX="663.0" layoutY="580.0" mnemonicParsing="false" onAction="#saveHandler" text="Save" />
+      <Button fx:id="pendingbtn" layoutX="491.0" layoutY="580.0" mnemonicParsing="false" onAction="#saveHandler" text="Save" />
       <Button fx:id="cancelbtn" layoutX="718.0" layoutY="580.0" mnemonicParsing="false" onAction="#cancelHandler" text="Cancel" />
       <Label layoutX="15.0" layoutY="183.0" text="Contact Person">
          <font>
             <Font name="Arial" size="14.0" />
          </font>
       </Label>
-      <ComboBox fx:id="contactbx" layoutX="130.0" layoutY="177.0" prefHeight="25.0" prefWidth="245.0" />
+      <TextField fx:id="contactbx" layoutX="131.0" layoutY="177.0" prefHeight="25.0" prefWidth="245.0" />
+      <Button fx:id="pgrbtn" layoutX="544.0" layoutY="579.0" mnemonicParsing="false" onAction="#PostToInventory" text="Post To Inventory" />
+      <Button fx:id="printbtn" layoutX="666.0" layoutY="580.0" mnemonicParsing="false" onAction="#export" text="Print" />
    </children>
 </Pane>

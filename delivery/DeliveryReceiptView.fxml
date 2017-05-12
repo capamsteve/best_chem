@@ -8,14 +8,14 @@
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
 
-<Pane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="716.0" prefWidth="790.0" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1" fx:controller="delivery.DeliveryReceiptController">
+<Pane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="642.0" prefWidth="790.0" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1" fx:controller="delivery.DeliveryReceiptController">
    <children>
       <ImageView fitHeight="40.0" fitWidth="38.0" layoutX="24.0" layoutY="10.0" pickOnBounds="true" preserveRatio="true">
          <image>
             <Image url="@../res/BC.PNG" />
          </image>
       </ImageView>
-      <Label layoutX="82.0" layoutY="13.0" text="Delivery Order">
+      <Label layoutX="82.0" layoutY="13.0" text="Delivery Receipt">
          <font>
             <Font name="Rockwell" size="26.0" />
          </font>
@@ -32,113 +32,79 @@
          </font>
       </Label>
       <TextField fx:id="cpofld" layoutX="130.0" layoutY="90.0" prefHeight="25.0" prefWidth="314.0" />
-      <Label layoutX="15.0" layoutY="126.0" text="Customer #:">
-         <font>
-            <Font name="Arial" size="14.0" />
-         </font>
-      </Label>
-      <TextField fx:id="cidlfd" layoutX="131.0" layoutY="121.0" prefHeight="25.0" prefWidth="314.0" />
-      <Label layoutX="15.0" layoutY="156.0" text="Customer Name:">
-         <font>
-            <Font name="Arial" size="14.0" />
-         </font>
-      </Label>
-      <TextField fx:id="compfld" layoutX="131.0" layoutY="151.0" prefHeight="25.0" prefWidth="314.0" />
       <Label layoutX="468.0" layoutY="94.0" text="DR Date:">
          <font>
             <Font name="Arial" size="14.0" />
          </font>
       </Label>
-      <DatePicker fx:id="datefld" layoutX="533.0" layoutY="90.0" prefHeight="25.0" prefWidth="177.0" />
+      <DatePicker fx:id="datefld" layoutX="533.0" layoutY="90.0" prefHeight="25.0" prefWidth="238.0" />
       <Label layoutX="468.0" layoutY="126.0" text="Delivery Date:">
          <font>
             <Font name="Arial" size="14.0" />
          </font>
       </Label>
       <DatePicker fx:id="drdatefld" layoutX="569.0" layoutY="121.0" prefHeight="25.0" prefWidth="204.0" />
-      <Label layoutX="469.0" layoutY="155.0" text="TIN:">
-         <font>
-            <Font name="Arial" size="14.0" />
-         </font>
-      </Label>
-      <TextField fx:id="tinfld" layoutX="501.0" layoutY="151.0" prefHeight="25.0" prefWidth="271.0" />
-      <Label layoutX="15.0" layoutY="184.0" text="Business Style:">
-         <font>
-            <Font name="Arial" size="14.0" />
-         </font>
-      </Label>
-      <TextField fx:id="bsnstylefld" layoutX="131.0" layoutY="179.0" prefHeight="25.0" prefWidth="245.0" />
-      <Label layoutX="398.0" layoutY="184.0" prefHeight="16.0" prefWidth="106.0" text="Payment Term:">
-         <font>
-            <Font name="Arial" size="14.0" />
-         </font>
-      </Label>
-      <TextField fx:id="pymttermfld" layoutX="501.0" layoutY="179.0" prefHeight="25.0" prefWidth="271.0" />
-      <Label layoutX="14.0" layoutY="213.0" text="Address:">
-         <font>
-            <Font name="Arial" size="14.0" />
-         </font>
-      </Label>
-      <TextField fx:id="addressfld" layoutX="131.0" layoutY="207.0" prefHeight="25.0" prefWidth="640.0" />
-      <ToolBar layoutX="8.0" layoutY="346.0" prefHeight="40.0" prefWidth="771.0">
+      <ToolBar layoutX="8.0" layoutY="269.0" prefHeight="40.0" prefWidth="771.0">
          <items>
             <Button fx:id="editbtn" mnemonicParsing="false" onAction="#EditItem" text="Edit Delivery Quantity" />
             <Button fx:id="resetbtn" mnemonicParsing="false" onAction="#ResetItems" text="Reset" />
          </items>
       </ToolBar>
-      <StackPane layoutX="8.0" layoutY="386.0" prefHeight="282.0" prefWidth="771.0">
+      <StackPane layoutX="8.0" layoutY="309.0" prefHeight="282.0" prefWidth="771.0">
          <children>
             <TableView fx:id="itemlist" prefHeight="282.0" prefWidth="60.0">
                <columns>
-                  <TableColumn prefWidth="147.0" text="SKU#" />
-                  <TableColumn prefWidth="182.0" text="SKU Description" />
-                  <TableColumn prefWidth="103.0" text="Order Qty" />
-                  <TableColumn prefWidth="97.0" text="Delivery Qty" />
-                  <TableColumn prefWidth="127.0" text="Qty Remaining" />
-                  <TableColumn minWidth="0.0" prefWidth="114.0" text="UOM" />
+                  <TableColumn prefWidth="147.0" resizable="false" text="SKU#" />
+                  <TableColumn prefWidth="257.0" resizable="false" text="SKU Description" />
+                  <TableColumn prefWidth="92.0" resizable="false" text="Order Quantity" />
+                  <TableColumn prefWidth="109.0" resizable="false" text="Delivery Quantity" />
+                  <TableColumn editable="false" prefWidth="129.0" resizable="false" sortable="false" text="Remaining Quantity" />
+                  <TableColumn minWidth="0.0" prefWidth="36.0" resizable="false" text="UOM" />
                </columns>
             </TableView>
          </children>
       </StackPane>
-      <Button fx:id="pendingbtn" layoutX="506.0" layoutY="680.0" mnemonicParsing="false" onAction="#saveHandler" text="Save" />
-      <Button fx:id="cancelbtn" layoutX="718.0" layoutY="680.0" mnemonicParsing="false" onAction="#cancelHandler" text="Cancel" />
-      <TextField fx:id="soidfld" layoutX="131.0" layoutY="238.0" prefHeight="25.0" prefWidth="314.0" />
-      <Label layoutX="15.0" layoutY="243.0" text="Sales Order #:">
+      <Button fx:id="pendingbtn" layoutX="365.0" layoutY="603.0" mnemonicParsing="false" onAction="#saveHandler" text="Save" />
+      <Button fx:id="cancelbtn" layoutX="718.0" layoutY="603.0" mnemonicParsing="false" onAction="#cancelHandler" text="Cancel" />
+      <TextField fx:id="soidfld" layoutX="131.0" layoutY="155.0" prefHeight="25.0" prefWidth="314.0" />
+      <Label layoutX="15.0" layoutY="160.0" text="Sales Order #:">
          <font>
             <Font name="Arial" size="14.0" />
          </font>
       </Label>
-      <DatePicker fx:id="sodtefld" layoutX="533.0" layoutY="240.0" prefHeight="25.0" prefWidth="177.0" />
-      <Label layoutX="469.0" layoutY="244.0" text="SO Date:">
+      <DatePicker fx:id="sodtefld" layoutX="533.0" layoutY="157.0" prefHeight="25.0" prefWidth="238.0" />
+      <Label layoutX="469.0" layoutY="161.0" text="SO Date:">
          <font>
             <Font name="Arial" size="14.0" />
          </font>
       </Label>
-      <Label layoutX="115.0" layoutY="279.0" text="PGI:">
+      <Label layoutX="115.0" layoutY="196.0" text="PGI:">
          <font>
             <Font name="Arial" size="14.0" />
          </font>
       </Label>
-      <TextField fx:id="pgifld" layoutX="143.0" layoutY="275.0" prefHeight="25.0" prefWidth="28.0" />
-      <TextField fx:id="prntdfld" layoutX="63.0" layoutY="274.0" prefHeight="25.0" prefWidth="28.0" />
-      <Label layoutX="14.0" layoutY="279.0" text="Printed:">
+      <TextField fx:id="pgifld" layoutX="143.0" layoutY="192.0" prefHeight="25.0" prefWidth="28.0" />
+      <TextField fx:id="prntdfld" layoutX="68.0" layoutY="192.0" prefHeight="25.0" prefWidth="28.0" />
+      <Label layoutX="14.0" layoutY="196.0" text="Printed:">
          <font>
             <Font name="Arial" size="14.0" />
          </font>
       </Label>
-      <TextField fx:id="statusfld" layoutX="234.0" layoutY="275.0" prefHeight="25.0" prefWidth="82.0" />
-      <Label layoutX="188.0" layoutY="279.0" text="Status:">
+      <TextField fx:id="statusfld" layoutX="234.0" layoutY="192.0" prefHeight="25.0" prefWidth="82.0" />
+      <Label layoutX="188.0" layoutY="196.0" text="Status:">
          <font>
             <Font name="Arial" size="14.0" />
          </font>
       </Label>
-      <Label layoutX="338.0" layoutY="279.0" text="Remarks:">
+      <Label layoutX="338.0" layoutY="196.0" text="Remarks:">
          <font>
             <Font name="Arial" size="14.0" />
          </font>
       </Label>
-      <TextArea fx:id="rmksfld" layoutX="402.0" layoutY="279.0" prefHeight="54.0" prefWidth="377.0" />
-      <Button fx:id="printbtn" layoutX="558.0" layoutY="680.0" mnemonicParsing="false" onAction="#export" text="Print" />
-      <Button fx:id="pgibtn" layoutX="608.0" layoutY="680.0" mnemonicParsing="false" onAction="#PostToInventory" text="Post Good Issue" />
+      <TextArea fx:id="rmksfld" layoutX="402.0" layoutY="196.0" prefHeight="54.0" prefWidth="369.0" />
+      <Button fx:id="printbtn" layoutX="417.0" layoutY="603.0" mnemonicParsing="false" onAction="#export" text="Print" />
+      <Button fx:id="pgibtn" layoutX="608.0" layoutY="603.0" mnemonicParsing="false" onAction="#PostToInventory" text="Post Good Issue" />
+      <Button fx:id="vcbtn" layoutX="15.0" layoutY="122.0" mnemonicParsing="false" onAction="#viewCustomer" prefHeight="25.0" prefWidth="428.0" text="View Customer Details" />
+      <Button fx:id="canceldrbtn" layoutX="463.0" layoutY="603.0" mnemonicParsing="false" onAction="#cancelDR" text="Cancel Delivery Receipt" />
    </children>
 </Pane>

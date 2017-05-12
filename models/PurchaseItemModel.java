@@ -11,17 +11,18 @@ package models;
  */
 public class PurchaseItemModel {
     
+    private Integer idpurchaseitem;
     private String sku;
     private String desc;
     private int qty;
     private String uom;
-    private int idinventory;
+    private Integer idinventory;
     private double uprice;
     private double amount;
     private double vat;
     
-    public PurchaseItemModel(){
-        
+    public PurchaseItemModel(Integer idinventory){
+        this.idinventory = idinventory;
     }
     
     /**
@@ -86,6 +87,10 @@ public class PurchaseItemModel {
     public int getIdinventory() {
         return idinventory;
     }
+    
+    public Integer getId() {
+        return idinventory;
+    }
 
     /**
      * @param idinventory the idinventory to set
@@ -134,6 +139,40 @@ public class PurchaseItemModel {
      */
     public void setVat(double vat) {
         this.vat = vat;
+    }
+
+    /**
+     * @return the idpurchaseitem
+     */
+    public int getIdpurchaseitem() {
+        return idpurchaseitem;
+    }
+
+    /**
+     * @param idpurchaseitem the idpurchaseitem to set
+     */
+    public void setIdpurchaseitem(int idpurchaseitem) {
+        this.idpurchaseitem = idpurchaseitem;
+    }
+    
+    @Override
+    public int hashCode() {
+        int hash = 0;
+        hash += (getId() != null ? getId().hashCode() : 0);
+        return hash;
+    }
+
+    @Override
+    public boolean equals(Object object) {
+        // TODO: Warning - this method won't work in the case the id fields are not set
+        if (!(object instanceof PurchaseItemModel)) {
+            return false;
+        }
+        PurchaseItemModel other = (PurchaseItemModel) object;
+        if ((this.getId() == null && other.getId() != null) || (this.getId() != null && !this.getId().equals(other.getId()))) {
+            return false;
+        }
+        return true;
     }
     
 }

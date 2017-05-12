@@ -7,11 +7,9 @@ package inventory;
 
 import best_chem.AbstractController;
 import models.InventoryModel;
-import customer.CustomerViewController;
 import dbquerries.InventoryQuery;
 import dbquerries.UtilitiesQuery;
 import java.net.URL;
-import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Iterator;
@@ -113,6 +111,7 @@ public class InventoryItemController extends AbstractController implements Initi
         this.sdescfld.setText(model.getDescription());
         this.uomfld.getSelectionModel().select(model.getUom());
         this.wrhsfld.getSelectionModel().select(model.getWh());
+        this.sohfld.setText(String.valueOf(model.getSoh()));
         this.sohfld.setDisable(true);
         this.cslfld.setText(String.valueOf(model.getCsl()));
         
@@ -123,12 +122,13 @@ public class InventoryItemController extends AbstractController implements Initi
     public void saveInventory(ActionEvent event) throws SQLException {
         InventoryModel inventory;
         
-        inventory = new InventoryModel();
+        inventory = new InventoryModel(null);
         inventory.setSku(this.skufld.getText());
         inventory.setDescription(this.sdescfld.getText());
         inventory.setUom(this.uomfld.getSelectionModel().getSelectedItem());
         inventory.setWh(this.wrhsfld.getSelectionModel().getSelectedItem());
         inventory.setCsl(Integer.parseInt(this.cslfld.getText()));
+        
         
         InventoryQuery iq = new InventoryQuery();
         
@@ -137,6 +137,7 @@ public class InventoryItemController extends AbstractController implements Initi
             iq.editInventory(inventory, super.getType());
         }
         else{
+            inventory.setSoh(Integer.parseInt(this.sohfld.getText()));
             iq.addInventory(inventory, super.getType());
         }
         

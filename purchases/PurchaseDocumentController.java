@@ -6,6 +6,7 @@
 package purchases;
 
 import best_chem.AbstractController;
+import dbquerries.InventoryQuery;
 import dbquerries.PurchasesQuery;
 import dbquerries.SupplierQuery;
 import java.io.IOException;
@@ -16,6 +17,7 @@ import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.Optional;
 import java.util.ResourceBundle;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -27,12 +29,14 @@ import javafx.fxml.FXMLLoader;
 import javafx.fxml.Initializable;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
+import javafx.scene.control.Alert;
 import javafx.scene.control.Button;
 import javafx.scene.control.ComboBox;
 import javafx.scene.control.DatePicker;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
 import javafx.scene.control.TextField;
+import javafx.scene.control.TextInputDialog;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
@@ -63,7 +67,7 @@ public class PurchaseDocumentController extends AbstractController implements In
     private TextField tinfld;
 
     @FXML
-    private ComboBox<String> contactbx;
+    private TextField contactbx;
 
     @FXML
     private DatePicker drdatefld;
@@ -100,6 +104,12 @@ public class PurchaseDocumentController extends AbstractController implements In
 
     @FXML
     private Button pendingbtn;
+    
+    @FXML
+    private Button printbtn;
+    
+    @FXML
+    private Button pgrbtn;
 
     @FXML
     private TextField poidfld;
@@ -109,8 +119,14 @@ public class PurchaseDocumentController extends AbstractController implements In
     private final SupplierQuery supq = new SupplierQuery();
     
     private final PurchasesQuery pq = new PurchasesQuery();
+    private final InventoryQuery iq = new InventoryQuery();
     
     private ArrayList<PurchaseItemModel> items;
+    private ArrayList<PurchaseItemModel> deletedList = new ArrayList();
+    
+    private PurchasesModel pm;
+    
+    private boolean isEdit;
 
     @FXML
     public void AddItem(ActionEvent event) throws IOException, SQLException {
@@ -131,9 +147,8 @@ public class PurchaseDocumentController extends AbstractController implements In
         substage.showAndWait();
         
         if(!poic.IsCancelled()){
-            PurchaseItemModel poitem = new PurchaseItemModel();
             InventoryModel item = poic.getItem();
-            poitem.setIdinventory(item.getIdinventory());
+            PurchaseItemModel poitem = new PurchaseItemModel(item.getIdinventory());
             poitem.setDesc(item.getDescription());
             poitem.setQty(poic.getQty());
             poitem.setSku(item.getSku());
@@ -141,16 +156,28 @@ public class PurchaseDocumentController extends AbstractController implements In
             poitem.setUprice(item.getPoprice());
             
             double amount = item.getPoprice() * poic.getQty();
-            
-            double vatVal = 1 + (12 / 100);
+            System.out.println(amount);
+            double vatVal = 1 + (12.0 / 100.0);
+            System.out.println(vatVal);
             double vat = amount * vatVal;
             vat = Math.round(vat * 100.0)/100.0;
-            System.out.println(vat);
             
             poitem.setAmount(amount);
             poitem.setVat(vat);
+            System.out.println(amount);
+            System.out.println(vat);
             
-            items.add(poitem);
+            if(!this.items.contains(poitem)){
+                items.add(poitem);
+            }
+            else{
+                Alert alert = new Alert(Alert.AlertType.INFORMATION);
+                alert.setTitle("Information Dialog");
+                alert.setHeaderText(null);
+                alert.setContentText("You have already selected this item.");
+
+                alert.showAndWait();
+            }
             
             this.RefreshItems();
             this.computeTotal();
@@ -172,17 +199,70 @@ public class PurchaseDocumentController extends AbstractController implements In
 
     @FXML
     void EditItem(ActionEvent event) {
+        TextInputDialog dialog = new TextInputDialog();
+        dialog.setTitle("Edit Item Quantity");
+        dialog.setHeaderText("Item: " + this.itemlist.getSelectionModel().getSelectedItem().getSku() + "-" 
+                + this.itemlist.getSelectionModel().getSelectedItem().getDesc() + "\n" 
+                + "Current Quantity: " + this.itemlist.getSelectionModel().getSelectedItem().getQty());
 
+        Optional<String> result = dialog.showAndWait();
+
+        if (result.isPresent()) {
+            
+            System.out.println(this.itemlist.getSelectionModel().getSelectedIndex());
+            System.out.println(this.itemlist.getSelectionModel().getFocusedIndex());
+            
+            double amount = this.itemlist.getSelectionModel().getSelectedItem().getUprice() * Integer.valueOf(result.get());
+            
+            double vatVal = 1 + (12.0 / 100.0);
+            double vat = amount * vatVal;
+            vat = Math.round(vat * 100.0)/100.0;
+            System.out.println(vat);
+          
+            this.items.get(this.itemlist.getSelectionModel().getSelectedIndex()).setQty(Integer.valueOf(result.get()));
+            this.items.get(this.itemlist.getSelectionModel().getSelectedIndex()).setAmount(amount);
+            this.items.get(this.itemlist.getSelectionModel().getSelectedIndex()).setVat(vat);
+            this.itemlist.getItems().clear();
+            this.RefreshItems();
+        }
     }
 
     @FXML
     void DeleteItem(ActionEvent event) {
-
+        if(isEdit){
+            if(!this.items.isEmpty()){
+                this.deletedList.add(this.items.remove(this.itemlist.getSelectionModel().getFocusedIndex()));
+                this.computeTotal();
+                this.RefreshItems();
+            }
+        }else{
+            if(!this.items.isEmpty()){
+                this.items.remove(this.itemlist.getSelectionModel().getSelectedItem());
+                this.computeTotal();
+                this.RefreshItems();
+            }
+        }
     }
 
     @FXML
     void ResetItems(ActionEvent event) {
-
+        if(isEdit){
+            if(!this.items.isEmpty()){
+                for(PurchaseItemModel mod : this.items){
+                    this.deletedList.add(mod);
+                }
+                this.items.clear();
+                this.totalfld.setText("0.0");
+                this.RefreshItems();
+            }
+            
+        }else{
+            if(!this.items.isEmpty()){
+                this.items.clear();
+                this.totalfld.setText("0.0");
+                this.RefreshItems();
+            }
+        }
     }
 
     @FXML
@@ -191,14 +271,36 @@ public class PurchaseDocumentController extends AbstractController implements In
         PurchasesModel pomod = new PurchasesModel();
         
         pomod.setSup_id(this.supplier.getSupid());
-        pomod.setSupcname(this.contactbx.getSelectionModel().getSelectedItem());
+        pomod.setSupcname(this.contactbx.getText());
         pomod.setPo_dte(Date.valueOf(this.datefld.getValue().toString()));
         pomod.setPo_dr_dte(Date.valueOf(this.drdatefld.getValue().toString()));
         pomod.setCbyid(super.getGlobalUser().getId());
         
         pomod.setPurchases(this.items);
         
-        pq.addPurchases(pomod, super.getType());
+        if(isEdit){
+            pomod.setIdpurchases(this.pm.getIdpurchases());
+            ArrayList<PurchaseItemModel> models = new ArrayList();
+            for(PurchaseItemModel mod: this.items){
+                if(mod.getIdpurchaseitem() == 0){
+                    models.add(mod);
+                }
+            }
+            
+            pq.editPurchases(pm);
+            if(!this.items.isEmpty()){
+                pq.editPurchaseItems(this.items.iterator());
+            }
+            if(!this.deletedList.isEmpty()){
+                pq.deletePurchaseItems(this.deletedList.iterator());
+            }
+            if(!models.isEmpty()){
+                pq.addPurchaseItems(models.iterator(), this.pm.getIdpurchases(), super.getType());
+            }
+        }else{
+            pq.addPurchases(pomod, super.getType());
+        }
+        
         
         Stage stage = (Stage) cancelbtn.getScene().getWindow();
         stage.close();
@@ -226,7 +328,8 @@ public class PurchaseDocumentController extends AbstractController implements In
 
     @FXML
     void cancelHandler(ActionEvent event) {
-
+        Stage stage = (Stage) cancelbtn.getScene().getWindow();
+        stage.close();
     }
     
     public void setSupplier(SupplierModel supplier){
@@ -249,15 +352,15 @@ public class PurchaseDocumentController extends AbstractController implements In
         this.pymttermfld.setEditable(false);
         this.addressfld.setText(this.supplier.getSupaddress());
         this.addressfld.setEditable(false);
+        this.pgrbtn.setDisable(true);
     }
     
-    public void EditMode(PurchasesModel purchase){
+    public void EditMode(PurchasesModel purchase) throws SQLException{
         
-    }
-    
-    public void ViewMode(PurchasesModel purchase) throws SQLException{
-        
-        this.poidfld.setDisable(true);
+        this.pm = purchase;
+        this.isEdit = true;
+        this.poidfld.setText(String.valueOf(purchase.getIdpurchases()));
+        this.poidfld.setEditable(false);
         this.idlfd.setText(String.valueOf(this.supplier.getSupid()));
         this.idlfd.setEditable(false);
         this.compfld.setText(this.supplier.getSupname());
@@ -272,15 +375,84 @@ public class PurchaseDocumentController extends AbstractController implements In
         this.addressfld.setText(this.supplier.getSupaddress());
         this.addressfld.setEditable(false);
         this.drdatefld.setValue(LocalDate.parse(purchase.getPo_dr_dte().toString()));
-        this.contactbx.getSelectionModel().select(purchase.getSupcname());
+        this.contactbx.setText(purchase.getSupcname());
         
-        Iterator iterate = pq.getPurchaseOrderItems(purchase.getSup_id(), super.getType());
+        this.pgrbtn.setDisable(true);
+        this.printbtn.setDisable(true);
+        
+        Iterator iterate = pq.getPurchaseOrderItems(purchase.getIdpurchases(), super.getType());
         
         while(iterate.hasNext()){
             HashMap map = (HashMap) iterate.next();
             
+            PurchaseItemModel pim = new PurchaseItemModel(Integer.valueOf(map.get("idinventory").toString()));
+            
+            pim.setIdpurchaseitem(Integer.parseInt(map.get("idpurchaseitems").toString()));
+            pim.setSku(map.get("sku").toString());
+            pim.setDesc(map.get("skudesc").toString());
+            pim.setQty(Integer.parseInt(map.get("po_qty").toString()));
+            pim.setUom(map.get("skuom").toString());
+            pim.setUprice(Double.parseDouble(map.get("unitprice").toString()));
+            pim.setAmount(Double.parseDouble(map.get("amount").toString()));
+            pim.setVat(Double.parseDouble(map.get("vat_amount").toString()));
+            
+            this.items.add(pim);
             
         }
+        
+        this.pgrbtn.setDisable(true);
+        this.RefreshItems();
+        this.computeTotal();
+        
+    }
+    
+    public void ViewMode(PurchasesModel purchase) throws SQLException{
+        
+        this.pm = purchase;
+        this.poidfld.setText(String.valueOf(purchase.getIdpurchases()));
+        this.poidfld.setEditable(false);
+        this.idlfd.setText(String.valueOf(this.supplier.getSupid()));
+        this.idlfd.setEditable(false);
+        this.compfld.setText(this.supplier.getSupname());
+        this.compfld.setEditable(false);
+        this.bsnstylefld.setText(this.supplier.getSupbustyp());
+        this.bsnstylefld.setEditable(false);
+        this.tinfld.setText(this.supplier.getSuptin());
+        this.tinfld.setEditable(false);
+        this.datefld.setValue(LocalDate.parse(purchase.getPo_dte().toString()));
+        this.pymttermfld.setText(this.supplier.getSuppymttrm());
+        this.pymttermfld.setEditable(false);
+        this.addressfld.setText(this.supplier.getSupaddress());
+        this.addressfld.setEditable(false);
+        this.drdatefld.setValue(LocalDate.parse(purchase.getPo_dr_dte().toString()));
+        this.contactbx.setText(purchase.getSupcname());
+        
+        Iterator iterate = pq.getPurchaseOrderItems(purchase.getIdpurchases(), super.getType());
+        
+        while(iterate.hasNext()){
+            HashMap map = (HashMap) iterate.next();
+            
+            PurchaseItemModel pim = new PurchaseItemModel(Integer.valueOf(map.get("idinventory").toString()));
+            
+            pim.setIdpurchaseitem(Integer.parseInt(map.get("idpurchaseitems").toString()));
+            pim.setSku(map.get("sku").toString());
+            pim.setDesc(map.get("skudesc").toString());
+            pim.setQty(Integer.parseInt(map.get("po_qty").toString()));
+            pim.setUom(map.get("skuom").toString());
+            pim.setUprice(Double.parseDouble(map.get("unitprice").toString()));
+            pim.setAmount(Double.parseDouble(map.get("amount").toString()));
+            pim.setVat(Double.parseDouble(map.get("vat_amount").toString()));
+            
+            this.items.add(pim);
+            
+        }
+        
+        this.pendingbtn.setDisable(true);
+        this.addbtn.setDisable(true);
+        this.deletebtn.setDisable(true);
+        this.resetbtn.setDisable(true);
+        this.RefreshItems();
+        this.computeTotal();
         
     }
     
@@ -298,19 +470,28 @@ public class PurchaseDocumentController extends AbstractController implements In
     public void initData(UserModel user, int type) {
         super.setGlobalUser(user);
         super.setType(type);
+    }
+
+    @FXML
+    void PostToInventory(ActionEvent event) throws SQLException {
         
-        ArrayList<SupplierContactModel> supcon = new ArrayList();
-        try {
-            supcon = supq.getContacts(this.supplier.getSupid(), super.getType());
-        } catch (SQLException ex) {
-            Logger.getLogger(PurchaseDocumentController.class.getName()).log(Level.SEVERE, null, ex);
+        ArrayList<InventoryModel> mods = new ArrayList();
+        for(int i = 0; i < this.items.size(); i++){
+            InventoryModel mod = new InventoryModel(this.items.get(i).getIdinventory());
+            
+            mod.setSoh(this.items.get(i).getQty());
+            mod.setMov("INC");
+            
+            mods.add(mod);
         }
         
-        for(SupplierContactModel sup: supcon){
-            this.contactbx.getItems().add(sup.getSupcname());
-        }
-        
-        this.contactbx.getSelectionModel().selectFirst();
+        iq.PostUpdateInventory(mods.iterator());
+        pq.PGItems(this.items.iterator(), this.pm.getIdpurchases());
+    }
+
+    @FXML
+    void export(ActionEvent event) {
+
     }
     
 }

@@ -14,7 +14,7 @@ import java.util.Date;
  */
 public class InventoryAdjustmentModel {
     
-    private int iamid;
+    private Integer iamid;
     private Date iam_dte;
     private String refnum;
     private String desc;

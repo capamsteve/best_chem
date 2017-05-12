@@ -11,7 +11,7 @@ package models;
  */
 public class SItemsModel {
     
-    private int sitemid;
+    private Integer sitemid;
     private int drid;
     private int soid;
 

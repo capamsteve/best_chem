@@ -6,7 +6,6 @@
 package supplier;
 
 import best_chem.AbstractController;
-import customer.ContactViewController;
 import dbquerries.SupplierQuery;
 import java.io.IOException;
 import java.net.URL;
@@ -81,6 +80,8 @@ public class SupplierController extends AbstractController implements Initializa
     private boolean isEdit = false;
     
     private ArrayList<SupplierContactModel> contacts = new ArrayList();
+    private ArrayList<SupplierContactModel> removed = new ArrayList();
+    private ArrayList<SupplierContactModel> addedinEdit = new ArrayList();
     private final SupplierQuery sq = new SupplierQuery();
     
     public void AddMode(){
@@ -98,24 +99,14 @@ public class SupplierController extends AbstractController implements Initializa
         this.pymtrmfld.setText(supplier.getSuppymttrm());
         this.pstlcdfld.setText(supplier.getPostal());
         
+        this.savebtn.setText("Edit Supplier");
+        
         ArrayList<SupplierContactModel> scm = sq.getContacts(supplier.getSupid(), super.getType());
-        
-        String[] arr = {"supcname", "contact", "supemail"};
-        ObservableList<SupplierContactModel> data
-                = FXCollections.observableArrayList();
-        
-        for(int i = 0; i < contacts.size(); i++){
-            data.add(scm.get(i));
+
+        for(int i = 0; i < scm.size(); i++){
+            contacts.add(scm.get(i));
         }
-        ObservableList<TableColumn<SupplierContactModel, ?>> olist = (ObservableList<TableColumn<SupplierContactModel, ?>>) contactList.getColumns();
-        
-        for (int i = 0; i < olist.size(); i++) {
-            olist.get(i).setCellValueFactory(
-                    new PropertyValueFactory<>(arr[i])
-            );
-        }
-        
-        contactList.setItems(data);
+        this.RefreshItems();
     }
     
     public void ViewMode(SupplierModel supplier) throws SQLException{
@@ -143,26 +134,12 @@ public class SupplierController extends AbstractController implements Initializa
         System.out.println("HERE");
         
         ArrayList<SupplierContactModel> scm = sq.getContacts(supplier.getSupid(), super.getType());
-        
-        System.out.println(scm.size());
-        
-        String[] arr = {"supcname", "contact", "supemail"};
-        ObservableList<SupplierContactModel> data
-                = FXCollections.observableArrayList();
-        
+
         for(int i = 0; i < scm.size(); i++){
             System.out.println(scm.get(i).getSupcname());
-            data.add(scm.get(i));
+            contacts.add(scm.get(i));
         }
-        ObservableList<TableColumn<SupplierContactModel, ?>> olist = (ObservableList<TableColumn<SupplierContactModel, ?>>) contactList.getColumns();
-        
-        for (int i = 0; i < olist.size(); i++) {
-            olist.get(i).setCellValueFactory(
-                    new PropertyValueFactory<>(arr[i])
-            );
-        }
-        
-        contactList.setItems(data);
+        this.RefreshItems();
     }
 
     @FXML
@@ -231,21 +208,49 @@ public class SupplierController extends AbstractController implements Initializa
 
     @FXML
     void deletecontact(ActionEvent event) {
-        if(!contactList.getItems().isEmpty()){
-            int select = contactList.getSelectionModel().getFocusedIndex();
-        
-            contacts.remove(select);
-            contactList.getItems().remove(select);
-            this.RefreshItems();
+        if(isEdit){
+            /**
+             * Get id list of contacts to be deleted
+             */
+            if(!contactList.getItems().isEmpty()){
+               int select = contactList.getSelectionModel().getSelectedIndex();
+                
+                SupplierContactModel con = contactList.getItems().get(select);
+                
+                removed.add(con);
+                contacts.remove(con);
+
+                this.RefreshItems();
+            }
+            
+        }
+        else{
+            if(!contactList.getItems().isEmpty()){
+                int select = contactList.getSelectionModel().getFocusedIndex();
+
+                contacts.remove(select);
+                contactList.getItems().remove(select);
+                this.RefreshItems();
+            }
         }
 
     }
 
     @FXML
     void resetContact(ActionEvent event) {
-        if(!contacts.isEmpty()){
-            contacts.clear();
+        if(isEdit){
+            int size =  contacts.size();
+            for(int i = 0; i < size; i++){
+                removed.add(contacts.get(i));
+            }
+            this.contacts.clear();
             this.RefreshItems();
+        }
+        else{
+            if(!contacts.isEmpty()){
+                contacts.clear();
+                this.RefreshItems();
+            }
         }
     }
 
@@ -263,7 +268,34 @@ public class SupplierController extends AbstractController implements Initializa
         
         supmod.setScm(this.contacts);
         
-        sq.addSupplier(supmod, super.getType());
+        if(isEdit){
+            supmod.setSupid(Integer.parseInt(this.idfld.getText()));
+            sq.editSupplier(supmod, super.getType());
+            
+            if(!contacts.isEmpty()){
+                
+                for (int i = 0; i < contacts.size(); i++){
+                    if(contacts.get(i).getCid() == 0){
+                        addedinEdit.add(contacts.get(i));
+                    }
+                }
+                
+                sq.editContactSupplier(contacts.iterator(), super.getType());
+            }
+            if(!removed.isEmpty()){
+                sq.deleteContacts(removed.iterator(), super.getType());
+            }
+            if(!addedinEdit.isEmpty()){
+                for (SupplierContactModel contact : addedinEdit) {
+                    contact.setSupid(supmod.getSupid());
+                }
+                sq.addContactSupplier(addedinEdit.iterator(), supmod.getSupid(), super.getType());
+            }
+        }
+        else{
+            sq.addSupplier(supmod, super.getType());
+            
+        }
         
         Stage stage = (Stage) cancelbtn.getScene().getWindow();
         stage.close();

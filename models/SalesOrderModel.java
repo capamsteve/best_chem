@@ -14,7 +14,7 @@ import java.util.Date;
  */
 public class SalesOrderModel {
     
-    private int soid;
+    private Integer soid;
     private String customerpo;
     private int custid;
     private Date sodate;

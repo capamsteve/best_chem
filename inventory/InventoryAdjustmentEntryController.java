@@ -11,7 +11,9 @@ import java.io.IOException;
 import java.net.URL;
 import java.sql.Date;
 import java.sql.SQLException;
+import java.time.LocalDate;
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.ResourceBundle;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
@@ -76,8 +78,13 @@ public class InventoryAdjustmentEntryController extends AbstractController imple
     private Button addbtn;
     
     private ArrayList<InventoryModel> items = new ArrayList();
+    private ArrayList<InventoryModel> deleted = new ArrayList();
+    
+    private boolean isEdit;
     
     private InventoryQuery iq = new InventoryQuery();
+    
+    private InventoryAdjustmentModel iam_og;
 
     @FXML
     public void saveHandler(ActionEvent event) throws SQLException {
@@ -91,7 +98,30 @@ public class InventoryAdjustmentEntryController extends AbstractController imple
         
         iam.setItemslist(items);
         
-        iq.addInventoryAdjustment(iam, super.getType());
+        if(isEdit){
+            iam.setIamid(Integer.parseInt(this.invadjfld.getText()));
+            iq.editInventoryAdjustment(iam);
+            
+            ArrayList<InventoryModel> models = new ArrayList();
+            for(InventoryModel mod: this.items){
+                if(mod.getIadjid_item() == 0){
+                    models.add(mod);
+                }
+            }
+            
+            if(!this.deleted.isEmpty()){
+                iq.deleteInventoryAdjustmentItems(deleted.iterator(), iam.getIamid(), super.getType());
+            }
+            if(!models.isEmpty()){
+                iq.addInventoryAdjustmentItems(models.iterator(), iam.getIamid(), super.getType());
+            }
+            
+        }else{
+            iq.addInventoryAdjustment(iam, super.getType());
+        }
+        
+        Stage stage = (Stage) cancelbtn.getScene().getWindow();
+        stage.close();
     }
 
     @FXML
@@ -131,17 +161,33 @@ public class InventoryAdjustmentEntryController extends AbstractController imple
                     new PropertyValueFactory<>(arr[i])
             );
         }
+        this.itemlist.getItems().clear();
         this.itemlist.setItems(data);
     }
 
     @FXML
     public void removeItem(ActionEvent event) {
-
+        if(isEdit){
+            if(!this.items.isEmpty()){
+                this.deleted.add(this.items.remove(this.itemlist.getSelectionModel().getFocusedIndex()));
+                this.RefreshItems();
+            }
+        }else{
+            if(!this.items.isEmpty()){
+                this.items.remove(this.itemlist.getSelectionModel().getSelectedItem());
+                this.RefreshItems();
+            }
+        }
     }
 
     @FXML
-    public void postToInventory(ActionEvent event) {
-
+    public void postToInventory(ActionEvent event) throws SQLException {
+        
+        iq.PostUpdateInventory(this.items.iterator());
+        iq.changeInventoryAdjPost(this.items.iterator(), this.iam_og.getIamid());
+        
+        Stage stage = (Stage) cancelbtn.getScene().getWindow();
+        stage.close();
     }
 
     @FXML
@@ -152,14 +198,54 @@ public class InventoryAdjustmentEntryController extends AbstractController imple
     
     public void AddMode(){
         this.invadjfld.setDisable(true);
+        this.postbtn.setDisable(true);
     }
     
-    public void Edit(){
+    public void Edit(InventoryAdjustmentModel iam) throws SQLException{
         
+        this.iam_og = iam;
+        this.isEdit = true;
+        this.invadjfld.setText(String.valueOf(iam.getIamid()));
+        this.invadjfld.setEditable(false);
+        this.datefld.setValue(LocalDate.parse(iam.getIam_dte().toString()));
+        this.descriptionfld.setText(iam.getDesc());
+        this.reffld.setText(iam.getRefnum());
+        this.ptifld.setText(iam.getPgistat());
+        
+        Iterator ir = iq.getInventoryAdjustmentsItems(iam.getIamid());
+        
+        while(ir.hasNext()){
+            items.add((InventoryModel) ir.next());
+        }
+        
+        this.postbtn.setDisable(true);
+        this.RefreshItems();
     }
     
-    public void ViewMode(){
+    public void ViewMode(InventoryAdjustmentModel iam) throws SQLException{
+
+        this.iam_og = iam;
+        this.invadjfld.setText(String.valueOf(iam.getIamid()));
+        this.invadjfld.setEditable(false);
+        this.datefld.setValue(LocalDate.parse(iam.getIam_dte().toString()));
+        this.descriptionfld.setText(iam.getDesc());
+        this.reffld.setText(iam.getRefnum());
+        this.ptifld.setText(iam.getPgistat());
         
+        Iterator ir = iq.getInventoryAdjustmentsItems(iam.getIamid());
+        
+        while(ir.hasNext()){
+            items.add((InventoryModel) ir.next());
+        }
+        
+        this.RefreshItems();
+        this.addbtn.setDisable(true);
+        this.editbtn.setDisable(true);
+        this.pendingbtn.setDisable(true);
+        
+        if(iam.getPgistat().equals("Y")){
+            this.postbtn.setDisable(true);
+        }
     }
     
     /**

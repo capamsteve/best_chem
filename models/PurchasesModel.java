@@ -14,7 +14,7 @@ import java.util.Date;
  */
 public class PurchasesModel {
     
-    private int idpurchases;
+    private Integer idpurchases;
     private int sup_id;
     private String supcname;
     private Date po_dte;

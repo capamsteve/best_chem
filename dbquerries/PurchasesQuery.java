@@ -62,7 +62,7 @@ public class PurchasesQuery {
         String query = "";
         
         if(table == 1){
-            query = "call bestchem_db2.PURCHASE_ADD_ITEMS(?,?,?,?,?);";
+            query = "call bestchem_db2.PURCHASE_ADD_ITEMS(?,?,?,?,?,?);";
         }
         else if(table == 2){
             query = "call bestchem_db2.MM_PURCHASE_ADD_ITEMS(?,?,?,?,?);";
@@ -76,9 +76,10 @@ public class PurchasesQuery {
             
             ps.setInt(1, item.getIdinventory());
             ps.setInt(2, item.getQty());
-            ps.setDouble(3, item.getAmount());
-            ps.setDouble(4, item.getVat());
-            ps.setInt(5, poid);
+            ps.setDouble(3, item.getUprice());
+            ps.setDouble(4, item.getAmount());
+            ps.setDouble(5, item.getVat());
+            ps.setInt(6, poid);
             
             ps.addBatch();
         }
@@ -115,7 +116,7 @@ public class PurchasesQuery {
         String query = "";
         
         if(table == 1){
-            query = "SELECT * FROM bestchem_db2.purchaseitems where sup_id = ?;";
+            query = "CALL `PURCHASE_GET_ITEMS`(?);";
         }
         else if(table == 2){
             query = "SELECT * FROM bestchem_db2.mm_purchaseitems where sup_id = ?;";
@@ -132,4 +133,89 @@ public class PurchasesQuery {
         return rs;
     }
     
+    public void editPurchases(PurchasesModel pomod) throws SQLException{
+        
+        DBConnect dbc = DBConnect.getInstance();
+        
+        PreparedStatement st = dbc.getConnection().prepareStatement("call `PURCHASE_EDIT`(?,?,?,?)");
+        
+        st.setString(1, pomod.getSupcname());
+        st.setDate(2, Date.valueOf(pomod.getPo_dte().toString()));
+        st.setDate(3, Date.valueOf(pomod.getPo_dr_dte().toString()));
+        st.setInt(4, pomod.getIdpurchases());
+        
+        st.executeUpdate();
+        
+    }
+    
+    public void editPurchaseItems(Iterator items) throws SQLException{
+        
+        DBConnect dbc = DBConnect.getInstance();
+        
+        PreparedStatement ps = dbc.getConnection().prepareStatement("UPDATE `bestchem_db2`.`purchaseitems` SET `po_qty`=?, `amount`=?, `vat_amount`=?, `unitprice`=? WHERE `idpurchaseitems`=?;");
+        while(items.hasNext()){
+            PurchaseItemModel item = (PurchaseItemModel) items.next();
+            
+            if(item.getIdpurchaseitem() != 0){
+                ps.setInt(1, item.getQty());
+                ps.setDouble(2, item.getAmount());
+                ps.setDouble(3, item.getVat());
+                ps.setDouble(4, item.getUprice());
+                ps.setInt(5, item.getIdpurchaseitem());
+
+                ps.addBatch();
+            }
+            
+        }
+        
+        ps.executeBatch();
+        
+        dbc.closeConnection();
+    }
+    
+    public void deletePurchaseItems(Iterator items) throws SQLException{
+
+        DBConnect dbc = DBConnect.getInstance();
+        
+        PreparedStatement ps = dbc.getConnection().prepareStatement("UPDATE `bestchem_db2`.`purchaseitems` SET `status`='DELETED' WHERE `idpurchaseitems`=?;");
+        while(items.hasNext()){
+            PurchaseItemModel item = (PurchaseItemModel) items.next();
+            
+            if(item.getIdpurchaseitem() != 0){
+                ps.setInt(1, item.getIdpurchaseitem());
+            
+                ps.addBatch();
+            }
+            
+        }
+        
+        ps.executeBatch();
+        
+        dbc.closeConnection();
+        
+    }
+    
+    public void PGItems(Iterator items, int pid) throws SQLException{
+        
+        DBConnect dbc = DBConnect.getInstance();
+        
+        PreparedStatement ps2 = dbc.getConnection().prepareStatement("UPDATE `bestchem_db2`.`purchases` SET `pgistat`='Y' WHERE `idpurchases`=?;");
+        
+        ps2.setInt(1, pid);
+        ps2.executeUpdate();
+        
+        PreparedStatement ps = dbc.getConnection().prepareStatement("UPDATE `bestchem_db2`.`purchaseitems` SET `pgistat`='Y' WHERE `idpurchaseitems`=?;");
+        while(items.hasNext()){
+            PurchaseItemModel item = (PurchaseItemModel) items.next();
+            
+            ps.setInt(1, item.getIdpurchaseitem());
+            
+            ps.addBatch();
+        }
+        
+        ps.executeBatch();
+        
+        dbc.closeConnection();
+        
+    }
 }

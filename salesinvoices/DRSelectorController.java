@@ -3,10 +3,9 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package mgi;
+package salesinvoices;
 
-import best_chem.AbstractController;
-import dbquerries.InventoryQuery;
+import dbquerries.DeliveryReceiptsQuery;
 import java.net.URL;
 import java.sql.SQLException;
 import java.util.Iterator;
@@ -18,6 +17,7 @@ import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
+import javafx.scene.control.Alert;
 import javafx.scene.control.Button;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
@@ -26,8 +26,8 @@ import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyEvent;
 import javafx.stage.Stage;
+import models.DRModel;
 import models.InventoryModel;
-import models.UserModel;
 import salesorder.SOItemsController;
 
 /**
@@ -35,13 +35,10 @@ import salesorder.SOItemsController;
  *
  * @author Steven
  */
-public class MGItemSelectorController extends AbstractController implements Initializable {
-
+public class DRSelectorController implements Initializable {
+    
     @FXML
-    private TextField qtyfld;
-
-    @FXML
-    private TableView<InventoryModel> inventorytable;
+    private TableView<DRModel> inventorytable;
 
     @FXML
     private Button saveitembtn;
@@ -55,45 +52,55 @@ public class MGItemSelectorController extends AbstractController implements Init
     @FXML
     private TextField inventoryidfld;
     
-    private InventoryModel item;
+    private DRModel drm_og;
     
-    private boolean isCancelled = false;
+    private boolean isCancelled;
     
-    private final InventoryQuery iq = new InventoryQuery();
-    
+    private final DeliveryReceiptsQuery rq = new DeliveryReceiptsQuery();
+
     @FXML
-    public void additem(ActionEvent event) throws SQLException {
+    void saveItem(ActionEvent event) throws SQLException {
         
-        this.item = iq.getInventory(this.inventorytable.getSelectionModel().getSelectedItem().getIdinventory(), super.getType());
-        System.out.println(this.item.getIdinventory());
-        System.out.println(this.item.getDescription());
-        this.item.setSoh(Integer.valueOf(this.qtyfld.getText()));
-        Stage stage = (Stage) saveitembtn.getScene().getWindow();
-        stage.close();
+        this.isCancelled = false;
+        try{
+            
+            drm_og = rq.getDR(this.inventorytable.getSelectionModel().getSelectedItem().getDrid());
+            
+            Stage stage = (Stage) cancelbtn.getScene().getWindow();
+            stage.close();
+            
+        }catch(NullPointerException e){
+            Alert alert = new Alert(Alert.AlertType.INFORMATION);
+            alert.setTitle("Information Dialog");
+            alert.setHeaderText(null);
+            alert.setContentText("Please select an item");
+
+            alert.showAndWait();
+        }
     }
 
     @FXML
-    public void cancelHandler(ActionEvent event) {
+    void cancelHandler(ActionEvent event) {
         this.isCancelled = true;
         
         Stage stage = (Stage) cancelbtn.getScene().getWindow();
         stage.close();
     }
     
-    private void searchSKU(String sku) throws SQLException{
+    private void searchDRID(String sku) throws SQLException{
 
-        String[] arr = {"sku", "description", "uom", "wh", "soh", "csl"};
-        ObservableList<InventoryModel> data
+        String[] arr = {"drid", "drdate", "remarks", "drprint", "pgi", "drstatus"};
+        ObservableList<DRModel> data
                 = FXCollections.observableArrayList();
         
-        Iterator rs = iq.getInventories(sku, super.getType());
+        Iterator rs = rq.getDRbyID(sku);
         
         while(rs.hasNext()){
-            data.add((InventoryModel)rs.next());
+            data.add((DRModel)rs.next());
         }
         
-        ObservableList<TableColumn<InventoryModel, ?>> olist;
-        olist = (ObservableList<TableColumn<InventoryModel, ?>>) inventorytable.getColumns();
+        ObservableList<TableColumn<DRModel, ?>> olist;
+        olist = (ObservableList<TableColumn<DRModel, ?>>) inventorytable.getColumns();
 
         for (int i = 0; i < olist.size(); i++) {
             olist.get(i).setCellValueFactory(
@@ -103,21 +110,18 @@ public class MGItemSelectorController extends AbstractController implements Init
         inventorytable.setItems(data);
     }
     
-    public InventoryModel getitem(){
-        return item;
-    }
-
     /**
      * Initializes the controller class.
      */
     @Override
     public void initialize(URL url, ResourceBundle rb) {
         // TODO
+        
         this.inventoryidfld.setOnKeyPressed((KeyEvent event) -> {
             if(event.getCode().equals(KeyCode.ENTER)){
                 System.out.println(inventoryidfld.getText());
                 try {
-                    this.searchSKU(inventoryidfld.getText());
+                    this.searchDRID(this.inventoryidfld.getText());
                 } catch (SQLException ex) {
                     Logger.getLogger(SOItemsController.class.getName()).log(Level.SEVERE, null, ex);
                 }
@@ -127,7 +131,7 @@ public class MGItemSelectorController extends AbstractController implements Init
         this.searchbtn.setOnAction((ActionEvent event) -> {
             System.out.println(inventoryidfld.getText());
             try {
-                this.searchSKU(inventoryidfld.getText());
+                this.searchDRID(inventoryidfld.getText());
             } catch (SQLException ex) {
                 Logger.getLogger(SOItemsController.class.getName()).log(Level.SEVERE, null, ex);
             }
@@ -135,15 +139,17 @@ public class MGItemSelectorController extends AbstractController implements Init
     }    
 
     /**
-     * @return the isCancelled
+     * @return the drm_og
      */
-    public boolean IsCancelled() {
-        return isCancelled;
+    public DRModel getDrm_og() {
+        return drm_og;
     }
 
-    @Override
-    public void initData(UserModel user, int type) {
-        super.setType(type);
+    /**
+     * @return the isCancelled
+     */
+    public boolean isIsCancelled() {
+        return isCancelled;
     }
     
 }

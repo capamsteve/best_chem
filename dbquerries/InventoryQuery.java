@@ -7,6 +7,7 @@ package dbquerries;
 
 import dbconn.DBConnect;
 import dbconn.DBQuery;
+import delivery.DRItemViewModel;
 import java.sql.Date;
 import java.sql.PreparedStatement;
 import models.InventoryModel;
@@ -17,6 +18,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
 import models.InventoryAdjustmentModel;
+import models.MGIModel;
 import models.PricesModel;
 
 /**
@@ -45,12 +47,11 @@ public class InventoryQuery {
         
         while(rs.hasNext()){
             HashMap map = (HashMap) rs.next();
-            InventoryModel inventory = new InventoryModel();
-            inventory.setIdinventory((int) map.get("idinventory"));
-            inventory.setSku((String) map.get("sku"));
-            inventory.setDescription((String) map.get("skudesc"));
-            inventory.setUom((String) map.get("skuom"));
-            inventory.setWh((String) map.get("skuwh"));
+            InventoryModel inventory = new InventoryModel(Integer.valueOf(map.get("idinventory").toString()));
+            inventory.setSku(map.get("sku").toString());
+            inventory.setDescription(map.get("skudesc").toString());
+            inventory.setUom(map.get("skuom").toString());
+            inventory.setWh(map.get("skuwh").toString());
             inventory.setSoh((int) map.get("soh"));
             inventory.setCsl((int) map.get("csl"));
             
@@ -91,6 +92,32 @@ public class InventoryQuery {
         
     }
     
+    public void updateInventories(Iterator ir, int table) throws SQLException{
+        String query = "";
+        
+        if(table == 1){
+            query = "call `UPDATE_INVENTORY`(?,?);";
+        }
+        else if(table == 2){
+            query = "call `MM_UPDATE_INVENTORY`(?,?);";
+        }
+        
+        DBQuery dbq = DBQuery.getInstance();
+        DBConnect dbc = DBConnect.getInstance();
+        
+        PreparedStatement st = dbc.getConnection().prepareStatement(query);
+        
+        while(ir.hasNext()){
+            DRItemViewModel item = (DRItemViewModel) ir.next();
+            st.setInt(1, item.getInventory_id());
+            System.out.println(item.getInventory_id());
+            st.setInt(2, item.getDeliveryqty());
+            System.out.println(item.getDeliveryqty());
+            
+            st.executeUpdate();
+        }
+    }
+    
     public Iterator getInventories(String sku, int table) throws SQLException{
         System.out.println(table);
         
@@ -116,8 +143,7 @@ public class InventoryQuery {
         
         while(rs.hasNext()){
             HashMap map = (HashMap) rs.next();
-            InventoryModel inventory = new InventoryModel();
-            inventory.setIdinventory((int) map.get("idinventory"));
+            InventoryModel inventory = new InventoryModel(Integer.valueOf(map.get("idinventory").toString()));
             inventory.setSku((String) map.get("sku"));
             inventory.setDescription((String) map.get("skudesc"));
             inventory.setUom((String) map.get("skuom"));
@@ -148,14 +174,14 @@ public class InventoryQuery {
         PreparedStatement st = dbc.getConnection().prepareStatement(query);
         st.setInt(1, id);
         
-        InventoryModel im;
+        InventoryModel im = null;
         
         Iterator rs = dbq.getQueryResultSet(st);
         
-        im = new InventoryModel();
+        
         if(rs.hasNext()){
             HashMap map = (HashMap) rs.next();
-            im.setIdinventory((int) map.get("idinventory"));
+            im = new InventoryModel(Integer.valueOf(map.get("idinventory").toString()));
             im.setSku((String) map.get("sku"));
             im.setDescription((String) map.get("skudesc"));
             im.setUom((String) map.get("skuom"));
@@ -182,14 +208,13 @@ public class InventoryQuery {
         PreparedStatement st = dbc.getConnection().prepareStatement(query);
         st.setInt(1, id);
         
-        InventoryModel im;
+        InventoryModel im = null;
         
         Iterator rs = dbq.getQueryResultSet(st);
-        
-        im = new InventoryModel();
+
         if(rs.hasNext()){
             HashMap map = (HashMap) rs.next();
-            im.setIdinventory((int) map.get("idinventory"));
+            im = new InventoryModel(Integer.valueOf(map.get("idinventory").toString()));
             im.setSku((String) map.get("sku"));
             im.setDescription((String) map.get("skudesc"));
             im.setUom((String) map.get("skuom"));
@@ -297,18 +322,11 @@ public class InventoryQuery {
         
     }
     
-    public Iterator getInventoryAdjustments(int table) throws SQLException{
-        String query = "";
-        
-        if(table == 1){
-            query = "SELECT * FROM bestchem_db2.inventory_adjustments;";
-        }
-        else if(table == 2){
-            query = "SELECT * FROM bestchem_db2.mm_inventory_adjustments;";
-        }
+    public Iterator getInventoryAdjustments(int soid) throws SQLException{
+
         DBQuery dbq = DBQuery.getInstance();
         DBConnect dbc = DBConnect.getInstance();
-        PreparedStatement st = dbc.getConnection().prepareStatement(query);
+        PreparedStatement st = dbc.getConnection().prepareStatement("SELECT * FROM bestchem_db2.inventory_adjustments;");
         
         Iterator rs = dbq.getQueryResultSet(st);
         
@@ -323,6 +341,70 @@ public class InventoryQuery {
             iam.setDesc(map.get("description").toString());
             iam.setRefnum(map.get("refnum").toString());
             iam.setPgistat(map.get("pgistat").toString());
+            
+            iams.add(iam);
+        }
+
+        return iams.iterator();
+    }
+    
+    public void editInventoryAdjustment(InventoryAdjustmentModel iam) throws SQLException{
+        
+        
+        DBQuery dbq = DBQuery.getInstance();
+        DBConnect dbc = DBConnect.getInstance();
+        
+        PreparedStatement st = dbc.getConnection().prepareStatement("CALL `INVENTORY_ADJ_EDIT` (?,?,?,?)");
+        
+        st.setDate(1, Date.valueOf(iam.getIam_dte().toString()));
+        st.setString(2, iam.getRefnum());
+        st.setString(3, iam.getDesc());
+        st.setInt(4, iam.getIamid());
+        
+        st.executeUpdate();
+    }
+    
+    public void deleteInventoryAdjustmentItems(Iterator ir, int iaid, int table) throws SQLException{
+    
+        DBQuery dbq = DBQuery.getInstance();
+        DBConnect dbc = DBConnect.getInstance();
+        
+        PreparedStatement st = dbc.getConnection().prepareStatement("UPDATE `bestchem_db2`.`inventory_adjustment_items` SET `iastat`='DELETED' WHERE `idia_items`= ?;");
+        
+        while(ir.hasNext()){
+            InventoryModel mod = (InventoryModel) ir.next();
+            
+            st.setInt(1, mod.getIadjid_item());
+            st.addBatch();
+            
+        }
+        st.executeBatch();
+    }
+    
+    public Iterator getInventoryAdjustmentsItems(int iaid) throws SQLException{
+
+        DBQuery dbq = DBQuery.getInstance();
+        DBConnect dbc = DBConnect.getInstance();
+        PreparedStatement st = dbc.getConnection().prepareStatement("CALL `INVENTORY_ADJ_GET_ITEMS`(?)");
+        
+        st.setInt(1, iaid);
+        
+        Iterator rs = dbq.getQueryResultSet(st);
+        
+        ArrayList<InventoryModel> iams = new ArrayList();
+        
+        while(rs.hasNext()){
+            HashMap map = (HashMap) rs.next();
+            InventoryModel iam = new InventoryModel(Integer.valueOf(map.get("idinventory").toString()));
+            
+            iam.setIadjid(Integer.valueOf(map.get("ia_id").toString()));
+            iam.setIadjid_item(Integer.valueOf(map.get("idia_items").toString()));
+            iam.setSoh(Integer.valueOf(map.get("stock_qty").toString()));
+            iam.setSku(map.get("sku").toString());
+            iam.setDescription(map.get("skudesc").toString());
+            iam.setUom(map.get("skuom").toString());
+            iam.setWh(map.get("skuwh").toString());
+            iam.setMov(map.get("mov").toString());
             
             iams.add(iam);
         }
@@ -394,5 +476,306 @@ public class InventoryQuery {
         st.setDate(4, Date.valueOf(price.getEffdte().toString()));
         st.setInt(5, price.getIdinventory());
         dbq.executeUpdateQuery(st); 
+    }
+    
+    public void addMGI(MGIModel mgimod, int table) throws SQLException{
+        
+        String query = "";
+        
+        if(table == 1){
+            query = "call `MGI_ADD`(?,?,?,?,?,?,?,?)";
+        }
+        else if(table == 2){
+            query = "";
+        }
+        
+        DBQuery dbq = DBQuery.getInstance();
+        DBConnect dbc = DBConnect.getInstance();
+        
+        PreparedStatement st = dbc.getConnection().prepareStatement(query);
+        
+        st.setDate(1, Date.valueOf(mgimod.getGidte().toString()));
+        st.setString(2, mgimod.getCustname());
+        st.setString(3, mgimod.getContname());
+        st.setString(4, mgimod.getAddress());
+        st.setString(5, mgimod.getDescription());
+        st.setString(6, mgimod.getRef());
+        st.setString(7, mgimod.getAttention());
+        st.setInt(8, mgimod.getCby());
+        
+        ResultSet generatedKeys = st.executeQuery();
+        
+        try{
+            
+            if(generatedKeys.next()){
+                System.out.println(generatedKeys.getInt(1));
+                int mgiid = generatedKeys.getInt(1);
+                this.addMGItems(mgimod.getItems().iterator(), mgiid, table);
+            }
+        }catch(Exception e){
+            e.printStackTrace();
+        }
+        
+    }
+    
+    public void addMGItems(Iterator items, int mgiid, int table) throws SQLException{
+        String query = "";
+        
+        if(table == 1){
+            query = "call `MGI_ITEM_ADD`(?,?,?);";
+        }
+
+        System.out.println(table);
+        DBConnect dbc = DBConnect.getInstance();
+        
+        PreparedStatement ps = dbc.getConnection().prepareStatement(query);
+        while(items.hasNext()){
+            InventoryModel item = (InventoryModel) items.next();
+            
+            ps.setInt(1, mgiid);
+            ps.setInt(2, item.getIdinventory());
+            ps.setInt(3, item.getSoh());
+            
+            ps.addBatch();
+        }
+        
+        ps.executeBatch();
+        
+        dbc.closeConnection();
+    }
+    
+    public Iterator getMGI(int table) throws SQLException{
+        
+        String query = "";
+        
+        if(table == 1){
+            query = "SELECT * FROM bestchem_db2.manual_goods_issue;";
+        }
+        
+        
+        DBQuery dbq = DBQuery.getInstance();
+        DBConnect dbc = DBConnect.getInstance();
+        PreparedStatement st = dbc.getConnection().prepareStatement(query);
+        
+        Iterator rs = dbq.getQueryResultSet(st);
+        
+        ArrayList<MGIModel> mgis = new ArrayList();
+        
+        while(rs.hasNext()){
+            HashMap map = (HashMap) rs.next();
+            MGIModel mgi = new MGIModel();
+            
+            mgi.setGinum(Integer.valueOf(map.get("idmgi").toString()));
+            mgi.setGidte(Date.valueOf(map.get("mgidte").toString()));
+            mgi.setCustname(map.get("custnme").toString());
+            mgi.setContname(map.get("contnme").toString());
+            mgi.setRef(map.get("renum").toString());
+            mgi.setAttention(map.get("attention").toString());
+            mgi.setAddress(map.get("address").toString());
+            mgi.setDescription(map.get("description").toString());
+            mgi.setCby(Integer.parseInt(map.get("cby").toString()));
+            mgi.setPgistat(map.get("pgistat").toString());
+            
+            mgis.add(mgi);
+        }
+
+        return mgis.iterator();
+        
+    }
+    
+    public Iterator getMGItems(int table, int mgiid) throws SQLException{
+        DBQuery dbq = DBQuery.getInstance();
+        DBConnect dbc = DBConnect.getInstance();
+        PreparedStatement st = dbc.getConnection().prepareStatement("CALL `MGI_ITEM_GET`(?);");
+        
+        st.setInt(1, mgiid);
+        
+        Iterator rs = dbq.getQueryResultSet(st);
+        
+        ArrayList<InventoryModel> mgitems = new ArrayList();
+        
+        while(rs.hasNext()){
+            HashMap map = (HashMap) rs.next();
+            InventoryModel mgi = new InventoryModel(Integer.valueOf(map.get("mgi_invent_id").toString()));
+            
+            mgi.setMgiid_item(Integer.parseInt(map.get("idmgi_items").toString()));
+            mgi.setMgi_id(Integer.parseInt(map.get("mgi_id").toString()));
+            mgi.setSku(map.get("sku").toString());
+            mgi.setDescription(map.get("skudesc").toString());
+            mgi.setUom(map.get("skuom").toString());
+            mgi.setWh(map.get("skuwh").toString());
+            mgi.setPgistat(map.get("pgistat").toString());
+            mgi.setSoh(Integer.parseInt(map.get("valdec").toString()));
+            
+            mgitems.add(mgi);
+        }
+
+        return mgitems.iterator();
+    }
+    
+    public void editMGI(MGIModel mgimod, int table) throws SQLException{
+        
+        String query = "";
+        
+        if(table == 1){
+            query = "call `MGI_EDIT`(?,?,?,?,?,?,?,?)";
+        }
+        else if(table == 2){
+            query = "";
+        }
+        
+        DBQuery dbq = DBQuery.getInstance();
+        DBConnect dbc = DBConnect.getInstance();
+        
+        PreparedStatement st = dbc.getConnection().prepareStatement(query);
+        
+        st.setDate(1, Date.valueOf(mgimod.getGidte().toString()));
+        st.setString(2, mgimod.getCustname());
+        st.setString(3, mgimod.getContname());
+        st.setString(4, mgimod.getAddress());
+        st.setString(5, mgimod.getDescription());
+        st.setString(6, mgimod.getRef());
+        st.setString(7, mgimod.getAttention());
+        st.setInt(8, mgimod.getGinum());
+        
+        st.executeUpdate();
+        
+    }
+    
+    public void editMGItems(Iterator items, int table) throws SQLException{
+        String query = "";
+        
+        if(table == 1){
+            query = "UPDATE `bestchem_db2`.`mgi_items` SET `valdec`=? WHERE `idmgi_items`=? and `mgi_invent_id` = ? and `mgi_id` = ?;";
+        }
+
+        DBConnect dbc = DBConnect.getInstance();
+        
+        PreparedStatement ps = dbc.getConnection().prepareStatement(query);
+        while(items.hasNext()){
+            InventoryModel item = (InventoryModel) items.next();
+            
+            if(item.getMgiid_item() != 0){
+                System.out.println(item.getMgiid_item() + " " + item.getSoh());
+                ps.setInt(2, item.getMgiid_item());
+                ps.setInt(3, item.getIdinventory());
+                ps.setInt(4, item.getMgi_id());
+                ps.setInt(1, item.getSoh());
+                System.out.println(ps.toString());
+                ps.addBatch();
+            }
+            
+        }
+        
+        ps.executeBatch();
+        
+        dbc.closeConnection();
+    }
+    
+    public void deleteMGIItems(Iterator items, int table) throws SQLException{
+        String query = "";
+        
+        if(table == 1){
+            query = "UPDATE `bestchem_db2`.`mgi_items` SET `status`='DELETED' WHERE `idmgi_items`=? and `mgi_invent_id` = ? and `mgi_id` = ?;";
+        }
+
+        DBConnect dbc = DBConnect.getInstance();
+        
+        PreparedStatement ps = dbc.getConnection().prepareStatement(query);
+        while(items.hasNext()){
+            InventoryModel item = (InventoryModel) items.next();
+            
+            if(item.getMgiid_item() != 0){
+                System.out.println(item.getMgiid_item());
+                ps.setInt(1, item.getMgiid_item());
+                ps.setInt(2, item.getIdinventory());
+                ps.setInt(3, item.getMgi_id());
+                System.out.println(ps.toString());
+                ps.addBatch();
+            }
+        }
+        
+        ps.executeBatch();
+        
+        dbc.closeConnection();
+        
+    }
+    
+    public void PostUpdateInventory(Iterator items) throws SQLException{
+        DBConnect dbc = DBConnect.getInstance();
+
+        PreparedStatement ps1 = dbc.getConnection().prepareStatement("CALL `UPDATE_INVENTORY`(?,?)");
+        PreparedStatement ps2 = dbc.getConnection().prepareStatement("CALL `UPDATE_INVENTORY_INC`(?,?)");
+        
+        while(items.hasNext()){
+            InventoryModel item = (InventoryModel) items.next();
+            
+            if(item.getMov().equals("INC")){
+                
+                ps2.setInt(1, item.getIdinventory());
+                ps2.setInt(2, item.getSoh());
+                
+                ps2.addBatch();
+            }else if(item.getMov().equals("DEC")){
+                
+                ps1.setInt(1, item.getIdinventory());
+                ps1.setInt(2, item.getSoh());
+                
+                ps1.addBatch();
+            }
+            
+            
+        }
+        
+        ps1.executeBatch();
+        ps2.executeBatch();
+        
+        dbc.closeConnection();
+    }
+    
+    public void changeMGIPost(Iterator items, int mgiid) throws SQLException{
+        
+        DBConnect dbc = DBConnect.getInstance();
+        
+        PreparedStatement ps1 = dbc.getConnection().prepareStatement("UPDATE `bestchem_db2`.`manual_goods_issue` SET `pgistat`='Y' WHERE `idmgi`=?;");
+        
+        ps1.setInt(1, mgiid);
+        
+        PreparedStatement ps = dbc.getConnection().prepareStatement("UPDATE `bestchem_db2`.`mgi_items` SET `pgistat`='Y' WHERE `idmgi_items`=?;");
+        while(items.hasNext()){
+            InventoryModel item = (InventoryModel) items.next();
+            
+            ps.setInt(1, item.getMgiid_item());
+            
+            ps.addBatch();
+        }
+        
+        ps.executeBatch();
+        ps1.executeUpdate();
+        
+        dbc.closeConnection();
+    }
+    
+    public void changeInventoryAdjPost(Iterator items, int iaid) throws SQLException{
+        
+        DBConnect dbc = DBConnect.getInstance();
+        
+        PreparedStatement ps1 = dbc.getConnection().prepareStatement("UPDATE `bestchem_db2`.`inventory_adjustments` SET `pgistat`='Y' WHERE `idadjustments`=?;");
+        
+        ps1.setInt(1, iaid);
+        
+        PreparedStatement ps = dbc.getConnection().prepareStatement("UPDATE `bestchem_db2`.`inventory_adjustment_items` SET `status`='Y' WHERE `idia_items`=?;");
+        while(items.hasNext()){
+            InventoryModel item = (InventoryModel) items.next();
+            
+            ps.setInt(1, item.getIadjid_item());
+            
+            ps.addBatch();
+        }
+        
+        ps.executeBatch();
+        ps1.executeUpdate();
+        
+        dbc.closeConnection();
     }
 }

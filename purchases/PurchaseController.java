@@ -91,18 +91,52 @@ public class PurchaseController extends AbstractController implements Initializa
     }
 
     @FXML
-    public void editPurchaseOrder(ActionEvent event) {
+    public void editPurchaseOrder(ActionEvent event) throws IOException, SQLException {
+        FXMLLoader fxmlloader = new FXMLLoader(getClass().getResource("/purchases/PurchaseDocumentView.fxml"));
+        Parent root = (Parent) fxmlloader.load();
+        
+        PurchaseDocumentController povc = fxmlloader.<PurchaseDocumentController>getController();
+        povc.setSupplier(this.supplier);
+        povc.initData(super.getGlobalUser(), super.getType());
+        povc.EditMode(this.purchtble.getSelectionModel().getSelectedItem());
 
+        Scene scene = new Scene(root);
+        Stage stage = (Stage) addpobtn.getScene().getWindow();
+        Stage substage = new Stage();
+        substage.setScene(scene);
+        substage.setTitle("Edit Supplier Orders");
+        substage.initModality(Modality.WINDOW_MODAL);
+        substage.initOwner(stage);
+        substage.showAndWait();
+        
+        this.getPurchases();
     }
 
     @FXML
-    public void viewPurchaseOrder(ActionEvent event) {
+    public void viewPurchaseOrder(ActionEvent event) throws SQLException, IOException {
+        FXMLLoader fxmlloader = new FXMLLoader(getClass().getResource("/purchases/PurchaseDocumentView.fxml"));
+        Parent root = (Parent) fxmlloader.load();
+        
+        PurchaseDocumentController povc = fxmlloader.<PurchaseDocumentController>getController();
+        povc.setSupplier(this.supplier);
+        povc.initData(super.getGlobalUser(), super.getType());
+        povc.ViewMode(this.purchtble.getSelectionModel().getSelectedItem());
 
+        Scene scene = new Scene(root);
+        Stage stage = (Stage) addpobtn.getScene().getWindow();
+        Stage substage = new Stage();
+        substage.setScene(scene);
+        substage.setTitle("View Supplier Orders");
+        substage.initModality(Modality.WINDOW_MODAL);
+        substage.initOwner(stage);
+        substage.showAndWait();
+        
+        this.getPurchases();
     }
     
     public void getPurchases() throws SQLException{
         
-        String[] arr = {"idpurchases", "po_dte", "pgistat", "po_dr_dte"};
+        String[] arr = {"idpurchases", "po_dte", "po_dr_dte", "pgistat"};
         
         ObservableList<PurchasesModel> data
                 = FXCollections.observableArrayList();

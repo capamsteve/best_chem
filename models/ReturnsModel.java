@@ -11,18 +11,29 @@ package models;
  */
 public class ReturnsModel {
     
-    private int idreturns;
+    private Integer idreturns;
+    private int retadjid;
+    private int retadjitemid;
     private String sku;
     private String skudesc;
     private String retuom;
     private String retwhs;
     private int soh;
     private String mov;
+    private String stat;
+    
+    public ReturnsModel(Integer idreturns){
+        this.idreturns = idreturns;
+    }
 
     /**
      * @return the idreturns
      */
     public int getIdreturns() {
+        return idreturns;
+    }
+    
+    public Integer getId() {
         return idreturns;
     }
 
@@ -115,6 +126,68 @@ public class ReturnsModel {
      */
     public void setMov(String mov) {
         this.mov = mov;
+    }
+    
+    @Override
+    public int hashCode() {
+        int hash = 0;
+        hash += (getId() != null ? getId().hashCode() : 0);
+        return hash;
+    }
+
+    @Override
+    public boolean equals(Object object) {
+        // TODO: Warning - this method won't work in the case the id fields are not set
+        if (!(object instanceof ReturnsModel)) {
+            return false;
+        }
+        ReturnsModel other = (ReturnsModel) object;
+        if ((this.getId() == null && other.getId() != null) || (this.getId() != null && !this.getId().equals(other.getId()))) {
+            return false;
+        }
+        return true;
+    }
+
+    /**
+     * @return the retadjid
+     */
+    public int getRetadjid() {
+        return retadjid;
+    }
+
+    /**
+     * @param retadjid the retadjid to set
+     */
+    public void setRetadjid(int retadjid) {
+        this.retadjid = retadjid;
+    }
+
+    /**
+     * @return the retadjitemid
+     */
+    public int getRetadjitemid() {
+        return retadjitemid;
+    }
+
+    /**
+     * @param retadjitemid the retadjitemid to set
+     */
+    public void setRetadjitemid(int retadjitemid) {
+        this.retadjitemid = retadjitemid;
+    }
+
+    /**
+     * @return the stat
+     */
+    public String getStat() {
+        return stat;
+    }
+
+    /**
+     * @param stat the stat to set
+     */
+    public void setStat(String stat) {
+        this.stat = stat;
     }
     
 }
