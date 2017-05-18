@@ -14,12 +14,16 @@ public class DRItemViewModel {
     private int dritemid;
     private int idsoitem;
     private String sku;
-    private int inventory_id;
+    private Integer inventory_id;
     private String skudesc;
     private int ordrqty;
     private int deliveryqty;
     private int qtyremaining;
     private String uom;
+    
+    public DRItemViewModel(Integer id){
+        this.inventory_id = id;
+    }
 
     /**
      * @return the sku
@@ -125,6 +129,10 @@ public class DRItemViewModel {
     public int getInventory_id() {
         return inventory_id;
     }
+    
+    public Integer getId() {
+        return inventory_id;
+    }
 
     /**
      * @param inventory_id the inventory_id to set
@@ -145,6 +153,26 @@ public class DRItemViewModel {
      */
     public void setDritemid(int dritemid) {
         this.dritemid = dritemid;
+    }
+    
+    @Override
+    public int hashCode() {
+        int hash = 0;
+        hash += (getId() != null ? getId().hashCode() : 0);
+        return hash;
+    }
+
+    @Override
+    public boolean equals(Object object) {
+        // TODO: Warning - this method won't work in the case the id fields are not set
+        if (!(object instanceof DRItemViewModel)) {
+            return false;
+        }
+        DRItemViewModel other = (DRItemViewModel) object;
+        if ((this.getId() == null && other.getId() != null) || (this.getId() != null && !this.getId().equals(other.getId()))) {
+            return false;
+        }
+        return true;
     }
     
 }

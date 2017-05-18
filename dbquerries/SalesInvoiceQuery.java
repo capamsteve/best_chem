@@ -203,4 +203,16 @@ public class SalesInvoiceQuery {
         st.executeUpdate();
     }
     
+    public void changeStatus(int biid) throws SQLException{
+        
+        DBQuery dbq = DBQuery.getInstance();
+        DBConnect dbc = DBConnect.getInstance();
+
+        PreparedStatement st = dbc.getConnection().prepareStatement("UPDATE `bestchem_db2`.`salesinvoices` SET `status`='complete' WHERE `idsalesinvoices`=?;");
+
+        st.setInt(1, biid);
+        
+        st.executeUpdate();
+    }
+    
 }

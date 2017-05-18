@@ -11,7 +11,7 @@ package models;
  */
 public class PurchaseItemModel {
     
-    private Integer idpurchaseitem;
+    private int idpurchaseitem;
     private String sku;
     private String desc;
     private int qty;

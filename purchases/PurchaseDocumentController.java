@@ -487,6 +487,9 @@ public class PurchaseDocumentController extends AbstractController implements In
         
         iq.PostUpdateInventory(mods.iterator());
         pq.PGItems(this.items.iterator(), this.pm.getIdpurchases());
+        
+        Stage stage = (Stage) cancelbtn.getScene().getWindow();
+        stage.close();
     }
 
     @FXML

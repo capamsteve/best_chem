@@ -510,7 +510,7 @@ public class SalesOrderController extends AbstractController implements Initiali
     public void addSI(ActionEvent event) throws IOException, SQLException {
         
         try{
-            if(this.salestble.getSelectionModel().getSelectedItem().getStatus().equals("With DR")){
+            if(this.salestble.getSelectionModel().getSelectedItem().getStatus().equals("Partially Delivered")){
                 FXMLLoader fxmlloader = new FXMLLoader(getClass().getResource("/salesinvoices/SalesInvoiceView.fxml"));
                 Parent root = (Parent) fxmlloader.load();
 
@@ -547,6 +547,7 @@ public class SalesOrderController extends AbstractController implements Initiali
                 alert.showAndWait();
             }
         }catch(NullPointerException e){
+            e.printStackTrace();
             Alert alert = new Alert(Alert.AlertType.INFORMATION);
             alert.setTitle("Information Dialog");
             alert.setHeaderText(null);
@@ -566,7 +567,7 @@ public class SalesOrderController extends AbstractController implements Initiali
                 SalesInvoiceController sivc = fxmlloader.<SalesInvoiceController>getController();
                 sivc.initData(this.getGlobalUser(), 0);
                 sivc.setInit(cust, this.somod);
-                sivc.EditMode();
+                sivc.EditMode(this.invoicetble.getSelectionModel().getSelectedItem());
 
                 Scene scene = new Scene(root);
                 Stage stage = (Stage) addinvoicebtn.getScene().getWindow();

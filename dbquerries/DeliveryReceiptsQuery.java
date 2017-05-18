@@ -307,14 +307,14 @@ public class DeliveryReceiptsQuery {
         st.execute();
     }
     
-    public void changeStatusDR(int drid) throws SQLException{
+    public void changeStatusDR(int drid, String stat) throws SQLException{
         DBQuery dbq = DBQuery.getInstance();
         DBConnect dbc = DBConnect.getInstance();
         
         PreparedStatement st = dbc.getConnection().prepareStatement("CALL `DR_CHANGE_STATUS`(?,?);");
         
         st.setInt(1, drid);
-        st.setString(2, "cancelled");
+        st.setString(2, stat);
         
         st.execute();
     }
@@ -354,7 +354,7 @@ public class DeliveryReceiptsQuery {
         DBConnect dbc = DBConnect.getInstance();
         ArrayList<DRModel> list = new ArrayList();
         
-        PreparedStatement st = dbc.getConnection().prepareStatement("SELECT * FROM bestchem_db2.deliveryorders where soid = ? and drpgi = 'N' and drstatus ='open';");
+        PreparedStatement st = dbc.getConnection().prepareStatement("SELECT * FROM bestchem_db2.deliveryorders where iddeliveryorders LIKE ? and drpgi = 'Y' and drstatus ='complete';");
         
         soid = "%" + soid + "%";
         

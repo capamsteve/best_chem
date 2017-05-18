@@ -179,56 +179,40 @@ public class DeliveryReceiptController extends AbstractController implements Ini
         
         // Get all of the Sales Order items
         Iterator iterate = null;
+        iterate = drq.getSalesOrderItems(this.sovm.getIdso(), "OPEN");
         
-        if(drq.getDRCount(this.sovm.getIdso()) == 0){
-            iterate = drq.getSalesOrderItems(this.sovm.getIdso(), "OPEN");
-            
-            while(iterate.hasNext()){
-                HashMap map = (HashMap) iterate.next();
-                DRItemViewModel viewm = new DRItemViewModel();
-                viewm.setIdsoitem(Integer.valueOf(map.get("idsalesorderitem").toString()));
-                viewm.setSku(map.get("sku").toString());
+        while(iterate.hasNext()){
+            HashMap map = (HashMap) iterate.next();
+            DRItemViewModel viewm = new DRItemViewModel(Integer.valueOf(map.get("idinventory").toString()));
+            viewm.setIdsoitem(Integer.valueOf(map.get("idsalesorderitem").toString()));
+            viewm.setSku(map.get("sku").toString());
 
-                if(Integer.valueOf(map.get("soh").toString()) >= Integer.parseInt(map.get("ordrqty").toString())){
-                    viewm.setDeliveryqty(Integer.parseInt(map.get("ordrqty").toString()));
-                }else{
-                    viewm.setDeliveryqty(Integer.parseInt(map.get("soh").toString()));
-                }
-
-                //System.out.println(map.get("Remaining_Quantity").toString());
-                viewm.setInventory_id(Integer.valueOf(map.get("idinventory").toString()));
-                viewm.setQtyremaining(Integer.parseInt(map.get("ordrqty").toString()));
-                viewm.setSkudesc(map.get("skudesc").toString());
-                viewm.setOrdrqty(Integer.parseInt(map.get("ordrqty").toString()));
-                viewm.setUom(map.get("skuom").toString());
-
-                this.items.add(viewm);
+            if(Integer.valueOf(map.get("soh").toString()) >= Integer.parseInt(map.get("ordrqty").toString())){
+                viewm.setDeliveryqty(Integer.parseInt(map.get("ordrqty").toString()));
+            }else{
+                viewm.setDeliveryqty(Integer.parseInt(map.get("soh").toString()));
             }
+
+            viewm.setQtyremaining(Integer.parseInt(map.get("ordrqty").toString()));
+            viewm.setSkudesc(map.get("skudesc").toString());
+            viewm.setOrdrqty(Integer.parseInt(map.get("ordrqty").toString()));
+            viewm.setUom(map.get("skuom").toString());
+
+            this.items.add(viewm);
         }
-        else{
-            iterate = drq.getSalesOrderItemsWRemaining(this.sovm.getIdso());
+        
+        Iterator iterate2 = drq.getSalesOrderItemsWRemaining(this.sovm.getIdso());
+        
+        while(iterate2.hasNext()){
+            HashMap map = (HashMap) iterate2.next();
+            DRItemViewModel viewm = new DRItemViewModel(Integer.valueOf(map.get("idinventory").toString()));
+            int dex = this.items.indexOf(viewm);
             
-            while(iterate.hasNext()){
-                HashMap map = (HashMap) iterate.next();
-                DRItemViewModel viewm = new DRItemViewModel();
-                viewm.setIdsoitem(Integer.valueOf(map.get("idsalesorderitem").toString()));
-                viewm.setSku(map.get("sku").toString());
-                if(Integer.valueOf(map.get("soh").toString()) >= Integer.parseInt(map.get("ordrqty").toString())){
-                    viewm.setDeliveryqty(Integer.parseInt(map.get("ordrqty").toString()));
-                }else{
-                    viewm.setDeliveryqty(Integer.parseInt(map.get("soh").toString()));
-                }
-                //System.out.println(map.get("Remaining_Quantity").toString());
-                viewm.setQtyremaining(Double.valueOf(map.get("Remaining_Quantity").toString()).intValue());
-                viewm.setSkudesc(map.get("skudesc").toString());
-                viewm.setOrdrqty(Integer.parseInt(map.get("ordrqty").toString()));
-                viewm.setUom(map.get("skuom").toString());
-
-                items.add(viewm);
-            }
+            this.items.get(dex).setQtyremaining(Double.valueOf(map.get("Remaining_Quantity").toString()).intValue());
         }
 
         this.RefreshItems();
+    
     }
     
     public void EditMode(DRViewModel dr) throws SQLException{
@@ -273,45 +257,34 @@ public class DeliveryReceiptController extends AbstractController implements Ini
          * 
          */
         
-        //if()
         Iterator iterate = null;
         
-        if(drq.getDRCount(this.sovm.getIdso()) == 1){
-           iterate = drq.getDRItems(dr.getDrnum());
-            
-           while(iterate.hasNext()){
-               HashMap map = (HashMap) iterate.next();
-               DRItemViewModel viewm = new DRItemViewModel();
-               viewm.setDritemid(Integer.valueOf(map.get("iddeliveryorderitems").toString()));
-               viewm.setIdsoitem(Integer.valueOf(map.get("idsalesorderitem").toString()));
-               viewm.setSku(map.get("sku").toString());
-               viewm.setInventory_id(Integer.valueOf(map.get("idinventory").toString()));
-               viewm.setDeliveryqty(Integer.parseInt(map.get("drqty").toString()));
-               viewm.setSkudesc(map.get("skudesc").toString());
-               viewm.setOrdrqty(Integer.parseInt(map.get("ordrqty").toString()));
-               viewm.setUom(map.get("skuom").toString());
+        iterate = drq.getDRItems(dr.getDrnum());
 
-               viewm.setQtyremaining(Integer.parseInt(map.get("ordrqty").toString()));
+        while(iterate.hasNext()){
+            HashMap map = (HashMap) iterate.next();
+            DRItemViewModel viewm = new DRItemViewModel(Integer.valueOf(map.get("idinventory").toString()));
+            viewm.setDritemid(Integer.valueOf(map.get("iddeliveryorderitems").toString()));
+            viewm.setIdsoitem(Integer.valueOf(map.get("idsalesorderitem").toString()));
+            viewm.setSku(map.get("sku").toString());
+            viewm.setDeliveryqty(Integer.parseInt(map.get("drqty").toString()));
+            viewm.setSkudesc(map.get("skudesc").toString());
+            viewm.setOrdrqty(Integer.parseInt(map.get("ordrqty").toString()));
+            viewm.setUom(map.get("skuom").toString());
 
-               this.items.add(viewm);
-            }
+            viewm.setQtyremaining(Integer.parseInt(map.get("ordrqty").toString()));
+
+            this.items.add(viewm);
         }
-        else{
-            iterate = drq.getSalesOrderItemsWRemaining(this.sovm.getIdso());
+        
+        Iterator iterate2 = drq.getSalesOrderItemsWRemaining(this.sovm.getIdso());
+        
+        while(iterate2.hasNext()){
+            HashMap map = (HashMap) iterate2.next();
+            DRItemViewModel viewm = new DRItemViewModel(Integer.valueOf(map.get("idinventory").toString()));
+            int dex = this.items.indexOf(viewm);
             
-            while(iterate.hasNext()){
-                HashMap map = (HashMap) iterate.next();
-                DRItemViewModel viewm = new DRItemViewModel();
-                viewm.setIdsoitem(Integer.valueOf(map.get("idsalesorderitem").toString()));
-                viewm.setSku(map.get("sku").toString());
-                viewm.setDeliveryqty(Integer.parseInt(map.get("drqty").toString()));
-                viewm.setQtyremaining(Double.valueOf(map.get("Remaining_Quantity").toString()).intValue());
-                viewm.setSkudesc(map.get("skudesc").toString());
-                viewm.setOrdrqty(Integer.parseInt(map.get("ordrqty").toString()));
-                viewm.setUom(map.get("skuom").toString());
-
-                items.add(viewm);
-            }
+            this.items.get(dex).setQtyremaining(Double.valueOf(map.get("Remaining_Quantity").toString()).intValue());
         }
 
         this.RefreshItems();
@@ -359,44 +332,34 @@ public class DeliveryReceiptController extends AbstractController implements Ini
         // Get all of the Sales Order items
         Iterator iterate = null;
         
-        if(drq.getDRCount(this.sovm.getIdso()) == 1){
-           iterate = drq.getDRItems(dr.getDrnum());
-            
-           while(iterate.hasNext()){
-               HashMap map = (HashMap) iterate.next();
-               DRItemViewModel viewm = new DRItemViewModel();
-               viewm.setDritemid(Integer.valueOf(map.get("iddeliveryorderitems").toString()));
-               viewm.setIdsoitem(Integer.valueOf(map.get("idsalesorderitem").toString()));
-               viewm.setSku(map.get("sku").toString());
-               viewm.setInventory_id(Integer.valueOf(map.get("idinventory").toString()));
-               viewm.setDeliveryqty(Integer.parseInt(map.get("drqty").toString()));
-               viewm.setSkudesc(map.get("skudesc").toString());
-               viewm.setOrdrqty(Integer.parseInt(map.get("ordrqty").toString()));
-               viewm.setUom(map.get("skuom").toString());
+        iterate = drq.getDRItems(dr.getDrnum());
 
-               viewm.setQtyremaining(Integer.parseInt(map.get("ordrqty").toString()));
+        while(iterate.hasNext()){
+            HashMap map = (HashMap) iterate.next();
+            DRItemViewModel viewm = new DRItemViewModel(Integer.valueOf(map.get("idinventory").toString()));
+            viewm.setDritemid(Integer.valueOf(map.get("iddeliveryorderitems").toString()));
+            viewm.setIdsoitem(Integer.valueOf(map.get("idsalesorderitem").toString()));
+            viewm.setSku(map.get("sku").toString());
+            viewm.setDeliveryqty(Integer.parseInt(map.get("drqty").toString()));
+            viewm.setSkudesc(map.get("skudesc").toString());
+            viewm.setOrdrqty(Integer.parseInt(map.get("ordrqty").toString()));
+            viewm.setUom(map.get("skuom").toString());
 
-               this.items.add(viewm);
-            }
-        }
-        else{
-            iterate = drq.getSalesOrderItemsWRemaining(this.sovm.getIdso());
-            
-            while(iterate.hasNext()){
-                HashMap map = (HashMap) iterate.next();
-                DRItemViewModel viewm = new DRItemViewModel();
-                viewm.setIdsoitem(Integer.valueOf(map.get("idsalesorderitem").toString()));
-                viewm.setSku(map.get("sku").toString());
-                viewm.setDeliveryqty(Integer.parseInt(map.get("drqty").toString()));
-                viewm.setQtyremaining(Double.valueOf(map.get("Remaining_Quantity").toString()).intValue());
-                viewm.setSkudesc(map.get("skudesc").toString());
-                viewm.setOrdrqty(Integer.parseInt(map.get("ordrqty").toString()));
-                viewm.setUom(map.get("skuom").toString());
+            viewm.setQtyremaining(Integer.parseInt(map.get("ordrqty").toString()));
 
-                items.add(viewm);
-            }
+            this.items.add(viewm);
         }
         
+        Iterator iterate2 = drq.getSalesOrderItemsWRemaining(this.sovm.getIdso());
+        
+        while(iterate2.hasNext()){
+            HashMap map = (HashMap) iterate2.next();
+            DRItemViewModel viewm = new DRItemViewModel(Integer.valueOf(map.get("idinventory").toString()));
+            int dex = this.items.indexOf(viewm);
+            
+            this.items.get(dex).setQtyremaining(Double.valueOf(map.get("Remaining_Quantity").toString()).intValue());
+        }
+
         this.RefreshItems();
         
         this.pendingbtn.setDisable(true);
@@ -507,8 +470,6 @@ public class DeliveryReceiptController extends AbstractController implements Ini
             }
                 
         }
-        
-        
         
         Stage stage = (Stage) cancelbtn.getScene().getWindow();
         stage.close();
@@ -647,8 +608,15 @@ public class DeliveryReceiptController extends AbstractController implements Ini
         
         iq.updateInventories(this.itemlist.getItems().iterator(), super.getType());
         drq.changePGIStatusDR(this.drm.getDrnum());
+        drq.changeStatusDR(this.drm.getDrnum(), "complete");
         drq.changePGIStatusItems(this.itemlist.getItems().iterator());
-        soq.changeStatSalesOrder(this.sovm.getIdso(), Integer.parseInt(this.model.getIdcustomer()), "Partially Delivered");
+        
+        if(this.model.isAuto_create()){
+            soq.changeStatSalesOrder(this.sovm.getIdso(), Integer.parseInt(this.model.getIdcustomer()), "complete");
+        }else{
+            soq.changeStatSalesOrder(this.sovm.getIdso(), Integer.parseInt(this.model.getIdcustomer()), "Partially Delivered");
+        }
+        
 
         Stage stage = (Stage) cancelbtn.getScene().getWindow();
         stage.close();
@@ -678,11 +646,17 @@ public class DeliveryReceiptController extends AbstractController implements Ini
     
     @FXML
     void cancelDR(ActionEvent event) throws SQLException {
-        drq.changeStatusDR(Integer.valueOf(this.dridfld.getText()));
+        drq.changeStatusDR(Integer.valueOf(this.dridfld.getText()), "cancelled");
         
         if(drq.getDRCount(this.sovm.getIdso()) == 0){
             System.out.println("pasok");
             soq.changeStatSalesOrder(this.sovm.getIdso(), Integer.valueOf(this.model.getIdcustomer()), "open");
         }
+        else {
+            soq.changeStatSalesOrder(this.sovm.getIdso(), Integer.valueOf(this.model.getIdcustomer()), "With DR");
+        }
+        
+        Stage stage = (Stage) cancelbtn.getScene().getWindow();
+        stage.close();
     }
 }
