@@ -47,7 +47,18 @@ public class ReportsQuery {
         this.exportToCSV(rs, "INVENTORY_CRITICAL_STOCK_REPORT.csv");
     }
     
-    public void POReport(){
+    public void POReport(Date fromdte, Date todte) throws SQLException, IOException{
+        
+        DBConnect dbc = DBConnect.getInstance();
+        
+        PreparedStatement ps = dbc.getConnection().prepareStatement("CALL `PO_REPORT`(?,?)");
+        
+        ps.setDate(1, fromdte);
+        ps.setDate(2, todte);
+        
+        ResultSet rs = ps.executeQuery();
+        
+        this.exportToCSV(rs, "PO_REPORT.csv");
         
     }
     
@@ -66,11 +77,31 @@ public class ReportsQuery {
         
     }
     
-    public void SIReport(){
+    public void SIReport(Date fromdte, Date todte) throws SQLException, IOException{
+        DBConnect dbc = DBConnect.getInstance();
         
+        PreparedStatement ps = dbc.getConnection().prepareStatement("CALL `SI_REPORT`(?,?)");
+        
+        ps.setDate(1, fromdte);
+        ps.setDate(2, todte);
+        
+        ResultSet rs = ps.executeQuery();
+        
+        this.exportToCSV(rs, "SI_REPORT.csv");
     }
     
-    public void DRReport(){
+    public void DRReport(Date fromdte, Date todte) throws SQLException, IOException{
+        
+        DBConnect dbc = DBConnect.getInstance();
+        
+        PreparedStatement ps = dbc.getConnection().prepareStatement("CALL `DR_REPORT`(?,?)");
+        
+        ps.setDate(1, fromdte);
+        ps.setDate(2, todte);
+        
+        ResultSet rs = ps.executeQuery();
+        
+        this.exportToCSV(rs, "DR_REPORT.csv");
         
     }
     
@@ -78,7 +109,7 @@ public class ReportsQuery {
         
         DBConnect dbc = DBConnect.getInstance();
         
-        PreparedStatement ps = dbc.getConnection().prepareStatement("CALL `RETURNS_SUMMARY_REPORT`()()");
+        PreparedStatement ps = dbc.getConnection().prepareStatement("CALL `RETURNS_SUMMARY_REPORT`()");
         
         ResultSet rs = ps.executeQuery();
         

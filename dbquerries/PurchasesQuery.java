@@ -199,16 +199,17 @@ public class PurchasesQuery {
         
         DBConnect dbc = DBConnect.getInstance();
         
-        PreparedStatement ps2 = dbc.getConnection().prepareStatement("UPDATE `bestchem_db2`.`purchases` SET `pgistat`='Y' WHERE `idpurchases`=?;");
+        PreparedStatement ps2 = dbc.getConnection().prepareStatement("UPDATE `bestchem_db2`.`purchases` SET `status`='complete', `pgistat`='Y' WHERE `idpurchases`=?;");
         
         ps2.setInt(1, pid);
         ps2.executeUpdate();
         
-        PreparedStatement ps = dbc.getConnection().prepareStatement("UPDATE `bestchem_db2`.`purchaseitems` SET `pgistat`='Y' WHERE `idpurchaseitems`=?;");
+        PreparedStatement ps = dbc.getConnection().prepareStatement("UPDATE `bestchem_db2`.`purchaseitems` SET `pgistat`='Y', `actual_qty`=? WHERE `idpurchaseitems`=?;");
         while(items.hasNext()){
             PurchaseItemModel item = (PurchaseItemModel) items.next();
             
-            ps.setInt(1, item.getIdpurchaseitem());
+            ps.setInt(2, item.getIdpurchaseitem());
+            ps.setInt(1, item.getActualqty());
             
             ps.addBatch();
         }

@@ -21,10 +21,14 @@ import dbquerries.InventoryQuery;
 import dbquerries.SalesInvoiceQuery;
 import dbquerries.SalesOrderQuery;
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
 import java.io.IOException;
+import java.math.RoundingMode;
 import java.net.URL;
 import java.sql.Date;
 import java.sql.SQLException;
+import java.text.NumberFormat;
 import java.text.SimpleDateFormat;
 import java.time.LocalDate;
 import java.util.ArrayList;
@@ -55,6 +59,12 @@ import models.DRModel;
 import models.SIModel;
 import models.SItemsModel;
 import models.UserModel;
+import org.apache.poi.ss.usermodel.Cell;
+import org.apache.poi.xssf.usermodel.XSSFCellStyle;
+import org.apache.poi.xssf.usermodel.XSSFFont;
+import org.apache.poi.xssf.usermodel.XSSFRow;
+import org.apache.poi.xssf.usermodel.XSSFSheet;
+import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import viewmodels.DRViewModel;
 import viewmodels.SOViewModel;
 
@@ -143,7 +153,7 @@ public class DeliveryReceiptController extends AbstractController implements Ini
     
     private final InventoryQuery iq = new InventoryQuery();
     
-    private DRViewModel drm = new DRViewModel();
+    private DRViewModel drm;
     
     public void setInit(CustomerModel cust, SOViewModel sovm){
         this.model = cust;
@@ -476,24 +486,6 @@ public class DeliveryReceiptController extends AbstractController implements Ini
 
     }
     
-    private boolean checkItemsifNull(){
-        
-        boolean isAllNull = false;
-        int numNull = 0;
-        for(DRItemViewModel drvm : itemlist.getItems()){
-            DRItemsModel drit = new DRItemsModel();
-            if(drvm.getDeliveryqty() == 0){
-                numNull += 1;
-            }
-        }
-        
-        if(numNull == itemlist.getItems().size()){
-            isAllNull = true;
-        }
-        
-        return isAllNull;
-    }
-
     @FXML
     public void cancelHandler(ActionEvent event) {
         Stage stage = (Stage) cancelbtn.getScene().getWindow();
@@ -516,53 +508,120 @@ public class DeliveryReceiptController extends AbstractController implements Ini
     
     @FXML
     void export(ActionEvent event) throws IOException, SQLException {
+        NumberFormat nf= NumberFormat.getInstance();
+        nf.setMaximumFractionDigits(2);
+        nf.setMinimumFractionDigits(2);
+        nf.setRoundingMode(RoundingMode.CEILING);
+        
+        FileInputStream file = new FileInputStream("C:\\res\\drform.xlsx");
+
+        XSSFWorkbook workbook = new XSSFWorkbook(file);
+        XSSFSheet sheet = workbook.getSheetAt(1);
+        XSSFRow sheetrow = null;
+        Cell cell = null;
+        int rownum = 0;
+        int cellnum = 0;
+        
+        /**
+         * 
+         * UPDATE HEADERS
+         *              ROW     COL
+         * SOLD TO      7       1
+         * DATE         7       3
+         * address      8       1
+         * attention    9       1
+         * NO           9       3
+         * 
+         * Items
+         *      12-32
+         * 
+         * 
+         */
+        
+        //Supplier
+        rownum = 7;
+        cellnum = 1;
+        String str = "SOLD TO: " + this.model.getCompany();
+        this.createCell(sheetrow, sheet, cell, rownum, cellnum, str);
+        
+        //Date
+        rownum = 7;
+        cellnum = 3;
+        String str3 = ""; 
+        for(int i = 0; i < 20; i++){
+            str3 += "\u00a0 ";
+        }
+        str3 += "DATE: ";
+        for(int i = 0; i < 18; i++){
+            str3 += "\u00a0 ";
+        }
+        str3 += this.datefld.getValue().toString();
+        this.createCell(sheetrow, sheet, cell, rownum, cellnum, str3);
+        
+        //Address
+        rownum = 8;
+        cellnum = 1;
+        String str2 = "ADDRESS: " + this.model.getAddress();
+        this.createCell(sheetrow, sheet, cell, rownum, cellnum, str2);
+        
+        //DR num
+        rownum = 9;
+        cellnum = 3;
+        String str4 = "P.O No. " + this.dridfld.getText();
+        this.createCell(sheetrow, sheet, cell, rownum, cellnum, str4);
+        
+        //Items
+        //Items
+        int start = 12;
+        XSSFCellStyle txtstyle = workbook.createCellStyle();
+        XSSFFont txtfont = workbook.createFont();
+        txtfont.setFontName("Calibri");
+        txtfont.setFontHeightInPoints((short)10);
+        txtstyle.setFont(txtfont);
+        
+        for(int x = 0; x < this.items.size(); x++){
+            
+            rownum = start;
+            cellnum = 1;
+            this.createCell(sheetrow, sheet, cell, rownum, cellnum, String.valueOf(this.items.get(x).getOrdrqty()), txtstyle);
+            
+            rownum = start;
+            cellnum = 2;
+            this.createCell(sheetrow, sheet, cell, rownum, cellnum, this.items.get(x).getUom(), txtstyle);
+            
+            rownum = start;
+            cellnum = 3;
+            this.createCell(sheetrow, sheet, cell, rownum, cellnum, this.items.get(x).getSkudesc(), txtstyle);
+            
+            start++;
+        }
+        
+        //DR num
+        rownum = 37;
+        cellnum = 3;
+        String str5 = "";
+        for(int i = 0; i < 18; i++){
+            str5 += "\u00a0 ";
+        }        
+        str5 += "NO. " + this.dridfld.getText();
+        this.createCell(sheetrow, sheet, cell, rownum, cellnum, str5);
+        
+        file.close();
+        
         String currentUsersHomeDir = System.getProperty("user.home");
         File dir = new File(currentUsersHomeDir + "\\Documents\\Exports");
         if(!dir.exists()){
             System.out.println("Directory Created");
             dir.mkdir();
         }
-        
-        java.util.Date date = new java.util.Date();
-        SimpleDateFormat sdf = new SimpleDateFormat("MM-dd-yyyy h:mm:ss a");
-        String formattedDate = sdf.format(date);
-        System.out.println(formattedDate.replaceAll("[\\s-:]",""));
-        
-        String filename = "[DeliveryReceipt]" + this.model.getCompany() + "(" + this.dridfld.getText() + ")_" + datefld.getValue().toString().replace("/", "") + "-" + formattedDate.replaceAll("[\\s-:]","") + ".pdf";
-        File file = new File(dir.getAbsolutePath()+ "\\" + filename);
-        if(!file.exists()){
-            file.createNewFile();
+        File file2 = new File(dir.getAbsolutePath()+ "\\" + "drsample.xlsx");
+        if(!file2.exists()){
+            file2.createNewFile();
         }
-        PdfWriter writer = new PdfWriter(dir.getAbsolutePath()+ "\\" + filename);
-        PdfDocument pdf = new PdfDocument(writer);
-        Document document = new Document(pdf);
-        // Create a PdfFont
-        PdfFont font = PdfFontFactory.createFont(FontConstants.TIMES_ROMAN);
         
-        document.add(new Paragraph("").setFont(font));
-        document.add(new Paragraph("\nSold To:" + this.model.getCompany() 
-                + "\nBusiness: " + this.model.getBusinessstyle()
-                + "\nCustomer PO: " + this.cpofld.getText()
-                + "\nAdddress: " + this.model.getAddress()
-        ).setFont(font));
-
-        List list = new List()
-            .setSymbolIndent(12)
-            .setListSymbol("\u00a0")
-            .setFont(font);
-
-        for(int i = 0; i < this.items.size(); i++){
-            list.add(new ListItem(this.items.get(i).getSku() + "\u00a0 \u00a0 \u00a0 \u00a0"
-                    + this.items.get(i).getSkudesc() + "\u00a0 \u00a0 \u00a0 \u00a0"
-                    + this.items.get(i).getDeliveryqty() + "\u00a0 \u00a0 \u00a0 \u00a0"
-                    + "\n"));
-        }
-       
-        // Add the list
-        list.add(new ListItem("\n \u00a0 \u00a0 \u00a0 \u00a0 **************Nothing Follows**************"));
-        document.add(list.setFont(font));
-        
-        document.close();
+        FileOutputStream outFile =new FileOutputStream(file2);
+        workbook.write(outFile);
+        outFile.close();
         
         drq.changeDRPrint(this.drm.getDrnum());
 
@@ -575,6 +634,41 @@ public class DeliveryReceiptController extends AbstractController implements Ini
         
         Stage stage = (Stage) this.printbtn.getScene().getWindow();
         stage.close();
+    }
+    
+    private void createCell(XSSFRow sheetrow, XSSFSheet sheet, Cell cell, int rownum, int cellnum, String value){
+        sheetrow = sheet.getRow(rownum);
+        sheetrow = this.checkRow(sheetrow, sheet, rownum);
+        
+        cell = sheetrow.getCell(cellnum);
+        cell = this.checkCell(cell, sheetrow, cellnum);
+        cell.setCellValue(value);
+    }
+    
+    private void createCell(XSSFRow sheetrow, XSSFSheet sheet, Cell cell, int rownum, int cellnum, String value, XSSFCellStyle txtstyle){
+        sheetrow = sheet.getRow(rownum);
+        sheetrow = this.checkRow(sheetrow, sheet, rownum);
+        
+        cell = sheetrow.getCell(cellnum);
+        cell = this.checkCell(cell, sheetrow, cellnum);
+        cell.setCellValue(value);
+        cell.setCellStyle(txtstyle);
+    }
+    
+    private XSSFRow checkRow(XSSFRow sheetrow, XSSFSheet sheet, int rownum){
+        if(sheetrow == null){
+            sheetrow = sheet.createRow(rownum);
+        }
+        
+        return sheetrow;
+    }
+    
+    private Cell checkCell(Cell cell, XSSFRow sheetrow, int cellnum){
+        if(cell == null){
+            cell = sheetrow.createCell(cellnum);
+        }
+        
+        return cell;
     }
 
     @FXML
@@ -596,9 +690,9 @@ public class DeliveryReceiptController extends AbstractController implements Ini
         Iterator ir = this.itemlist.getItems().iterator();
         ArrayList<SItemsModel> simods = new ArrayList();
         SItemsModel simod = new SItemsModel();
-        simod.setDrid(this.drm.getDrnum() );
+        simod.setDrid(this.drm.getDrnum());
             
-            simods.add(simod);
+        simods.add(simod);
         
         sim.setSitems(simods);
         

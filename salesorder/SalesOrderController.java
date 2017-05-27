@@ -39,8 +39,6 @@ import javafx.scene.input.MouseEvent;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
 import models.CustomerModel;
-import models.InventoryModel;
-import models.SalesOrderModel;
 import models.UserModel;
 import salesinvoices.SalesInvoiceController;
 import viewmodels.DRViewModel;
@@ -343,7 +341,8 @@ public class SalesOrderController extends AbstractController implements Initiali
                     substage.showAndWait();
 
                     this.getDeliveryReceipts(this.salestble.getSelectionModel().getSelectedItem().getIdso());
-
+                    soq.changeStatSalesOrder(this.somod.getIdso(), Integer.valueOf(this.cust.getIdcustomer()), "With DR");
+                    this.getSalesOrders();
                     /**
                     * 
                     * SYSTEM CHECK HERE
@@ -456,7 +455,7 @@ public class SalesOrderController extends AbstractController implements Initiali
              * 
              */
 
-            this.getDeliveryReceipts(this.salestble.getSelectionModel().getSelectedItem().getIdso());
+            this.getDeliveryReceipts(this.somod.getIdso());
             this.getSalesOrders();
             
         }catch(NullPointerException e){
@@ -482,9 +481,8 @@ public class SalesOrderController extends AbstractController implements Initiali
         while(map.hasNext()){
             HashMap temp = (HashMap) map.next();
             
-            DRViewModel drvm = new DRViewModel();
-            
-            drvm.setDrnum(Integer.valueOf(temp.get("iddeliveryorders").toString()));
+            DRViewModel drvm = new DRViewModel(Integer.valueOf(temp.get("iddeliveryorders").toString()));
+
             drvm.setDrdate(temp.get("drdate").toString());
             drvm.setPgi(temp.get("drpgi").toString());
             drvm.setPrnt(temp.get("drprint").toString());
@@ -589,6 +587,7 @@ public class SalesOrderController extends AbstractController implements Initiali
                 alert.showAndWait();
             }
         }catch(NullPointerException e){
+            e.printStackTrace();
             Alert alert = new Alert(Alert.AlertType.INFORMATION);
             alert.setTitle("Information Dialog");
             alert.setHeaderText(null);
@@ -601,34 +600,25 @@ public class SalesOrderController extends AbstractController implements Initiali
     @FXML
     void viewSI(ActionEvent event) throws SQLException, IOException {
         try{
-            if(this.invoicetble.getSelectionModel().getSelectedItem().getStatus().equals("open")){
-                FXMLLoader fxmlloader = new FXMLLoader(getClass().getResource("/salesinvoices/SalesInvoiceView.fxml"));
-                Parent root = (Parent) fxmlloader.load();
+            
+            FXMLLoader fxmlloader = new FXMLLoader(getClass().getResource("/salesinvoices/SalesInvoiceView.fxml"));
+            Parent root = (Parent) fxmlloader.load();
 
-                SalesInvoiceController sivc = fxmlloader.<SalesInvoiceController>getController();
-                sivc.initData(this.getGlobalUser(), 0);
-                sivc.setInit(cust, this.somod);
-                sivc.ViewMode(this.invoicetble.getSelectionModel().getSelectedItem());
+            SalesInvoiceController sivc = fxmlloader.<SalesInvoiceController>getController();
+            sivc.initData(this.getGlobalUser(), 0);
+            sivc.setInit(cust, this.somod);
+            sivc.ViewMode(this.invoicetble.getSelectionModel().getSelectedItem());
 
-                Scene scene = new Scene(root);
-                Stage stage = (Stage) addinvoicebtn.getScene().getWindow();
-                Stage substage = new Stage();
-                substage.setScene(scene);
-                substage.setTitle("View Sales Invoice");
-                substage.initModality(Modality.WINDOW_MODAL);
-                substage.initOwner(stage);
-                substage.showAndWait();
+            Scene scene = new Scene(root);
+            Stage stage = (Stage) addinvoicebtn.getScene().getWindow();
+            Stage substage = new Stage();
+            substage.setScene(scene);
+            substage.setTitle("View Sales Invoice");
+            substage.initModality(Modality.WINDOW_MODAL);
+            substage.initOwner(stage);
+            substage.showAndWait();
 
-                this.getSalesInvoice(this.salestble.getSelectionModel().getSelectedItem().getIdso());
-            }
-            else{
-                Alert alert = new Alert(Alert.AlertType.INFORMATION);
-                alert.setTitle("Information Dialog");
-                alert.setHeaderText(null);
-                alert.setContentText("This Sales Invoice is already cancelled.");
-
-                alert.showAndWait();
-            }
+            this.getSalesInvoice(this.salestble.getSelectionModel().getSelectedItem().getIdso());
         }catch(NullPointerException e){
             e.printStackTrace();
             Alert alert = new Alert(Alert.AlertType.INFORMATION);

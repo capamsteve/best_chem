@@ -9,18 +9,22 @@ import best_chem.AbstractController;
 import dbquerries.InventoryQuery;
 import dbquerries.PurchasesQuery;
 import dbquerries.SupplierQuery;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
 import java.io.IOException;
+import java.math.RoundingMode;
 import java.net.URL;
 import java.sql.Date;
 import java.sql.SQLException;
+import java.text.NumberFormat;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Optional;
 import java.util.ResourceBundle;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
@@ -31,7 +35,6 @@ import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.control.Alert;
 import javafx.scene.control.Button;
-import javafx.scene.control.ComboBox;
 import javafx.scene.control.DatePicker;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
@@ -43,9 +46,15 @@ import javafx.stage.Stage;
 import models.InventoryModel;
 import models.PurchaseItemModel;
 import models.PurchasesModel;
-import models.SupplierContactModel;
 import models.SupplierModel;
 import models.UserModel;
+import org.apache.poi.ss.usermodel.BorderStyle;
+import org.apache.poi.ss.usermodel.Cell;
+import org.apache.poi.xssf.usermodel.XSSFCellStyle;
+import org.apache.poi.xssf.usermodel.XSSFFont;
+import org.apache.poi.xssf.usermodel.XSSFRow;
+import org.apache.poi.xssf.usermodel.XSSFSheet;
+import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 
 /**
  * FXML Controller class
@@ -131,59 +140,68 @@ public class PurchaseDocumentController extends AbstractController implements In
     @FXML
     public void AddItem(ActionEvent event) throws IOException, SQLException {
         
-        FXMLLoader fxmlloader = new FXMLLoader(getClass().getResource("/purchases/POItems.fxml"));
-        Parent root = (Parent) fxmlloader.load();
-        
-        POItemsController poic = fxmlloader.<POItemsController>getController();
-        poic.setType(super.getType());
+        if(this.items.size() != 16){
+            FXMLLoader fxmlloader = new FXMLLoader(getClass().getResource("/purchases/POItems.fxml"));
+            Parent root = (Parent) fxmlloader.load();
 
-        Scene scene = new Scene(root);
-        Stage stage = (Stage) addbtn.getScene().getWindow();
-        Stage substage = new Stage();
-        substage.setScene(scene);
-        substage.setTitle("Add Item");
-        substage.initModality(Modality.WINDOW_MODAL);
-        substage.initOwner(stage);
-        substage.showAndWait();
-        
-        if(!poic.IsCancelled()){
-            InventoryModel item = poic.getItem();
-            PurchaseItemModel poitem = new PurchaseItemModel(item.getIdinventory());
-            poitem.setDesc(item.getDescription());
-            poitem.setQty(poic.getQty());
-            poitem.setSku(item.getSku());
-            poitem.setUom(item.getUom());
-            poitem.setUprice(item.getPoprice());
-            
-            double amount = item.getPoprice() * poic.getQty();
-            System.out.println(amount);
-            double vatVal = 1 + (12.0 / 100.0);
-            System.out.println(vatVal);
-            double vat = amount * vatVal;
-            vat = Math.round(vat * 100.0)/100.0;
-            
-            poitem.setAmount(amount);
-            poitem.setVat(vat);
-            System.out.println(amount);
-            System.out.println(vat);
-            
-            if(!this.items.contains(poitem)){
-                items.add(poitem);
-            }
-            else{
-                Alert alert = new Alert(Alert.AlertType.INFORMATION);
-                alert.setTitle("Information Dialog");
-                alert.setHeaderText(null);
-                alert.setContentText("You have already selected this item.");
+            POItemsController poic = fxmlloader.<POItemsController>getController();
+            poic.setType(super.getType());
 
-                alert.showAndWait();
+            Scene scene = new Scene(root);
+            Stage stage = (Stage) addbtn.getScene().getWindow();
+            Stage substage = new Stage();
+            substage.setScene(scene);
+            substage.setTitle("Add Item");
+            substage.initModality(Modality.WINDOW_MODAL);
+            substage.initOwner(stage);
+            substage.showAndWait();
+
+            if(!poic.IsCancelled()){
+                InventoryModel item = poic.getItem();
+                PurchaseItemModel poitem = new PurchaseItemModel(item.getIdinventory());
+                poitem.setDesc(item.getDescription());
+                poitem.setQty(poic.getQty());
+                poitem.setSku(item.getSku());
+                poitem.setUom(item.getUom());
+                poitem.setUprice(item.getPoprice());
+
+                double amount = item.getPoprice() * poic.getQty();
+                System.out.println(amount);
+                double vatVal = 1 + (12.0 / 100.0);
+                System.out.println(vatVal);
+                double vat = amount * vatVal;
+                vat = Math.round(vat * 100.0)/100.0;
+
+                poitem.setAmount(amount);
+                poitem.setVat(vat);
+                System.out.println(amount);
+                System.out.println(vat);
+
+                if(!this.items.contains(poitem)){
+                    items.add(poitem);
+                }
+                else{
+                    Alert alert = new Alert(Alert.AlertType.INFORMATION);
+                    alert.setTitle("Information Dialog");
+                    alert.setHeaderText(null);
+                    alert.setContentText("You have already selected this item.");
+
+                    alert.showAndWait();
+                }
+
+                this.RefreshItems();
+                this.computeTotal();
+
             }
-            
-            this.RefreshItems();
-            this.computeTotal();
-            
         }
+        else {
+            Alert alert = new Alert(Alert.AlertType.INFORMATION);
+            alert.setTitle("Information Dialog");
+            alert.setHeaderText(null);
+            alert.setContentText("You have exceeded 16 items.");
 
+            alert.showAndWait();
+        }
     }
     
     public void computeTotal(){
@@ -323,6 +341,7 @@ public class PurchaseDocumentController extends AbstractController implements In
             );
         }
         
+        
         this.itemlist.setItems(data);
     }
 
@@ -450,7 +469,12 @@ public class PurchaseDocumentController extends AbstractController implements In
         this.pendingbtn.setDisable(true);
         this.addbtn.setDisable(true);
         this.deletebtn.setDisable(true);
+        this.editbtn.setDisable(true);
         this.resetbtn.setDisable(true);
+        
+        if(this.pm.getPgistat().equals("Y")){
+            this.pgrbtn.setDisable(true);
+        }
         this.RefreshItems();
         this.computeTotal();
         
@@ -473,28 +497,223 @@ public class PurchaseDocumentController extends AbstractController implements In
     }
 
     @FXML
-    void PostToInventory(ActionEvent event) throws SQLException {
+    void PostToInventory(ActionEvent event) throws SQLException, IOException {
         
-        ArrayList<InventoryModel> mods = new ArrayList();
-        for(int i = 0; i < this.items.size(); i++){
-            InventoryModel mod = new InventoryModel(this.items.get(i).getIdinventory());
-            
-            mod.setSoh(this.items.get(i).getQty());
-            mod.setMov("INC");
-            
-            mods.add(mod);
-        }
+        FXMLLoader fxmlloader = new FXMLLoader(getClass().getResource("/purchases/PGRDocument.fxml"));
+        Parent root = (Parent) fxmlloader.load();
+
+        PGRDocumentController poic = fxmlloader.<PGRDocumentController>getController();
+        poic.initData(super.getGlobalUser(), super.getType());
+        poic.setPOItems(this.items.iterator(), this.pm.getIdpurchases());
+
+        Scene scene = new Scene(root);
+        Stage stage = (Stage) this.pgrbtn.getScene().getWindow();
+        Stage substage = new Stage();
+        substage.setScene(scene);
+        substage.setTitle("Post Good Receipt");
+        substage.initModality(Modality.WINDOW_MODAL);
+        substage.initOwner(stage);
+        substage.showAndWait();
         
-        iq.PostUpdateInventory(mods.iterator());
-        pq.PGItems(this.items.iterator(), this.pm.getIdpurchases());
-        
-        Stage stage = (Stage) cancelbtn.getScene().getWindow();
-        stage.close();
+        Stage stage2 = (Stage) cancelbtn.getScene().getWindow();
+        stage2.close();
     }
 
     @FXML
-    void export(ActionEvent event) {
+    void export(ActionEvent event) throws FileNotFoundException, IOException {
+        
+        NumberFormat nf= NumberFormat.getInstance();
+        nf.setMaximumFractionDigits(2);
+        nf.setMinimumFractionDigits(2);
+        nf.setRoundingMode(RoundingMode.CEILING);
+        
+        FileInputStream file = new FileInputStream("C:\\res\\poform.xlsx");
 
+        XSSFWorkbook workbook = new XSSFWorkbook(file);
+        XSSFSheet sheet = workbook.getSheetAt(0);
+        XSSFRow sheetrow = null;
+        Cell cell = null;
+        int rownum = 0;
+        int cellnum = 0;
+        
+        /**
+         * UPDATE HEADERS
+         * 
+         *          Row     Col
+         *  DATE     8       2
+         *  NO:      6       4
+         *  SUPPLIER 8       0
+         *  Attention9       0
+         *  Terms    10      0
+         *  DR date  10      2
+         *  Items
+         *          14-36
+         *  
+         */
+        
+        //Date
+        rownum = 8;
+        cellnum = 2;
+        String str3 = ""; 
+        for(int i = 0; i < 6; i++){
+            str3 += "\u00a0 ";
+        }
+        str3 += "DATE: ";
+        for(int i = 0; i < 20; i++){
+            str3 += "\u00a0 ";
+        }
+        str3 += this.datefld.getValue().toString();
+        this.createCell(sheetrow, sheet, cell, rownum, cellnum, str3);
+        
+        //No:
+        rownum = 6;
+        cellnum = 4;
+        this.createCell(sheetrow, sheet, cell, rownum, cellnum, " ");
+        
+        //Supplier
+        rownum = 8;
+        cellnum = 0;
+        String str = "SUPPLIER: " + this.supplier.getSupname();
+        this.createCell(sheetrow, sheet, cell, rownum, cellnum, str);
+        
+        //Attention
+        rownum = 9;
+        cellnum = 0;
+        String str2 = "ATTENTION: " + this.contactbx.getText();
+        this.createCell(sheetrow, sheet, cell, rownum, cellnum, str2);
+        
+        //Date
+        rownum = 10;
+        cellnum = 0;
+        String trm = "TERM: " + this.supplier.getSuppymttrm();
+        this.createCell(sheetrow, sheet, cell, rownum, cellnum, trm);
+        
+        //DR Date
+        rownum = 10;
+        cellnum = 2;
+        
+        String str4 = ""; 
+        for(int i = 0; i < 6; i++){
+            str4 += "\u00a0 ";
+        }
+        str4 += "DELIVERY DATE: ";
+        for(int i = 0; i < 12; i++){
+            str4 += "\u00a0 ";
+        }
+        str4 += this.drdatefld.getValue().toString();
+        
+        this.createCell(sheetrow, sheet, cell, rownum, cellnum, str4);
+        
+        //Items
+        int start = 14;
+        XSSFCellStyle txtstyle = workbook.createCellStyle();
+        XSSFFont txtfont = workbook.createFont();
+        txtfont.setFontName("Calibri");
+        txtfont.setFontHeightInPoints((short)10);
+        txtstyle.setFont(txtfont);
+        
+        for(int x = 0; x < this.items.size(); x++){
+            
+            rownum = start;
+            cellnum = 0;
+            this.createCell(sheetrow, sheet, cell, rownum, cellnum, this.items.get(x).getDesc(), txtstyle);
+            
+            rownum = start;
+            cellnum = 1;
+            this.createCell(sheetrow, sheet, cell, rownum, cellnum, this.items.get(x).getUom(), txtstyle);
+            
+            rownum = start;
+            cellnum = 2;
+            this.createCell(sheetrow, sheet, cell, rownum, cellnum, String.valueOf(this.items.get(x).getQty()), txtstyle);
+            
+            rownum = start;
+            cellnum = 3;
+            this.createCell(sheetrow, sheet, cell, rownum, cellnum, nf.format(this.items.get(x).getUprice()), txtstyle);
+            
+            rownum = start;
+            cellnum = 4;
+            this.createCell(sheetrow, sheet, cell, rownum, cellnum, nf.format(this.items.get(x).getAmount()), txtstyle);
+            
+            start++;
+        }
+        
+        rownum = start;
+        cellnum = 0;
+        txtstyle.setBorderLeft(BorderStyle.NONE);
+        txtstyle.setBorderRight(BorderStyle.NONE);
+        this.createCell(sheetrow, sheet, cell, rownum, cellnum, "********NOTHING FOLLOWS********", txtstyle);
+        
+        //Total Sales
+        rownum = 38;
+        cellnum = 4;
+        this.createCell(sheetrow, sheet, cell, rownum, cellnum, nf.format(Double.parseDouble(this.totalfld.getText())));
+        
+        //Total Sales
+        rownum = 40;
+        cellnum = 4;
+        this.createCell(sheetrow, sheet, cell, rownum, cellnum, nf.format(Double.parseDouble(this.totalfld.getText())));
+        
+        file.close();
+        
+        String currentUsersHomeDir = System.getProperty("user.home");
+        File dir = new File(currentUsersHomeDir + "\\Documents\\Exports");
+        if(!dir.exists()){
+            System.out.println("Directory Created");
+            dir.mkdir();
+        }
+        File file2 = new File(dir.getAbsolutePath()+ "\\" + "posample.xlsx");
+        if(!file2.exists()){
+            file2.createNewFile();
+        }
+        
+        FileOutputStream outFile =new FileOutputStream(file2);
+        workbook.write(outFile);
+        outFile.close();
+
+        Alert alert = new Alert(Alert.AlertType.INFORMATION);
+        alert.setTitle("Information Dialog");
+        alert.setHeaderText(null);
+        alert.setContentText("Please check the export in My Documents/Export");
+
+        alert.showAndWait();
+        
+        Stage stage = (Stage) this.printbtn.getScene().getWindow();
+        stage.close();
     }
     
+    
+    private void createCell(XSSFRow sheetrow, XSSFSheet sheet, Cell cell, int rownum, int cellnum, String value){
+        sheetrow = sheet.getRow(rownum);
+        sheetrow = this.checkRow(sheetrow, sheet, rownum);
+        
+        cell = sheetrow.getCell(cellnum);
+        cell = this.checkCell(cell, sheetrow, cellnum);
+        cell.setCellValue(value);
+    }
+    
+    private void createCell(XSSFRow sheetrow, XSSFSheet sheet, Cell cell, int rownum, int cellnum, String value, XSSFCellStyle txtstyle){
+        sheetrow = sheet.getRow(rownum);
+        sheetrow = this.checkRow(sheetrow, sheet, rownum);
+        
+        cell = sheetrow.getCell(cellnum);
+        cell = this.checkCell(cell, sheetrow, cellnum);
+        cell.setCellValue(value);
+        cell.setCellStyle(txtstyle);
+    }
+    
+    private XSSFRow checkRow(XSSFRow sheetrow, XSSFSheet sheet, int rownum){
+        if(sheetrow == null){
+            sheetrow = sheet.createRow(rownum);
+        }
+        
+        return sheetrow;
+    }
+    
+    private Cell checkCell(Cell cell, XSSFRow sheetrow, int cellnum){
+        if(cell == null){
+            cell = sheetrow.createCell(cellnum);
+        }
+        
+        return cell;
+    }
 }

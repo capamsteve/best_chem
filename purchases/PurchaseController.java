@@ -136,7 +136,7 @@ public class PurchaseController extends AbstractController implements Initializa
     
     public void getPurchases() throws SQLException{
         
-        String[] arr = {"idpurchases", "po_dte", "po_dr_dte", "pgistat"};
+        String[] arr = {"idpurchases", "po_dte", "po_dr_dte", "stat", "pgistat", "prntstat"};
         
         ObservableList<PurchasesModel> data
                 = FXCollections.observableArrayList();
@@ -151,6 +151,8 @@ public class PurchaseController extends AbstractController implements Initializa
             povm.setPo_dte(Date.valueOf(temp.get("po_dte").toString()));
             povm.setPo_dr_dte(Date.valueOf(temp.get("po_dr_dte").toString()));
             povm.setPgistat(temp.get("pgistat").toString());
+            povm.setStat(temp.get("status").toString());
+            povm.setPrntstat(temp.get("prntstat").toString());
             
             data.add(povm);
         }
@@ -171,8 +173,11 @@ public class PurchaseController extends AbstractController implements Initializa
         this.supplier = supmod;
         
         this.comfld.setText(this.supplier.getSupname());
+        this.comfld.setEditable(false);
         this.tinfld.setText(this.supplier.getSuptin());
+        this.tinfld.setEditable(false);
         this.addfld.setText(this.supplier.getSupaddress());
+        this.addfld.setEditable(false);
         
         try {
             this.getPurchases();

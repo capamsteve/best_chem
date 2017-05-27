@@ -20,7 +20,9 @@ public class PurchasesModel {
     private Date po_dte;
     private Date po_dr_dte;
     private int cbyid;
+    private String stat;
     private String pgistat;
+    private String prntstat;
     
     private ArrayList<PurchaseItemModel> purchases;
     
@@ -138,6 +140,34 @@ public class PurchasesModel {
      */
     public void setPgistat(String pgistat) {
         this.pgistat = pgistat;
+    }
+
+    /**
+     * @return the prntstat
+     */
+    public String getPrntstat() {
+        return prntstat;
+    }
+
+    /**
+     * @param prntstat the prntstat to set
+     */
+    public void setPrntstat(String prntstat) {
+        this.prntstat = prntstat;
+    }
+
+    /**
+     * @return the stat
+     */
+    public String getStat() {
+        return stat;
+    }
+
+    /**
+     * @param stat the stat to set
+     */
+    public void setStat(String stat) {
+        this.stat = stat;
     }
     
 }

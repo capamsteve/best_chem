@@ -236,7 +236,13 @@ public class CustomerViewController implements Initializable {
         customer.setPaymentterm(this.pymtrmfld.getText());
         customer.setDiscount(Double.parseDouble(this.dscntfld.getText()));
         customer.setUom(this.uombx.getSelectionModel().getSelectedItem());
-        customer.setPostal_code(Integer.parseInt(this.pstlcdfld.getText()));
+        if(this.pstlcdfld.getText().equals("")){
+          customer.setPostal_code(0);
+        }
+        else{
+            customer.setPostal_code(Integer.parseInt(this.pstlcdfld.getText()));
+        }
+        
         customer.setVendor_code(this.vndrcdfld.getText());
         customer.setVAT(Double.parseDouble(this.vatfld.getText()));
         customer.setAuto_create(this.autochck.isSelected());
@@ -268,10 +274,9 @@ public class CustomerViewController implements Initializable {
         }
         else{
             cq.addCustomer(customer);
-        
-            customer = cq.getCustomer(customer.getCompany());
             
             if(!contacts.isEmpty()){
+                customer = cq.getCustomer(customer.getCompany());
                 for (ContactModel contact : contacts) {
                     contact.setCustomerid(Integer.valueOf(customer.getIdcustomer()));
                 }

@@ -1372,16 +1372,16 @@ public class MainController extends AbstractController implements Initializable 
         
         switch(report){
             case "Purchases Report" : 
-                roq.POReport(); 
+                roq.POReport(Date.valueOf(this.fromdte.getValue()), Date.valueOf(this.todte.getValue())); 
                 break;
             case "Sales Order Report" :  
                 roq.SOReport(Date.valueOf(this.fromdte.getValue()), Date.valueOf(this.todte.getValue())); 
                 break;
             case "Sales Invoice Report" :  
-                roq.SIReport(); 
+                roq.SIReport(Date.valueOf(this.fromdte.getValue()), Date.valueOf(this.todte.getValue())); 
                 break;
             case "Delivery Receipt Report" :  
-                roq.DRReport(); 
+                roq.DRReport(Date.valueOf(this.fromdte.getValue()), Date.valueOf(this.todte.getValue())); 
                 break;
             case "Sales Return Summary Report" :  
                 roq.SRSummaryReport(); 
@@ -1399,7 +1399,12 @@ public class MainController extends AbstractController implements Initializable 
                 roq.InventoryCriticalStockReport(); 
                 break;
         }
-        
+        Alert alert = new Alert(AlertType.INFORMATION);
+        alert.setTitle("Information Dialog");
+        alert.setHeaderText(null);
+        alert.setContentText("Report Created please see My Document/Reports");
+
+        alert.showAndWait();
 
     }
 }

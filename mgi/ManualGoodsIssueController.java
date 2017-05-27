@@ -7,10 +7,16 @@ package mgi;
 
 import best_chem.AbstractController;
 import dbquerries.InventoryQuery;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
 import java.io.IOException;
+import java.math.RoundingMode;
 import java.net.URL;
 import java.sql.Date;
 import java.sql.SQLException;
+import java.text.NumberFormat;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.Iterator;
@@ -38,6 +44,13 @@ import javafx.stage.Stage;
 import models.InventoryModel;
 import models.MGIModel;
 import models.UserModel;
+import org.apache.poi.ss.usermodel.BorderStyle;
+import org.apache.poi.ss.usermodel.Cell;
+import org.apache.poi.xssf.usermodel.XSSFCellStyle;
+import org.apache.poi.xssf.usermodel.XSSFFont;
+import org.apache.poi.xssf.usermodel.XSSFRow;
+import org.apache.poi.xssf.usermodel.XSSFSheet;
+import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 
 /**
  * FXML Controller class
@@ -93,6 +106,9 @@ public class ManualGoodsIssueController extends AbstractController implements In
     
     @FXML
     private Button pgibtn;
+    
+    @FXML
+    private Button prntbtn;
     
     private boolean isEdit;
     
@@ -367,6 +383,175 @@ public class ManualGoodsIssueController extends AbstractController implements In
     public void initData(UserModel user, int type) {
         super.setGlobalUser(user);
         super.setType(type);
+    }
+    
+    @FXML
+    void export(ActionEvent event) throws FileNotFoundException, IOException {
+        NumberFormat nf= NumberFormat.getInstance();
+        nf.setMaximumFractionDigits(2);
+        nf.setMinimumFractionDigits(2);
+        nf.setRoundingMode(RoundingMode.CEILING);
+        
+        FileInputStream file = new FileInputStream("C:\\res\\mgiform.xlsx");
+
+        XSSFWorkbook workbook = new XSSFWorkbook(file);
+        XSSFSheet sheet = workbook.getSheetAt(1);
+        XSSFRow sheetrow = null;
+        Cell cell = null;
+        int rownum = 0;
+        int cellnum = 0;
+        
+        /**
+         * 
+         * UPDATE HEADERS
+         *              ROW     COL
+         * SOLD TO      7       1
+         * DATE         7       3
+         * address      8       1
+         * attention    9       1
+         * NO           9       3
+         * 
+         * Items
+         *      12-32
+         * 
+         * 
+         */
+        
+        //Supplier
+        rownum = 7;
+        cellnum = 1;
+        String str = "SOLD TO: " + this.customerfld.getText();
+        this.createCell(sheetrow, sheet, cell, rownum, cellnum, str);
+        
+        //Date
+        rownum = 7;
+        cellnum = 3;
+        String str3 = ""; 
+        for(int i = 0; i < 20; i++){
+            str3 += "\u00a0 ";
+        }
+        str3 += "DATE: ";
+        for(int i = 0; i < 18; i++){
+            str3 += "\u00a0 ";
+        }
+        str3 += this.datefld.getValue().toString();
+        this.createCell(sheetrow, sheet, cell, rownum, cellnum, str3);
+        
+        //Address
+        rownum = 8;
+        cellnum = 1;
+        String str2 = "ADDRESS: " + this.addressfld.getText();
+        this.createCell(sheetrow, sheet, cell, rownum, cellnum, str2);
+        
+        //Address
+        rownum = 9;
+        cellnum = 1;
+        String str6 = "ATTENTION: " + this.contactfld.getText();
+        this.createCell(sheetrow, sheet, cell, rownum, cellnum, str6);
+        
+        //DR num
+        rownum = 9;
+        cellnum = 3;
+        String str4 = "P.O No. " + this.idfld.getText();
+        this.createCell(sheetrow, sheet, cell, rownum, cellnum, str4);
+        
+        //Items
+        //Items
+        int start = 12;
+        XSSFCellStyle txtstyle = workbook.createCellStyle();
+        XSSFFont txtfont = workbook.createFont();
+        txtfont.setFontName("Calibri");
+        txtfont.setFontHeightInPoints((short)10);
+        txtstyle.setFont(txtfont);
+        
+        for(int x = 0; x < this.items.size(); x++){
+            
+            rownum = start;
+            cellnum = 1;
+            this.createCell(sheetrow, sheet, cell, rownum, cellnum, String.valueOf(this.items.get(x).getSoh()), txtstyle);
+            
+            rownum = start;
+            cellnum = 2;
+            this.createCell(sheetrow, sheet, cell, rownum, cellnum, this.items.get(x).getUom(), txtstyle);
+            
+            rownum = start;
+            cellnum = 3;
+            this.createCell(sheetrow, sheet, cell, rownum, cellnum, this.items.get(x).getDescription(), txtstyle);
+            
+            start++;
+        }
+        
+        //DR num
+        rownum = 37;
+        cellnum = 3;
+        String str5 = "";
+        for(int i = 0; i < 18; i++){
+            str5 += "\u00a0 ";
+        }        
+        str5 += "NO. " + this.idfld.getText();
+        this.createCell(sheetrow, sheet, cell, rownum, cellnum, str5);
+        
+        file.close();
+        
+        String currentUsersHomeDir = System.getProperty("user.home");
+        File dir = new File(currentUsersHomeDir + "\\Documents\\Exports");
+        if(!dir.exists()){
+            System.out.println("Directory Created");
+            dir.mkdir();
+        }
+        File file2 = new File(dir.getAbsolutePath()+ "\\" + "mgisample.xlsx");
+        if(!file2.exists()){
+            file2.createNewFile();
+        }
+        
+        FileOutputStream outFile =new FileOutputStream(file2);
+        workbook.write(outFile);
+        outFile.close();
+
+        Alert alert = new Alert(Alert.AlertType.INFORMATION);
+        alert.setTitle("Information Dialog");
+        alert.setHeaderText(null);
+        alert.setContentText("Please check the export in My Documents/Export");
+
+        alert.showAndWait();
+        
+        Stage stage = (Stage) this.prntbtn.getScene().getWindow();
+        stage.close();
+    }
+    
+    private void createCell(XSSFRow sheetrow, XSSFSheet sheet, Cell cell, int rownum, int cellnum, String value){
+        sheetrow = sheet.getRow(rownum);
+        sheetrow = this.checkRow(sheetrow, sheet, rownum);
+        
+        cell = sheetrow.getCell(cellnum);
+        cell = this.checkCell(cell, sheetrow, cellnum);
+        cell.setCellValue(value);
+    }
+    
+    private void createCell(XSSFRow sheetrow, XSSFSheet sheet, Cell cell, int rownum, int cellnum, String value, XSSFCellStyle txtstyle){
+        sheetrow = sheet.getRow(rownum);
+        sheetrow = this.checkRow(sheetrow, sheet, rownum);
+        
+        cell = sheetrow.getCell(cellnum);
+        cell = this.checkCell(cell, sheetrow, cellnum);
+        cell.setCellValue(value);
+        cell.setCellStyle(txtstyle);
+    }
+    
+    private XSSFRow checkRow(XSSFRow sheetrow, XSSFSheet sheet, int rownum){
+        if(sheetrow == null){
+            sheetrow = sheet.createRow(rownum);
+        }
+        
+        return sheetrow;
+    }
+    
+    private Cell checkCell(Cell cell, XSSFRow sheetrow, int cellnum){
+        if(cell == null){
+            cell = sheetrow.createCell(cellnum);
+        }
+        
+        return cell;
     }
     
 }

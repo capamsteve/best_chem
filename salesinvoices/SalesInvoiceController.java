@@ -9,17 +9,22 @@ import best_chem.AbstractController;
 import customer.CustomerViewController;
 import dbquerries.DeliveryReceiptsQuery;
 import dbquerries.SalesInvoiceQuery;
+import dbquerries.SalesOrderQuery;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.math.RoundingMode;
+import java.net.URISyntaxException;
 import java.net.URL;
 import java.sql.Date;
 import java.sql.SQLException;
+import java.text.NumberFormat;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.Locale;
 import java.util.Optional;
 import java.util.ResourceBundle;
 import javafx.collections.FXCollections;
@@ -42,11 +47,14 @@ import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
 import models.CustomerModel;
+import models.DRModel;
 import models.SIModel;
 import models.SItemsModel;
 import models.SOItemModel;
 import models.UserModel;
 import org.apache.poi.ss.usermodel.Cell;
+import org.apache.poi.xssf.usermodel.XSSFCellStyle;
+import org.apache.poi.xssf.usermodel.XSSFFont;
 import org.apache.poi.xssf.usermodel.XSSFRow;
 import org.apache.poi.xssf.usermodel.XSSFSheet;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
@@ -86,12 +94,12 @@ public class SalesInvoiceController extends AbstractController implements Initia
     @FXML
     private TableView<DRViewModel> itemlist;
     
-    private ArrayList<DRViewModel> items;
+    private ArrayList<DRViewModel> items = new ArrayList();
     
     @FXML
     private TableView<SOItemModel> itemlist1;
     
-    private ArrayList<SOItemModel> items1;
+    private ArrayList<SOItemModel> items1 = new ArrayList();
     
     @FXML
     private TextField cpofld;
@@ -139,9 +147,17 @@ public class SalesInvoiceController extends AbstractController implements Initia
     
     private final DeliveryReceiptsQuery drq = new DeliveryReceiptsQuery();
     
+    private final SalesOrderQuery soq = new SalesOrderQuery();
+    
+    private ArrayList<DRViewModel> deletedList = new ArrayList();
+    
     private CustomerModel model;
     
     private SOViewModel sovm;
+    
+    private SIViewModel sivm;
+    
+    private boolean isEdit;
     
     @FXML
     private TextField totalfld;
@@ -181,54 +197,14 @@ public class SalesInvoiceController extends AbstractController implements Initia
         this.sodtefld.setEditable(false);
         this.vendrfld.setText(this.model.getVendor_code());
         this.vendrfld.setEditable(false);
-        
         this.statusfld.setText("open");
-        this.statusfld.setEditable(false);
-        
+        this.statusfld.setEditable(false);  
         this.prntfld.setText("N");
         this.prntfld.setEditable(false);
+        this.completebtn.setDisable(true);
+        this.printbtn.setDisable(true);
         
-        String[] arr = {"drnum", "drdate", "prnt", "pgi", "status"};
-        
-        ObservableList<DRViewModel> data
-                = FXCollections.observableArrayList();
-        
-        Iterator map = this.drq.getDeliverReceipts(this.sovm.getIdso(), "Y", "complete");
-        
-        while(map.hasNext()){
-            HashMap temp = (HashMap) map.next();
-            
-            //System.out.println(temp.get("iddeliver").toString());
-            
-            DRViewModel drvm = new DRViewModel();
-            
-            drvm.setDrnum(Integer.valueOf(temp.get("iddeliveryorders").toString()));
-            drvm.setDrdate(temp.get("drdate").toString());
-            drvm.setPgi(temp.get("drpgi").toString());
-            drvm.setPrnt(temp.get("drprint").toString());
-            drvm.setStatus(temp.get("drstatus").toString());
-            
-            data.add(drvm);
-        }
-        
-        ObservableList<TableColumn<DRViewModel, ?>> olist;
-        olist = (ObservableList<TableColumn<DRViewModel, ?>>) this.itemlist.getColumns();
-
-        for (int i = 0; i < arr.length; i++) {
-            olist.get(i).setCellValueFactory(
-                    new PropertyValueFactory<>(arr[i])
-            );
-        }
-        this.itemlist.setItems(data);
-        
-        //Get the line items
-        
-        String[] arr2 = {"sku", "desc", "qty", "uom", "uprice", "discnt", "amount", "vat"};
-        
-        ObservableList<SOItemModel> data2
-                = FXCollections.observableArrayList();
-        
-        Iterator map2 = this.siq.getLineItems(this.sovm.getIdso(), Integer.valueOf(this.model.getIdcustomer()));
+        Iterator map2 = soq.getSILineItems(this.sovm.getIdso());
         
         while(map2.hasNext()){
             HashMap temp2 = (HashMap) map2.next();
@@ -240,30 +216,24 @@ public class SalesInvoiceController extends AbstractController implements Initia
             soitem.setSku(temp2.get("sku").toString());
             soitem.setDesc(temp2.get("skudesc").toString());
             soitem.setUom(temp2.get("skuom").toString());
-            soitem.setQty(Double.valueOf(temp2.get("sumdrqty").toString()).intValue());
-            soitem.setDiscnt(this.model.getDiscount());
+            soitem.setQty(0);
+            soitem.setDiscnt(Double.valueOf(temp2.get("discnt").toString()));
             soitem.setUprice(Double.valueOf(temp2.get("unitprice").toString()));
-            soitem.setAmount(Double.valueOf(temp2.get("totamt").toString()));
-            soitem.setVat(Double.valueOf(temp2.get("vatinc").toString()));
+            soitem.setAmount(0.0);
+            soitem.setVat(0.0);
             
-            data2.add(soitem);
+            this.items1.add(soitem);
         }
         
-        ObservableList<TableColumn<SOItemModel, ?>> olist2;
-        olist2 = (ObservableList<TableColumn<SOItemModel, ?>>) this.itemlist1.getColumns();
-
-        for (int i = 0; i < arr2.length; i++) {
-            olist2.get(i).setCellValueFactory(
-                    new PropertyValueFactory<>(arr2[i])
-            );
-        }
-        this.itemlist1.setItems(data2);
-        this.computeTotal(data2.iterator());
+        this.RefreshItems();
+        this.RefreshLineItems();
     }
     
     public void EditMode(SIViewModel simod) throws SQLException{
         SIModel sim = siq.getSalesInvoiceModel(simod.getInvnum());
         
+        this.isEdit = true;
+        this.sivm = simod;
         this.sidfld.setText(String.valueOf(simod.getInvnum()));
         this.sidfld.setEditable(false);
         this.cpofld.setText(this.sovm.getCustomerpo());
@@ -277,13 +247,9 @@ public class SalesInvoiceController extends AbstractController implements Initia
         this.vendrfld.setText(this.model.getVendor_code());
         this.vendrfld.setEditable(false);
         
-        this.trckrfld.setEditable(false);
         this.trckrfld.setText(sim.getTrcnme());
-        this.drvfld.setEditable(false);
         this.drvfld.setText(sim.getDrvnme());
-        this.pltfld.setEditable(false);
         this.pltfld.setText(sim.getPlateno());
-        this.rmksfld.setEditable(false);
         this.rmksfld.setText(sim.getRemarks());
         this.datefld.setValue(LocalDate.parse(sim.getDte().toString()));
         
@@ -293,82 +259,86 @@ public class SalesInvoiceController extends AbstractController implements Initia
         this.prntfld.setText("N");
         this.prntfld.setEditable(false);
         
-        this.editbtn.setDisable(true);
-        this.deletebtn.setDisable(true);
-        this.resetbtn.setDisable(true);
+        this.printbtn.setDisable(true);
+        this.completebtn.setDisable(true);
         
-        String[] arr = {"drnum", "drdate", "prnt", "pgi", "status"};
-        
-        ObservableList<DRViewModel> data
-                = FXCollections.observableArrayList();
-        
-        Iterator map = this.drq.getDeliverReceipts(this.sovm.getIdso(), "Y", "complete");
-        
-        while(map.hasNext()){
-            HashMap temp = (HashMap) map.next();
-            
-            DRViewModel drvm = new DRViewModel();
-            
-            drvm.setDrnum(Integer.valueOf(temp.get("iddeliveryorders").toString()));
-            drvm.setDrdate(temp.get("drdate").toString());
-            drvm.setPgi(temp.get("drpgi").toString());
-            drvm.setPrnt(temp.get("drprint").toString());
-            drvm.setStatus(temp.get("drstatus").toString());
-            
-            data.add(drvm);
-        }
-        
-        ObservableList<TableColumn<DRViewModel, ?>> olist;
-        olist = (ObservableList<TableColumn<DRViewModel, ?>>) this.itemlist.getColumns();
-
-        for (int i = 0; i < arr.length; i++) {
-            olist.get(i).setCellValueFactory(
-                    new PropertyValueFactory<>(arr[i])
-            );
-        }
-        this.itemlist.setItems(data);
-        
-        //Get the line items
-        
-        String[] arr2 = {"sku", "desc", "qty", "uom", "uprice", "discnt", "amount", "vat"};
-        
-        ObservableList<SOItemModel> data2
-                = FXCollections.observableArrayList();
-        
-        Iterator map2 = this.siq.getLineItems(this.sovm.getIdso(), Integer.valueOf(this.model.getIdcustomer()));
+        Iterator map2 = soq.getSILineItems(this.sovm.getIdso());
         
         while(map2.hasNext()){
             HashMap temp2 = (HashMap) map2.next();
             
-            SOItemModel soitem = new SOItemModel(Integer.valueOf(temp2.get("idinventory").toString()));
+            //System.out.println(temp.get("iddeliver").toString());
+            
+            SOItemModel soitem = new SOItemModel(Integer.valueOf(temp2.get("inventory_idinventory").toString()));
             
             soitem.setSku(temp2.get("sku").toString());
             soitem.setDesc(temp2.get("skudesc").toString());
             soitem.setUom(temp2.get("skuom").toString());
-            soitem.setQty(Double.valueOf(temp2.get("sumdrqty").toString()).intValue());
-            soitem.setDiscnt(this.model.getDiscount());
+            soitem.setQty(0);
+            soitem.setDiscnt(Double.valueOf(temp2.get("discnt").toString()));
             soitem.setUprice(Double.valueOf(temp2.get("unitprice").toString()));
-            soitem.setAmount(Double.valueOf(temp2.get("totamt").toString()));
-            soitem.setVat(Double.valueOf(temp2.get("vatinc").toString()));
+            soitem.setAmount(Double.valueOf(temp2.get("amount").toString()));
+            soitem.setVat(Double.valueOf(temp2.get("vat").toString()));
             
-            data2.add(soitem);
+            this.items1.add(soitem);
         }
         
-        ObservableList<TableColumn<SOItemModel, ?>> olist2;
-        olist2 = (ObservableList<TableColumn<SOItemModel, ?>>) this.itemlist1.getColumns();
+        Iterator ir = siq.getSitems(sim.getSiid());
+        
+        while(ir.hasNext()){
+            HashMap temp = (HashMap) ir.next();
+            
+            DRViewModel drvm = new DRViewModel(Integer.valueOf(temp.get("iddeliveryorders").toString()));
+            
+            drvm.setDrdate(temp.get("drdate").toString());
+            drvm.setPgi(temp.get("drpgi").toString());
+            drvm.setPrnt(temp.get("drprint").toString());
+            drvm.setStatus(temp.get("drstatus").toString());
+            drvm.setSiitem_id(Integer.valueOf(temp.get("idsalesinvoiceitems").toString()));
+            
+            this.items.add(drvm);
+            
+            //Get the line items
+            
+            this.updateLineItems(drvm.getDrnum(), 1);
+            
+        }
+        
+        this.RefreshItems();
+        this.RefreshLineItems();
+        this.computeTotal(this.items1.iterator());
+        
+    }
+    
+    public void updateLineItems(int drid, int tp) throws SQLException{
+        Iterator iterate = null;
+        
+        iterate = drq.getDRItems(drid);
 
-        for (int i = 0; i < arr2.length; i++) {
-            olist2.get(i).setCellValueFactory(
-                    new PropertyValueFactory<>(arr2[i])
-            );
+        while(iterate.hasNext()){
+            HashMap map = (HashMap) iterate.next();
+
+            SOItemModel viewm = new SOItemModel(Integer.valueOf(map.get("idinventory").toString()));
+
+            int dex = this.items1.indexOf(viewm);
+            System.out.println(this.items1.get(dex).getSku() + "-" + this.items1.get(dex).getIdinventory());
+            int tempQty = 0;
+            if(tp == 1){
+                tempQty = this.items1.get(dex).getQty() + Integer.parseInt(map.get("drqty").toString());
+            }else{
+                tempQty = this.items1.get(dex).getQty() - Integer.parseInt(map.get("drqty").toString());
+            }
+
+            double amt = tempQty * this.items1.get(dex).getUprice();
+            double vatVal = 1 + (this.model.getVAT() / 100);
+            double vat = amt * vatVal;
+            vat = Math.round(vat * 100.0)/100.0;
+            
+            this.items1.get(dex).setQty(tempQty);
+            this.items1.get(dex).setAmount(amt);
+            this.items1.get(dex).setVat(vat);
+
         }
-        this.itemlist1.setItems(data2);
-        
-        this.pendingbtn.setDisable(true);
-        this.printbtn.setDisable(true);
-        
-        System.out.println("Compute Total");
-        this.computeTotal(data2.iterator());
     }
     
     public void ViewMode(SIViewModel simod) throws SQLException{
@@ -408,26 +378,176 @@ public class SalesInvoiceController extends AbstractController implements Initia
         this.deletebtn.setDisable(true);
         this.resetbtn.setDisable(true);
         
-        String[] arr = {"drnum", "drdate", "prnt", "pgi", "status"};
+        Iterator map2 = soq.getSILineItems(this.sovm.getIdso());
         
-        ObservableList<DRViewModel> data
-                = FXCollections.observableArrayList();
-        
-        Iterator map = this.drq.getDeliverReceipts(this.sovm.getIdso(), "Y", "complete");
-        
-        while(map.hasNext()){
-            HashMap temp = (HashMap) map.next();
+        while(map2.hasNext()){
+            HashMap temp2 = (HashMap) map2.next();
             
-            DRViewModel drvm = new DRViewModel();
+            //System.out.println(temp.get("iddeliver").toString());
             
-            drvm.setDrnum(Integer.valueOf(temp.get("iddeliveryorders").toString()));
+            SOItemModel soitem = new SOItemModel(Integer.valueOf(temp2.get("inventory_idinventory").toString()));
+            
+            soitem.setSku(temp2.get("sku").toString());
+            soitem.setDesc(temp2.get("skudesc").toString());
+            soitem.setUom(temp2.get("skuom").toString());
+            soitem.setQty(0);
+            soitem.setDiscnt(Double.valueOf(temp2.get("discnt").toString()));
+            soitem.setUprice(Double.valueOf(temp2.get("unitprice").toString()));
+            soitem.setAmount(Double.valueOf(temp2.get("amount").toString()));
+            soitem.setVat(Double.valueOf(temp2.get("vat").toString()));
+            
+            this.items1.add(soitem);
+        }
+        
+        Iterator ir = siq.getSitems(sim.getSiid());
+        
+        while(ir.hasNext()){
+            HashMap temp = (HashMap) ir.next();
+            
+            DRViewModel drvm = new DRViewModel(Integer.valueOf(temp.get("iddeliveryorders").toString()));
+            
             drvm.setDrdate(temp.get("drdate").toString());
             drvm.setPgi(temp.get("drpgi").toString());
             drvm.setPrnt(temp.get("drprint").toString());
             drvm.setStatus(temp.get("drstatus").toString());
             
-            data.add(drvm);
+            this.items.add(drvm);
+            
+            //Get the line items
+            
+            this.updateLineItems(drvm.getDrnum(), 1);
+            
         }
+        
+        this.RefreshItems();
+        this.RefreshLineItems();
+        this.computeTotal(this.items1.iterator());
+        
+        if(simod.getPrint().equals("Y")){
+            this.printbtn.setText("Re-print");
+        }
+        this.pendingbtn.setDisable(true);
+        
+    }
+    
+    @FXML
+    void EditItem(ActionEvent event) throws IOException, SQLException {
+        FXMLLoader fxmlloader = new FXMLLoader(getClass().getResource("/salesinvoices/DRSelectorView.fxml"));
+        Parent root = (Parent) fxmlloader.load();
+
+        DRSelectorController drc = fxmlloader.<DRSelectorController>getController();
+        drc.setDRs(this.sovm.getIdso());
+        Scene scene = new Scene(root);
+        Stage stage = (Stage) this.editbtn.getScene().getWindow();
+        Stage substage = new Stage();
+        substage.setScene(scene);
+        substage.setTitle("Add Delivery Order");
+        substage.initModality(Modality.WINDOW_MODAL);
+        substage.initOwner(stage);
+        substage.showAndWait();
+        
+        DRModel mod = drc.getDrm_og();
+        DRViewModel model = new DRViewModel(mod.getDrid());
+        model.setDrdate(mod.getDrdate().toString());
+        model.setPgi(mod.getPgi());
+        model.setPrnt(mod.getDrprint());
+        model.setStatus(mod.getDrstatus());
+        
+        if(!this.items.contains(model)){
+            this.items.add(model);
+            this.updateLineItems(model.getDrnum(), 1);
+            this.RefreshItems();
+            this.RefreshLineItems();
+        }else{
+            Alert alert = new Alert(Alert.AlertType.INFORMATION);
+            alert.setTitle("Information Dialog");
+            alert.setHeaderText(null);
+            alert.setContentText("This delivery receipt has been added.");
+            alert.showAndWait();
+        }
+        
+    }
+
+    @FXML
+    void ResetItems(ActionEvent event) throws SQLException {
+        
+        if(isEdit){
+            if(!this.items.isEmpty()){
+                for(DRViewModel drvm: this.items){
+                    if(drvm.getSiitem_id() != 0){
+                        this.deletedList.add(drvm);
+                    }
+                }
+            }
+        }
+        else{
+            if(!this.items.isEmpty()){
+                this.items.clear();
+                for(int i = 0; i < this.items1.size(); i++){
+                    this.items1.get(i).setQty(0);
+                    this.items1.get(i).setAmount(0.0);
+                    this.items1.get(i).setVat(0.0);
+                }
+                this.RefreshLineItems();
+                this.RefreshItems();
+            }
+            
+            
+        }
+        
+    }
+    
+    @FXML
+    void DeleteItem(ActionEvent event) throws SQLException {
+
+        if(isEdit){
+            if(!this.items.isEmpty()){
+                DRViewModel drvm = this.items.remove(this.itemlist.getSelectionModel().getFocusedIndex());
+                this.deletedList.add(drvm);
+                this.updateLineItems(drvm.getDrnum(), 2);
+                this.RefreshLineItems();
+                this.RefreshItems();
+            }
+        }else{
+            if(!this.items.isEmpty()){
+                DRViewModel drvm = this.items.remove(this.itemlist.getSelectionModel().getFocusedIndex());
+                this.updateLineItems(drvm.getDrnum(), 2);
+                this.RefreshLineItems();
+                this.RefreshItems();
+            }
+        }
+        
+    }
+    
+    public void RefreshLineItems() throws SQLException{
+        String[] arr2 = {"sku", "desc", "qty", "uom", "uprice", "discnt", "amount", "vat"};
+        
+        ObservableList<SOItemModel> data2
+                = FXCollections.observableArrayList();
+        
+        data2.addAll(this.items1);
+        
+        ObservableList<TableColumn<SOItemModel, ?>> olist2;
+        olist2 = (ObservableList<TableColumn<SOItemModel, ?>>) this.itemlist1.getColumns();
+
+        for (int i = 0; i < arr2.length; i++) {
+            olist2.get(i).setCellValueFactory(
+                    new PropertyValueFactory<>(arr2[i])
+            );
+        }
+        
+        this.itemlist1.getItems().clear();
+        this.itemlist1.setItems(data2);
+        this.computeTotal(this.items1.iterator());
+    }
+    
+    public void RefreshItems(){
+        String[] arr = {"drnum", "drdate", "prnt", "pgi", "status"};
+        
+        ObservableList<DRViewModel> data
+                = FXCollections.observableArrayList();
+        
+        data.addAll(this.items);
         
         ObservableList<TableColumn<DRViewModel, ?>> olist;
         olist = (ObservableList<TableColumn<DRViewModel, ?>>) this.itemlist.getColumns();
@@ -439,78 +559,8 @@ public class SalesInvoiceController extends AbstractController implements Initia
         }
         this.itemlist.setItems(data);
         
-        //Get the line items
-        
-        String[] arr2 = {"sku", "desc", "qty", "uom", "uprice", "discnt", "amount", "vat"};
-        
-        ObservableList<SOItemModel> data2
-                = FXCollections.observableArrayList();
-        
-        Iterator map2 = this.siq.getLineItems(this.sovm.getIdso(), Integer.valueOf(this.model.getIdcustomer()));
-        
-        while(map2.hasNext()){
-            HashMap temp2 = (HashMap) map2.next();
-            
-            SOItemModel soitem = new SOItemModel(Integer.valueOf(temp2.get("idinventory").toString()));
-            
-            soitem.setSku(temp2.get("sku").toString());
-            soitem.setDesc(temp2.get("skudesc").toString());
-            soitem.setUom(temp2.get("skuom").toString());
-            soitem.setQty(Double.valueOf(temp2.get("sumdrqty").toString()).intValue());
-            soitem.setDiscnt(this.model.getDiscount());
-            soitem.setUprice(Double.valueOf(temp2.get("unitprice").toString()));
-            soitem.setAmount(Double.valueOf(temp2.get("totamt").toString()));
-            soitem.setVat(Double.valueOf(temp2.get("vatinc").toString()));
-            
-            data2.add(soitem);
-        }
-        
-        ObservableList<TableColumn<SOItemModel, ?>> olist2;
-        olist2 = (ObservableList<TableColumn<SOItemModel, ?>>) this.itemlist1.getColumns();
-
-        for (int i = 0; i < arr2.length; i++) {
-            olist2.get(i).setCellValueFactory(
-                    new PropertyValueFactory<>(arr2[i])
-            );
-        }
-        this.itemlist1.setItems(data2);
-        
-        this.pendingbtn.setDisable(true);
-        
-        if(simod.getPrint().equals("Y")){
-            this.printbtn.setText("Re-print");
-        }
-        
-        System.out.println("Compute Total");
-        this.computeTotal(data2.iterator());
-        
     }
     
-    @FXML
-    void EditItem(ActionEvent event) throws IOException {
-        FXMLLoader fxmlloader = new FXMLLoader(getClass().getResource("/salesinvoices/DRSelectorView.fxml"));
-        Parent root = (Parent) fxmlloader.load();
-
-        DRSelectorController drc = fxmlloader.<DRSelectorController>getController();
-
-        Scene scene = new Scene(root);
-        Stage stage = (Stage) this.editbtn.getScene().getWindow();
-        Stage substage = new Stage();
-        substage.setScene(scene);
-        substage.setTitle("Add Delivery Order");
-        substage.initModality(Modality.WINDOW_MODAL);
-        substage.initOwner(stage);
-        substage.showAndWait();
-    }
-
-    @FXML
-    void ResetItems(ActionEvent event) {
-    }
-    
-    @FXML
-    void DeleteItem(ActionEvent event) {
-        this.itemlist.getSelectionModel().getSelectedItem();
-    }
 
     @FXML
     public void saveHandler(ActionEvent event) throws SQLException {
@@ -534,13 +584,44 @@ public class SalesInvoiceController extends AbstractController implements Initia
             DRViewModel mod = (DRViewModel) ir.next();
             SItemsModel simod = new SItemsModel();
             simod.setDrid(mod.getDrnum());
-            
+
             simods.add(simod);
         }
         
         salesinvoice.setSitems(simods);
+        ArrayList<SItemsModel> addinEdit = new ArrayList();
+        if(isEdit){
+            salesinvoice.setSiid(Integer.valueOf(this.sidfld.getText()));
+            siq.editSalesInvoice(salesinvoice);
+            if(!this.deletedList.isEmpty()){
+                System.out.println("HELLO");
+                Iterator ir2 = this.deletedList.iterator();
+                ArrayList<SItemsModel> delsims = new ArrayList();
+                while(ir2.hasNext()){
+                    DRViewModel mod2 = (DRViewModel) ir2.next();
+                    SItemsModel simod2 = new SItemsModel();
+                    simod2.setSitemid(mod2.getSiitem_id());
+                    System.out.println(mod2.getSiitem_id());
+                    delsims.add(simod2);
+                }
+                
+                siq.deleteInvoiceItems(delsims.iterator());
+            }
+            if(!this.items.isEmpty()){
+                for(int i = 0; i < this.items.size(); i++){
+                    if(this.items.get(i).getSiitem_id() == 0){
+                        SItemsModel simod = new SItemsModel();
+                        simod.setDrid(this.items.get(i).getDrnum());
+                        addinEdit.add(simod);
+                    }
+                }
+                
+                siq.addSalesInvoiceItems(addinEdit.iterator(), Integer.valueOf(this.sidfld.getText()));
+            }
+        }else{
+            siq.addSalesInvoice(salesinvoice);
+        }
         
-        siq.addSalesInvoice(salesinvoice);
         
         Stage stage = (Stage) cancelbtn.getScene().getWindow();
         stage.close();
@@ -555,21 +636,23 @@ public class SalesInvoiceController extends AbstractController implements Initia
     
     
     @FXML
-    void export(ActionEvent event) throws IOException, SQLException {
+    void export(ActionEvent event) throws IOException, SQLException, URISyntaxException {
+        
+        NumberFormat nf= NumberFormat.getInstance();
+        nf.setMaximumFractionDigits(2);
+        nf.setMinimumFractionDigits(2);
+        nf.setRoundingMode(RoundingMode.CEILING);
         
         TextInputDialog dialog = new TextInputDialog();
         dialog.setTitle("Sales Invoice Printing");
         dialog.setHeaderText("Please input your sales number");
 
         Optional<String> result = dialog.showAndWait();
-        
-        if (result.isPresent()) {
-            siq.Print(Integer.parseInt(result.get()), Integer.parseInt(this.sidfld.getText()), this.printbtn.getText());
-            siq.changePrintStatus(Integer.parseInt(this.sidfld.getText()));
-        }
-        
+
         // TODO code application logic here
-        FileInputStream file = new FileInputStream("C:\\Users\\Steven\\Documents\\invoicesample.xlsx");
+        //URL url = getClass().getResource("/res/invoicesample.xlsx");
+        //File f = new File(url.toURI());
+        FileInputStream file = new FileInputStream("C:\\res\\invoicesample.xlsx");
 
         XSSFWorkbook workbook = new XSSFWorkbook(file);
         XSSFSheet sheet = workbook.getSheetAt(0);
@@ -642,55 +725,67 @@ public class SalesInvoiceController extends AbstractController implements Initia
         
         //Items
         int start = 10;
+        XSSFCellStyle txtstyle = workbook.createCellStyle();
+        XSSFFont txtfont = workbook.createFont();
+        txtfont.setFontName("Calibri");
+        txtfont.setFontHeightInPoints((short)10);
+        txtstyle.setFont(txtfont);
         for(int i = 0; i < this.itemlist1.getItems().size(); i++){
             
             rownum = start;
             cellnum = 0;
-            this.createCell(sheetrow, sheet, cell, rownum, cellnum, this.itemlist1.getItems().get(i).getSku());
+            this.createCell(sheetrow, sheet, cell, rownum, cellnum, this.itemlist1.getItems().get(i).getSku(), txtstyle);
             
             rownum = start;
             cellnum = 2;
-            this.createCell(sheetrow, sheet, cell, rownum, cellnum, this.itemlist1.getItems().get(i).getDesc());
+            this.createCell(sheetrow, sheet, cell, rownum, cellnum, this.itemlist1.getItems().get(i).getDesc(), txtstyle);
             
             rownum = start;
             cellnum = 6;
-            this.createCell(sheetrow, sheet, cell, rownum, cellnum, String.valueOf(this.itemlist1.getItems().get(i).getQty()));
+            this.createCell(sheetrow, sheet, cell, rownum, cellnum, String.valueOf(this.itemlist1.getItems().get(i).getQty()), txtstyle);
             
             rownum = start;
             cellnum = 7;
-            this.createCell(sheetrow, sheet, cell, rownum, cellnum, String.valueOf(this.itemlist1.getItems().get(i).getUprice()));
+            this.createCell(sheetrow, sheet, cell, rownum, cellnum, nf.format(this.itemlist1.getItems().get(i).getUprice()), txtstyle);
             
             rownum = start;
             cellnum = 9;
-            this.createCell(sheetrow, sheet, cell, rownum, cellnum, String.valueOf(this.itemlist1.getItems().get(i).getAmount()));
+            this.createCell(sheetrow, sheet, cell, rownum, cellnum, nf.format(this.itemlist1.getItems().get(i).getAmount()), txtstyle);
             
             start++;
         }
         
-        //Total Sales
         rownum = start;
         cellnum = 2;
-        this.createCell(sheetrow, sheet, cell, rownum, cellnum, "********NOTHING FOLLOWS********");
+        this.createCell(sheetrow, sheet, cell, rownum, cellnum, "********NOTHING FOLLOWS********", txtstyle);
         
-        //Total Sales
+        //Less Discount
         rownum = 37;
         cellnum = 9;
-        this.createCell(sheetrow, sheet, cell, rownum, cellnum, this.totalfld.getText());
+        Double lessdcnt = Double.parseDouble(this.totalfld.getText()) * (this.model.getDiscount() / 100);
+        this.createCell(sheetrow, sheet, cell, rownum, cellnum, nf.format(lessdcnt));
 
-        //Discount
+        //Total Sales
         rownum = 38;
         cellnum = 9;
-        this.createCell(sheetrow, sheet, cell, rownum, cellnum, this.totalfld.getText());
+        this.createCell(sheetrow, sheet, cell, rownum, cellnum, nf.format(Double.parseDouble(this.totalfld.getText())));
 
         //Vatable
         rownum = 39;
         cellnum = 9;
-        this.createCell(sheetrow, sheet, cell, rownum, cellnum, this.totalfld.getText());
+        Double vatable = Double.parseDouble(this.totalfld.getText()) - lessdcnt;
+        this.createCell(sheetrow, sheet, cell, rownum, cellnum, nf.format(vatable));
+        
+        //User Name
+        rownum = 38;
+        cellnum = 2;
+        this.createCell(sheetrow, sheet, cell, rownum, cellnum, super.getGlobalUser().getUsername());
 
         //Vatable less
         rownum = 40;
         cellnum = 9;
-        this.createCell(sheetrow, sheet, cell, rownum, cellnum, this.totalfld.getText());
+        Double vatableless = vatable * (1 + (this.model.getVAT()/ 100));
+        this.createCell(sheetrow, sheet, cell, rownum, cellnum, nf.format(vatableless));
 
         //Sales Invoice ID:
         rownum = 42;
@@ -699,11 +794,21 @@ public class SalesInvoiceController extends AbstractController implements Initia
         String siid = "No. " + result.get();
         
         this.createCell(sheetrow, sheet, cell, rownum, cellnum, siid);
-
         
         file.close();
         
-        FileOutputStream outFile =new FileOutputStream(new File("C:\\Users\\Steven\\Documents\\invoicesample2.xlsx"));
+        String currentUsersHomeDir = System.getProperty("user.home");
+        File dir = new File(currentUsersHomeDir + "\\Documents\\Exports");
+        if(!dir.exists()){
+            System.out.println("Directory Created");
+            dir.mkdir();
+        }
+        File file2 = new File(dir.getAbsolutePath()+ "\\" + "invoicesample.xlsx");
+        if(!file2.exists()){
+            file2.createNewFile();
+        }
+        
+        FileOutputStream outFile =new FileOutputStream(file2);
         workbook.write(outFile);
         outFile.close();
 
@@ -713,6 +818,11 @@ public class SalesInvoiceController extends AbstractController implements Initia
         alert.setContentText("Please check the export in My Documents/Export");
 
         alert.showAndWait();
+        
+        if (result.isPresent()) {
+            siq.Print(Integer.parseInt(result.get()), Integer.parseInt(this.sidfld.getText()), this.printbtn.getText());
+            siq.changePrintStatus(Integer.parseInt(this.sidfld.getText()));
+        }
         
         Stage stage = (Stage) this.printbtn.getScene().getWindow();
         stage.close();
@@ -725,6 +835,16 @@ public class SalesInvoiceController extends AbstractController implements Initia
         cell = sheetrow.getCell(cellnum);
         cell = this.checkCell(cell, sheetrow, cellnum);
         cell.setCellValue(value);
+    }
+    
+    private void createCell(XSSFRow sheetrow, XSSFSheet sheet, Cell cell, int rownum, int cellnum, String value, XSSFCellStyle txtstyle){
+        sheetrow = sheet.getRow(rownum);
+        sheetrow = this.checkRow(sheetrow, sheet, rownum);
+        
+        cell = sheetrow.getCell(cellnum);
+        cell = this.checkCell(cell, sheetrow, cellnum);
+        cell.setCellValue(value);
+        cell.setCellStyle(txtstyle);
     }
     
     private XSSFRow checkRow(XSSFRow sheetrow, XSSFSheet sheet, int rownum){

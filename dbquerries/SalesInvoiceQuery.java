@@ -77,6 +77,39 @@ public class SalesInvoiceQuery {
         
     }
     
+    public void editSalesInvoice(SIModel simod) throws SQLException{
+        DBConnect dbc = DBConnect.getInstance();
+        
+        PreparedStatement st = dbc.getConnection().prepareStatement("call `SI_EDIT`(?,?,?,?,?,?);");
+        
+        st.setString(1, simod.getRemarks());
+        st.setString(2, simod.getTrcnme());
+        st.setString(3, simod.getDrvnme());
+        st.setString(4, simod.getPlateno());
+        st.setDate(5, Date.valueOf(simod.getDte().toString()));
+        st.setInt(6, simod.getSiid());
+        
+        
+        st.executeUpdate();
+    }
+    
+    public void deleteInvoiceItems(Iterator items) throws SQLException{
+        DBConnect dbc = DBConnect.getInstance();
+        
+        PreparedStatement ps = dbc.getConnection().prepareStatement("UPDATE `bestchem_db2`.`salesinvoiceitems` SET `status`='DELETED' WHERE `idsalesinvoiceitems`=?;");
+        while(items.hasNext()){
+            SItemsModel item = (SItemsModel) items.next();
+            
+            ps.setInt(1, item.getSitemid());
+            
+            ps.addBatch();
+        }
+        
+        ps.executeBatch();
+        
+        dbc.closeConnection();
+    }
+    
     public Iterator getSalesInvoice(int soid) throws SQLException{
         
         DBQuery dbq = DBQuery.getInstance();
@@ -130,6 +163,19 @@ public class SalesInvoiceQuery {
         
         st.setInt(1, soid);
         st.setInt(2, custid);
+        
+        Iterator iterate = dbq.getQueryResultSet(st);
+        
+        return iterate;
+    }
+    
+    public Iterator getSitems(int siid) throws SQLException{
+        DBQuery dbq = DBQuery.getInstance();
+        DBConnect dbc = DBConnect.getInstance();
+        
+        PreparedStatement st = dbc.getConnection().prepareStatement("CALL `SI_ITEMS_GET`(?)");
+        
+        st.setInt(1, siid);
         
         Iterator iterate = dbq.getQueryResultSet(st);
         

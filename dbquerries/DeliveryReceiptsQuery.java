@@ -167,19 +167,6 @@ public class DeliveryReceiptsQuery {
         return iterate;
     }
     
-    public Iterator getDeliveryOrderItems(int drid, int soid) throws SQLException{
-        DBQuery dbq = DBQuery.getInstance();
-        DBConnect dbc = DBConnect.getInstance();
-        
-        PreparedStatement st = dbc.getConnection().prepareStatement("CALL `REMAINING_DR_TEMS` (?);");
-        
-        st.setInt(1, soid);
-        
-        Iterator iterate = dbq.getQueryResultSet(st);
-        
-        return iterate;
-    }
-    
     public int getDRCount(int soid) throws SQLException{
         
         DBConnect dbc = DBConnect.getInstance();

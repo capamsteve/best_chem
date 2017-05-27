@@ -7,7 +7,9 @@ package salesinvoices;
 
 import dbquerries.DeliveryReceiptsQuery;
 import java.net.URL;
+import java.sql.Date;
 import java.sql.SQLException;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.ResourceBundle;
 import java.util.logging.Level;
@@ -27,7 +29,6 @@ import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyEvent;
 import javafx.stage.Stage;
 import models.DRModel;
-import models.InventoryModel;
 import salesorder.SOItemsController;
 
 /**
@@ -57,7 +58,37 @@ public class DRSelectorController implements Initializable {
     private boolean isCancelled;
     
     private final DeliveryReceiptsQuery rq = new DeliveryReceiptsQuery();
+    
+    public void setDRs(int soid) throws SQLException{
+        String[] arr = {"drid", "drdate", "remarks", "drprint", "pgi", "drstatus"};
+        ObservableList<DRModel> data
+                = FXCollections.observableArrayList();
+        
+        Iterator rs = rq.getDeliverReceipts(soid, "Y", "complete");
+        
+        while(rs.hasNext()){
+            HashMap temp = (HashMap) rs.next();
+            DRModel drvm = new DRModel(Integer.valueOf(temp.get("iddeliveryorders").toString()));
 
+            drvm.setDrdate(Date.valueOf(temp.get("drdate").toString()));
+            drvm.setPgi(temp.get("drpgi").toString());
+            drvm.setDrprint(temp.get("drprint").toString());
+            drvm.setDrstatus(temp.get("drstatus").toString());
+            drvm.setRemarks(temp.get("remarks").toString());
+            data.add(drvm);
+        }
+        
+        ObservableList<TableColumn<DRModel, ?>> olist;
+        olist = (ObservableList<TableColumn<DRModel, ?>>) inventorytable.getColumns();
+
+        for (int i = 0; i < olist.size(); i++) {
+            olist.get(i).setCellValueFactory(
+                    new PropertyValueFactory<>(arr[i])
+            );
+        }
+        inventorytable.setItems(data);
+    }
+    
     @FXML
     void saveItem(ActionEvent event) throws SQLException {
         

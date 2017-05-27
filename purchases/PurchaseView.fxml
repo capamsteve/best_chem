@@ -45,9 +45,11 @@
             <TableView fx:id="purchtble" prefHeight="200.0" prefWidth="200.0">
                <columns>
                   <TableColumn prefWidth="184.0" text="PO#" />
-                  <TableColumn prefWidth="207.0" text="PO DATE" />
-                  <TableColumn prefWidth="252.0" text="Delivery Date" />
-                  <TableColumn prefWidth="142.0" text="Status" />
+                  <TableColumn prefWidth="240.0" text="PO DATE" />
+                  <TableColumn prefWidth="156.0" text="Delivery Date" />
+                  <TableColumn prefWidth="57.0" text="Status" />
+                  <TableColumn prefWidth="71.0" text="PGR Status" />
+                  <TableColumn prefWidth="77.0" text="Print Status" />
                </columns>
             </TableView>
          </children>

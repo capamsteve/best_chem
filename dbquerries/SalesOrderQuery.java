@@ -98,6 +98,20 @@ public class SalesOrderQuery {
         
     }
     
+    public Iterator getSILineItems(int salesid) throws SQLException{
+        
+        DBConnect dbc = DBConnect.getInstance();
+        DBQuery dbq = DBQuery.getInstance();
+        
+        PreparedStatement ps = dbc.getConnection().prepareStatement("CALL `SOITEMS_LINE_ITEMS`(?);");
+        ps.setInt(1, salesid);
+        
+        Iterator rs = dbq.getQueryResultSet(ps);
+        
+        return rs;
+        
+    }
+    
     public void cancelSalesOrder(int soid, int custid, String status1, String status2) throws SQLException{
         
         DBConnect dbc = DBConnect.getInstance();

@@ -20,6 +20,7 @@ public class PurchaseItemModel {
     private double uprice;
     private double amount;
     private double vat;
+    private int actualqty;
     
     public PurchaseItemModel(Integer idinventory){
         this.idinventory = idinventory;
@@ -173,6 +174,20 @@ public class PurchaseItemModel {
             return false;
         }
         return true;
+    }
+
+    /**
+     * @return the actualqty
+     */
+    public int getActualqty() {
+        return actualqty;
+    }
+
+    /**
+     * @param actualqty the actualqty to set
+     */
+    public void setActualqty(int actualqty) {
+        this.actualqty = actualqty;
     }
     
 }
