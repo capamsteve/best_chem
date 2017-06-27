@@ -12,6 +12,8 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.Iterator;
 import models.PurchaseItemModel;
 import models.PurchasesModel;
@@ -27,10 +29,10 @@ public class PurchasesQuery {
         String query = "";
         
         if(table == 1){
-            query = "call bestchem_db2.PURCHASE_ADD(?,?,?,?,?,?);";
+            query = "call PURCHASE_ADD(?,?,?,?,?,?);";
         }
         else if(table == 2){
-            query = "call bestchem_db2.MM_PURCHASE_ADD(?,?,?,?,?,?);";
+            query = "call MM_PURCHASE_ADD(?,?,?,?,?,?);";
         }
         DBConnect dbc = DBConnect.getInstance();
         
@@ -62,10 +64,10 @@ public class PurchasesQuery {
         String query = "";
         
         if(table == 1){
-            query = "call bestchem_db2.PURCHASE_ADD_ITEMS(?,?,?,?,?,?);";
+            query = "call PURCHASE_ADD_ITEMS(?,?,?,?,?,?);";
         }
         else if(table == 2){
-            query = "call bestchem_db2.MM_PURCHASE_ADD_ITEMS(?,?,?,?,?);";
+            query = "call MM_PURCHASE_ADD_ITEMS(?,?,?,?,?,?);";
         }
         
         DBConnect dbc = DBConnect.getInstance();
@@ -94,10 +96,10 @@ public class PurchasesQuery {
         String query = "";
         
         if(table == 1){
-            query = "SELECT * FROM bestchem_db2.purchases where sup_id = ?;";
+            query = "SELECT * FROM purchases where sup_id = ?;";
         }
         else if(table == 2){
-            query = "SELECT * FROM bestchem_db2.mm_purchases where sup_id = ?;";
+            query = "SELECT * FROM mm_purchases where sup_id = ?;";
         }
         
         DBConnect dbc = DBConnect.getInstance();
@@ -119,7 +121,7 @@ public class PurchasesQuery {
             query = "CALL `PURCHASE_GET_ITEMS`(?);";
         }
         else if(table == 2){
-            query = "SELECT * FROM bestchem_db2.mm_purchaseitems where sup_id = ?;";
+            query = "CALL `MM_PURCHASE_GET_ITEMS`(?);";
         }
         
         DBConnect dbc = DBConnect.getInstance();
@@ -133,11 +135,86 @@ public class PurchasesQuery {
         return rs;
     }
     
-    public void editPurchases(PurchasesModel pomod) throws SQLException{
+    public Iterator getPurchases() throws SQLException{
+        
+        DBConnect dbc = DBConnect.getInstance();
+        DBQuery dbq = DBQuery.getInstance();
+        
+        PreparedStatement ps = dbc.getConnection().prepareStatement("SELECT * FROM purchases INNER JOIN pgr on purchases.idpurchases = pgr.idpo_doc INNER JOIN suppliers on suppliers.idsuppliers = purchases.sup_id where stdoc = 'N' ORDER BY pgr_dtetme DESC, idpurchases DESC;");
+        
+        Iterator rs = dbq.getQueryResultSet(ps);
+        ArrayList<PurchasesModel> models = new ArrayList();
+        
+        while(rs.hasNext()){
+            HashMap temp = (HashMap) rs.next();
+            PurchasesModel povm = new PurchasesModel();
+            povm.setIdpurchases(Integer.valueOf(temp.get("idpurchases").toString()));
+            povm.setPo_dte(Date.valueOf(temp.get("po_dte").toString()));
+            povm.setPo_dr_dte(Date.valueOf(temp.get("po_dr_dte").toString()));
+            povm.setPgistat(temp.get("pgistat").toString());
+            povm.setStat(temp.get("status").toString());
+            povm.setPrntstat(temp.get("prntstat").toString());
+            povm.setSupcname(temp.get("sup_c_name").toString());
+            povm.setSupplier(temp.get("supname").toString());
+            povm.setAddress(temp.get("supaddress").toString());
+            
+            models.add(povm);
+            
+        }
+        
+        return models.iterator();   
+    }
+    
+    public Iterator getPurchases(String poid) throws SQLException{
+        
+        DBConnect dbc = DBConnect.getInstance();
+        DBQuery dbq = DBQuery.getInstance();
+        
+        PreparedStatement ps = dbc.getConnection().prepareStatement("SELECT * FROM purchases INNER JOIN pgr on purchases.idpurchases = pgr.idpo_doc INNER JOIN suppliers on suppliers.idsuppliers = purchases.sup_id where idpurchases LIKE ? ORDER BY pgr_dtetme DESC, idpurchases DESC;");
+        
+        poid = "%" + poid + "%";
+        
+        ps.setString(1, poid);
+        
+        Iterator rs = dbq.getQueryResultSet(ps);
+        ArrayList<PurchasesModel> models = new ArrayList();
+        
+        while(rs.hasNext()){
+            HashMap temp = (HashMap) rs.next();
+            PurchasesModel povm = new PurchasesModel();
+            povm.setIdpurchases(Integer.valueOf(temp.get("idpurchases").toString()));
+            povm.setPo_dte(Date.valueOf(temp.get("po_dte").toString()));
+            povm.setPo_dr_dte(Date.valueOf(temp.get("po_dr_dte").toString()));
+            povm.setPgistat(temp.get("pgistat").toString());
+            povm.setStat(temp.get("status").toString());
+            povm.setPrntstat(temp.get("prntstat").toString());
+            povm.setSupcname(temp.get("sup_c_name").toString());
+            povm.setSupplier(temp.get("supname").toString());
+            povm.setAddress(temp.get("supaddress").toString());
+            
+            models.add(povm);
+            
+        }
+        
+        return models.iterator();
+        
+        
+    }
+    
+    public void editPurchases(PurchasesModel pomod, int table) throws SQLException{
+        
+        String query = "";
+        
+        if(table == 1){
+            query = "call `PURCHASE_EDIT`(?,?,?,?)";
+        }
+        else if(table == 2){
+            query = "call `MM_PURCHASE_EDIT`(?,?,?,?)";
+        }
         
         DBConnect dbc = DBConnect.getInstance();
         
-        PreparedStatement st = dbc.getConnection().prepareStatement("call `PURCHASE_EDIT`(?,?,?,?)");
+        PreparedStatement st = dbc.getConnection().prepareStatement(query);
         
         st.setString(1, pomod.getSupcname());
         st.setDate(2, Date.valueOf(pomod.getPo_dte().toString()));
@@ -148,11 +225,20 @@ public class PurchasesQuery {
         
     }
     
-    public void editPurchaseItems(Iterator items) throws SQLException{
+    public void editPurchaseItems(Iterator items, int table) throws SQLException{
+        
+        String query = "";
+        
+        if(table == 1){
+            query = "UPDATE `purchaseitems` SET `po_qty`=?, `amount`=?, `vat_amount`=?, `unitprice`=? WHERE `idpurchaseitems`=?;";
+        }
+        else if(table == 2){
+            query = "UPDATE `mm_purchaseitems` SET `po_qty`=?, `amount`=?, `vat_amount`=?, `unitprice`=? WHERE `idpurchaseitems`=?;";
+        }
         
         DBConnect dbc = DBConnect.getInstance();
         
-        PreparedStatement ps = dbc.getConnection().prepareStatement("UPDATE `bestchem_db2`.`purchaseitems` SET `po_qty`=?, `amount`=?, `vat_amount`=?, `unitprice`=? WHERE `idpurchaseitems`=?;");
+        PreparedStatement ps = dbc.getConnection().prepareStatement(query);
         while(items.hasNext()){
             PurchaseItemModel item = (PurchaseItemModel) items.next();
             
@@ -173,11 +259,20 @@ public class PurchasesQuery {
         dbc.closeConnection();
     }
     
-    public void deletePurchaseItems(Iterator items) throws SQLException{
-
+    public void deletePurchaseItems(Iterator items, int table) throws SQLException{
+        
+        String query = "";
+        
+        if(table == 1){
+            query = "UPDATE `purchaseitems` SET `status`='DELETED' WHERE `idpurchaseitems`=?;";
+        }
+        else if(table == 2){
+            query = "UPDATE `mm_purchaseitems` SET `status`='DELETED' WHERE `idpurchaseitems`=?;";
+        }
+        
         DBConnect dbc = DBConnect.getInstance();
         
-        PreparedStatement ps = dbc.getConnection().prepareStatement("UPDATE `bestchem_db2`.`purchaseitems` SET `status`='DELETED' WHERE `idpurchaseitems`=?;");
+        PreparedStatement ps = dbc.getConnection().prepareStatement(query);
         while(items.hasNext()){
             PurchaseItemModel item = (PurchaseItemModel) items.next();
             
@@ -195,21 +290,34 @@ public class PurchasesQuery {
         
     }
     
-    public void PGItems(Iterator items, int pid) throws SQLException{
+    public void PGItems(Iterator items, int pid, int table) throws SQLException{
+        
+        String query = "";
+        String query1 = "";
+        
+        if(table == 1){
+            query = "UPDATE `purchases` SET `status`='complete', `pgistat`='Y' WHERE `idpurchases`=?;";
+            query1 = "UPDATE `purchaseitems` SET `pgistat`='Y', `actual_qty`=?, `batchnum`=? WHERE `idpurchaseitems`=?;";
+        }
+        else if(table == 2){
+            query = "UPDATE `mm_purchases` SET `status`='complete', `pgistat`='Y' WHERE `idpurchases`=?;";
+            query1 = "UPDATE `mm_purchaseitems` SET `pgistat`='Y', `actual_qty`=?, `batchnum`=? WHERE `idpurchaseitems`=?;";
+        }
         
         DBConnect dbc = DBConnect.getInstance();
         
-        PreparedStatement ps2 = dbc.getConnection().prepareStatement("UPDATE `bestchem_db2`.`purchases` SET `status`='complete', `pgistat`='Y' WHERE `idpurchases`=?;");
+        PreparedStatement ps2 = dbc.getConnection().prepareStatement(query);
         
         ps2.setInt(1, pid);
         ps2.executeUpdate();
         
-        PreparedStatement ps = dbc.getConnection().prepareStatement("UPDATE `bestchem_db2`.`purchaseitems` SET `pgistat`='Y', `actual_qty`=? WHERE `idpurchaseitems`=?;");
+        PreparedStatement ps = dbc.getConnection().prepareStatement(query1);
         while(items.hasNext()){
             PurchaseItemModel item = (PurchaseItemModel) items.next();
             
-            ps.setInt(2, item.getIdpurchaseitem());
+            ps.setInt(3, item.getIdpurchaseitem());
             ps.setInt(1, item.getActualqty());
+            ps.setString(2, item.getBatchnum());
             
             ps.addBatch();
         }
@@ -219,4 +327,47 @@ public class PurchasesQuery {
         dbc.closeConnection();
         
     }
+    
+    public void printed(int pid, int table) throws SQLException{
+        
+        String query = "";
+        
+        if(table == 1){
+            query = "UPDATE `purchases` SET `prntstat`='Y' WHERE `idpurchases`=?;";
+        }
+        else if(table == 2){
+            query = "UPDATE `mm_purchases` SET `prntstat`='Y' WHERE `idpurchases`=?;";
+        }
+        
+        DBConnect dbc = DBConnect.getInstance();
+        
+        PreparedStatement ps2 = dbc.getConnection().prepareStatement(query);
+        
+        ps2.setInt(1, pid);
+        ps2.executeUpdate();
+        
+        dbc.closeConnection();
+    }
+    
+    public void GeneratePGR(int po_doc, int table) throws SQLException{
+        
+        String query = "";
+        
+        if(table == 1){
+            query = "CALL `PRG_ADD`(?)";
+        }
+        else if(table == 2){
+            query = "CALL `MM_PRG_ADD`(?)";
+        }
+        
+        DBConnect dbc = DBConnect.getInstance();
+        
+        PreparedStatement st = dbc.getConnection().prepareStatement(query);
+        
+        st.setInt(1, po_doc);
+        
+        st.execute();
+        
+    }
+    
 }

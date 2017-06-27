@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.image.*?>
+<?import javafx.scene.text.*?>
+<?import java.lang.*?>
+<?import java.util.*?>
+<?import javafx.scene.*?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+
+<Pane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="186.0" prefWidth="379.0" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1" fx:controller="prices.EditPoPriceViewController">
+   <children>
+      <Label layoutX="92.0" layoutY="23.0" text="Edit Price">
+         <font>
+            <Font name="Rockwell" size="26.0" />
+         </font>
+      </Label>
+      <ImageView fitHeight="40.0" fitWidth="38.0" layoutX="34.0" layoutY="20.0" pickOnBounds="true" preserveRatio="true">
+         <image>
+            <Image url="@../res/BC.PNG" />
+         </image>
+      </ImageView>
+      <Button fx:id="saveitembtn" layoutX="263.0" layoutY="147.0" mnemonicParsing="false" onAction="#savePrice" text="Edit" />
+      <Button fx:id="cancelbtn" layoutX="318.0" layoutY="147.0" mnemonicParsing="false" onAction="#cancelHandler" text="Cancel" />
+      <Label layoutX="24.0" layoutY="84.0" text="PO Price:">
+         <font>
+            <Font name="Arial" size="14.0" />
+         </font>
+      </Label>
+      <TextField fx:id="pofld" layoutX="97.0" layoutY="81.0" prefHeight="25.0" prefWidth="82.0" />
+      <DatePicker fx:id="edtefld" layoutX="127.0" layoutY="112.0" prefHeight="25.0" prefWidth="242.0" />
+      <Label layoutX="24.0" layoutY="116.0" text="Effective Date: ">
+         <font>
+            <Font name="Arial" size="14.0" />
+         </font>
+      </Label>
+   </children>
+</Pane>

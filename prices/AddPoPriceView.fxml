@@ -1,0 +1,67 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.image.*?>
+<?import javafx.scene.text.*?>
+<?import java.lang.*?>
+<?import java.util.*?>
+<?import javafx.scene.*?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+
+<Pane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="501.0" prefWidth="752.0" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1" fx:controller="prices.AddPoPriceViewController">
+   <children>
+      <StackPane layoutX="20.0" layoutY="98.0" prefHeight="299.0" prefWidth="710.0">
+         <children>
+            <TableView fx:id="inventorytable" prefHeight="200.0" prefWidth="200.0">
+               <columns>
+                  <TableColumn prefWidth="121.0" text="PM Code" />
+                  <TableColumn prefWidth="282.0" text="Description" />
+                  <TableColumn minWidth="0.0" prefWidth="38.0" text="UOM" />
+                  <TableColumn prefWidth="69.0" text="Warehouse" />
+                  <TableColumn prefWidth="87.0" text="Stock on Hand" />
+                  <TableColumn prefWidth="112.0" text="Critical Stock Level" />
+               </columns>
+            </TableView>
+         </children>
+      </StackPane>
+      <Label layoutX="92.0" layoutY="23.0" text="Add Price">
+         <font>
+            <Font name="Rockwell" size="26.0" />
+         </font>
+      </Label>
+      <ImageView fitHeight="40.0" fitWidth="38.0" layoutX="34.0" layoutY="20.0" pickOnBounds="true" preserveRatio="true">
+         <image>
+            <Image url="@../res/BC.PNG" />
+         </image>
+      </ImageView>
+      <Label layoutX="44.0" layoutY="418.0" text="PO Price:">
+         <font>
+            <Font name="Arial" size="14.0" />
+         </font>
+      </Label>
+      <TextField fx:id="popfld" layoutX="115.0" layoutY="414.0" prefHeight="25.0" prefWidth="159.0" />
+      <Button fx:id="cancelbtn" layoutX="678.0" layoutY="460.0" mnemonicParsing="false" onAction="#cancelHandler" text="Cancel" />
+      <Button fx:id="addbtn" layoutX="599.0" layoutY="460.0" mnemonicParsing="false" onAction="#AddHandler" text="Add Price" />
+      <TextField fx:id="skufld" layoutX="87.0" layoutY="67.0" prefHeight="25.0" prefWidth="202.0" />
+      <Label layoutX="20.0" layoutY="71.0" text="PM Code:">
+         <font>
+            <Font name="Arial" size="14.0" />
+         </font>
+      </Label>
+      <Label layoutX="44.0" layoutY="454.0" text="Effective Date: ">
+         <font>
+            <Font name="Arial" size="14.0" />
+         </font>
+      </Label>
+      <DatePicker fx:id="effdtefld" layoutX="141.0" layoutY="447.0" prefHeight="25.0" prefWidth="159.0" />
+      <Button fx:id="searchbtn" layoutX="293.0" layoutY="67.0" mnemonicParsing="false">
+         <graphic>
+            <ImageView fitHeight="15.0" fitWidth="21.0" pickOnBounds="true" preserveRatio="true">
+               <image>
+                  <Image url="@../res/searchicon.png" />
+               </image>
+            </ImageView>
+         </graphic>
+      </Button>
+   </children>
+</Pane>

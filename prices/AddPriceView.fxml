@@ -8,18 +8,18 @@
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
 
-<Pane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="501.0" prefWidth="633.0" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1" fx:controller="prices.AddPriceViewController">
+<Pane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="501.0" prefWidth="752.0" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1" fx:controller="prices.AddPriceViewController">
    <children>
-      <StackPane layoutX="20.0" layoutY="98.0" prefHeight="299.0" prefWidth="583.0">
+      <StackPane layoutX="20.0" layoutY="98.0" prefHeight="299.0" prefWidth="710.0">
          <children>
             <TableView fx:id="inventorytable" prefHeight="200.0" prefWidth="200.0">
                <columns>
-                  <TableColumn prefWidth="128.0" text="SKU#" />
-                  <TableColumn prefWidth="138.0" text="Description" />
+                  <TableColumn prefWidth="121.0" text="SKU#" />
+                  <TableColumn prefWidth="282.0" text="Description" />
                   <TableColumn minWidth="0.0" prefWidth="38.0" text="UOM" />
-                  <TableColumn prefWidth="71.0" text="Warehouse" />
-                  <TableColumn prefWidth="93.0" text="Stock on Hand" />
-                  <TableColumn prefWidth="114.0" text="Critical Stock Level" />
+                  <TableColumn prefWidth="69.0" text="Warehouse" />
+                  <TableColumn prefWidth="87.0" text="Stock on Hand" />
+                  <TableColumn prefWidth="112.0" text="Critical Stock Level" />
                </columns>
             </TableView>
          </children>
@@ -34,14 +34,14 @@
             <Image url="@../res/BC.PNG" />
          </image>
       </ImageView>
-      <Label layoutX="335.0" layoutY="416.0" text="PO Price:">
+      <Label layoutX="500.0" layoutY="416.0" text="PO Price:">
          <font>
             <Font name="Arial" size="14.0" />
          </font>
       </Label>
-      <TextField fx:id="popfld" layoutX="406.0" layoutY="412.0" prefHeight="25.0" prefWidth="159.0" />
-      <Button fx:id="cancelbtn" layoutX="551.0" layoutY="460.0" mnemonicParsing="false" onAction="#cancelHandler" text="Cancel" />
-      <Button fx:id="addbtn" layoutX="472.0" layoutY="460.0" mnemonicParsing="false" onAction="#AddHandler" text="Add Price" />
+      <TextField fx:id="popfld" layoutX="571.0" layoutY="412.0" prefHeight="25.0" prefWidth="159.0" />
+      <Button fx:id="cancelbtn" layoutX="678.0" layoutY="460.0" mnemonicParsing="false" onAction="#cancelHandler" text="Cancel" />
+      <Button fx:id="addbtn" layoutX="599.0" layoutY="460.0" mnemonicParsing="false" onAction="#AddHandler" text="Add Price" />
       <Label layoutX="45.0" layoutY="416.0" text="Selling Price:">
          <font>
             <Font name="Arial" size="14.0" />

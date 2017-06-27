@@ -8,7 +8,7 @@
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
 
-<Pane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="328.0" prefWidth="458.0" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1" fx:controller="inventory.InventoryItemController">
+<Pane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="383.0" prefWidth="458.0" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1" fx:controller="inventory.InventoryItemController">
    <children>
       <Label layoutX="92.0" layoutY="23.0" text="Inventory">
          <font>
@@ -20,13 +20,13 @@
             <Image url="@../res/BC.PNG" />
          </image>
       </ImageView>
-      <Label layoutX="34.0" layoutY="74.0" text="SKU#:">
+      <Label fx:id="skulabel" layoutX="34.0" layoutY="74.0" text="SKU#:">
          <font>
             <Font name="Arial" size="14.0" />
          </font>
       </Label>
-      <TextField fx:id="skufld" layoutX="92.0" layoutY="70.0" prefHeight="25.0" prefWidth="342.0" />
-      <Label layoutX="34.0" layoutY="107.0" text="SKU Description:">
+      <TextField fx:id="skufld" layoutX="120.0" layoutY="70.0" prefHeight="25.0" prefWidth="314.0" />
+      <Label fx:id="desclabel" layoutX="34.0" layoutY="107.0" text="SKU Description:">
          <font>
             <Font name="Arial" size="14.0" />
          </font>
@@ -38,25 +38,37 @@
          </font>
       </Label>
       <ComboBox fx:id="uomfld" layoutX="92.0" layoutY="138.0" prefHeight="25.0" prefWidth="342.0" />
-      <Label layoutX="34.0" layoutY="179.0" prefHeight="16.0" prefWidth="86.0" text="Warehouse:">
+      <Label layoutX="34.0" layoutY="233.0" prefHeight="16.0" prefWidth="86.0" text="Warehouse:">
          <font>
             <Font name="Arial" size="14.0" />
          </font>
       </Label>
-      <ComboBox fx:id="wrhsfld" layoutX="119.0" layoutY="174.0" prefHeight="25.0" prefWidth="314.0" />
-      <Label layoutX="35.0" layoutY="214.0" prefHeight="16.0" prefWidth="107.0" text="Stock on Hand:">
+      <ComboBox fx:id="wrhsfld" layoutX="119.0" layoutY="228.0" prefHeight="25.0" prefWidth="314.0" />
+      <Label layoutX="35.0" layoutY="268.0" prefHeight="16.0" prefWidth="107.0" text="Stock on Hand:">
          <font>
             <Font name="Arial" size="14.0" />
          </font>
       </Label>
-      <TextField fx:id="sohfld" layoutX="142.0" layoutY="210.0" prefHeight="25.0" prefWidth="293.0" />
-      <Label layoutX="35.0" layoutY="247.0" prefHeight="16.0" prefWidth="131.0" text="Critical Stock Level:">
+      <TextField fx:id="sohfld" layoutX="142.0" layoutY="264.0" prefHeight="25.0" prefWidth="293.0" />
+      <Label layoutX="35.0" layoutY="301.0" prefHeight="16.0" prefWidth="131.0" text="Critical Stock Level:">
          <font>
             <Font name="Arial" size="14.0" />
          </font>
       </Label>
-      <TextField fx:id="cslfld" layoutX="166.0" layoutY="243.0" prefHeight="25.0" prefWidth="272.0" />
-      <Button fx:id="savebtn" layoutX="304.0" layoutY="281.0" mnemonicParsing="false" onAction="#saveInventory" text="Add Item" />
-      <Button fx:id="cancelbtn" layoutX="383.0" layoutY="281.0" mnemonicParsing="false" onAction="#cancelHandler" text="Cancel" />
+      <TextField fx:id="cslfld" layoutX="166.0" layoutY="297.0" prefHeight="25.0" prefWidth="265.0" />
+      <Button fx:id="savebtn" layoutX="304.0" layoutY="335.0" mnemonicParsing="false" onAction="#saveInventory" text="Add Item" />
+      <Button fx:id="cancelbtn" layoutX="383.0" layoutY="335.0" mnemonicParsing="false" onAction="#cancelHandler" text="Cancel" />
+      <TextField fx:id="unitsfld" layoutX="86.0" layoutY="167.0" prefHeight="25.0" prefWidth="349.0" />
+      <Label layoutX="35.0" layoutY="171.0" prefHeight="16.0" prefWidth="38.0" text="Units:">
+         <font>
+            <Font name="Arial" size="14.0" />
+         </font>
+      </Label>
+      <Label layoutX="35.0" layoutY="201.0" prefHeight="16.0" prefWidth="38.0" text="Type:">
+         <font>
+            <Font name="Arial" size="14.0" />
+         </font>
+      </Label>
+      <TextField fx:id="typefld" layoutX="86.0" layoutY="197.0" prefHeight="25.0" prefWidth="349.0" />
    </children>
 </Pane>

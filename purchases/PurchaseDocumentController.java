@@ -36,6 +36,7 @@ import javafx.scene.Scene;
 import javafx.scene.control.Alert;
 import javafx.scene.control.Button;
 import javafx.scene.control.DatePicker;
+import javafx.scene.control.Label;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
 import javafx.scene.control.TextField;
@@ -50,6 +51,7 @@ import models.SupplierModel;
 import models.UserModel;
 import org.apache.poi.ss.usermodel.BorderStyle;
 import org.apache.poi.ss.usermodel.Cell;
+import org.apache.poi.ss.usermodel.HorizontalAlignment;
 import org.apache.poi.xssf.usermodel.XSSFCellStyle;
 import org.apache.poi.xssf.usermodel.XSSFFont;
 import org.apache.poi.xssf.usermodel.XSSFRow;
@@ -83,6 +85,9 @@ public class PurchaseDocumentController extends AbstractController implements In
 
     @FXML
     private Button cancelbtn;
+    
+    @FXML
+    private Label itemNum;
 
     @FXML
     private TableView<PurchaseItemModel> itemlist;
@@ -145,7 +150,7 @@ public class PurchaseDocumentController extends AbstractController implements In
             Parent root = (Parent) fxmlloader.load();
 
             POItemsController poic = fxmlloader.<POItemsController>getController();
-            poic.setType(super.getType());
+            poic.initData(super.getGlobalUser(), super.getType());
 
             Scene scene = new Scene(root);
             Stage stage = (Stage) addbtn.getScene().getWindow();
@@ -212,7 +217,12 @@ public class PurchaseDocumentController extends AbstractController implements In
             total += model.getAmount();
         }
         
-        this.totalfld.setText(String.valueOf(total));
+        NumberFormat nf= NumberFormat.getInstance();
+        nf.setMaximumFractionDigits(2);
+        nf.setMinimumFractionDigits(2);
+        nf.setRoundingMode(RoundingMode.HALF_EVEN);
+        
+        this.totalfld.setText(nf.format(total));
     }
 
     @FXML
@@ -242,6 +252,7 @@ public class PurchaseDocumentController extends AbstractController implements In
             this.items.get(this.itemlist.getSelectionModel().getSelectedIndex()).setVat(vat);
             this.itemlist.getItems().clear();
             this.RefreshItems();
+            this.computeTotal();
         }
     }
 
@@ -305,12 +316,12 @@ public class PurchaseDocumentController extends AbstractController implements In
                 }
             }
             
-            pq.editPurchases(pm);
+            pq.editPurchases(pomod, super.getType());
             if(!this.items.isEmpty()){
-                pq.editPurchaseItems(this.items.iterator());
+                pq.editPurchaseItems(this.items.iterator(), super.getType());
             }
             if(!this.deletedList.isEmpty()){
-                pq.deletePurchaseItems(this.deletedList.iterator());
+                pq.deletePurchaseItems(this.deletedList.iterator(), super.getType());
             }
             if(!models.isEmpty()){
                 pq.addPurchaseItems(models.iterator(), this.pm.getIdpurchases(), super.getType());
@@ -326,22 +337,46 @@ public class PurchaseDocumentController extends AbstractController implements In
     }
     
     public void RefreshItems(){
-        String[] arr = {"sku", "desc", "qty", "uom", "uprice", "amount", "vat"};
+        String[] arr = {"sku", "desc", "qty", "uom", "uprice1", "amount1", "vat1"};
         ObservableList<PurchaseItemModel> data
                 = FXCollections.observableArrayList();
         
         for(int i = 0; i < this.items.size(); i++){
+            this.items.get(i).setAmount1();
+            this.items.get(i).setUprice1();
+            this.items.get(i).setVat1();
             data.add(items.get(i));
         }
+        
         ObservableList<TableColumn<PurchaseItemModel, ?>> olist = (ObservableList<TableColumn<PurchaseItemModel, ?>>) itemlist.getColumns();
         
         for (int i = 0; i < olist.size(); i++) {
             olist.get(i).setCellValueFactory(
                     new PropertyValueFactory<>(arr[i])
             );
+            
+            if(super.getType() == 2){
+                if(i == 0){
+                    olist.get(i).setText("PM Code#");
+                }
+                else if(i == 1){
+                    olist.get(i).setText("PM Description#");
+                }
+                
+            }
+            
+            if(i == 2 || i == 4 || i == 5 || i == 6){
+                olist.get(i).setStyle("-fx-alignment: CENTER-RIGHT;");
+            }
+            else if(i == 3){
+                olist.get(i).setStyle("-fx-alignment: CENTER;");
+            }
+            else{
+                olist.get(i).setStyle("-fx-alignment: CENTER-LEFT;");
+            }
         }
         
-        
+        this.itemNum.setText(String.valueOf(this.items.size()));
         this.itemlist.setItems(data);
     }
 
@@ -494,6 +529,21 @@ public class PurchaseDocumentController extends AbstractController implements In
     public void initData(UserModel user, int type) {
         super.setGlobalUser(user);
         super.setType(type);
+        
+        ObservableList<TableColumn<PurchaseItemModel, ?>> olist = (ObservableList<TableColumn<PurchaseItemModel, ?>>) itemlist.getColumns();
+        
+        for (int i = 0; i < olist.size(); i++) {
+            
+            if(super.getType() == 2){
+                if(i == 0){
+                    olist.get(i).setText("PM Code#");
+                }
+                else if(i == 1){
+                    olist.get(i).setText("PM Description");
+                }
+                
+            }
+        }
     }
 
     @FXML
@@ -504,7 +554,7 @@ public class PurchaseDocumentController extends AbstractController implements In
 
         PGRDocumentController poic = fxmlloader.<PGRDocumentController>getController();
         poic.initData(super.getGlobalUser(), super.getType());
-        poic.setPOItems(this.items.iterator(), this.pm.getIdpurchases());
+        poic.setPOItems(this.items.iterator(), this.pm.getIdpurchases(), this.supplier);
 
         Scene scene = new Scene(root);
         Stage stage = (Stage) this.pgrbtn.getScene().getWindow();
@@ -520,12 +570,12 @@ public class PurchaseDocumentController extends AbstractController implements In
     }
 
     @FXML
-    void export(ActionEvent event) throws FileNotFoundException, IOException {
+    void export(ActionEvent event) throws FileNotFoundException, IOException, SQLException {
         
         NumberFormat nf= NumberFormat.getInstance();
         nf.setMaximumFractionDigits(2);
         nf.setMinimumFractionDigits(2);
-        nf.setRoundingMode(RoundingMode.CEILING);
+        nf.setRoundingMode(RoundingMode.HALF_EVEN);
         
         FileInputStream file = new FileInputStream("C:\\res\\poform.xlsx");
 
@@ -568,7 +618,7 @@ public class PurchaseDocumentController extends AbstractController implements In
         //No:
         rownum = 6;
         cellnum = 4;
-        this.createCell(sheetrow, sheet, cell, rownum, cellnum, " ");
+        this.createCell(sheetrow, sheet, cell, rownum, cellnum, this.poidfld.getText());
         
         //Supplier
         rownum = 8;
@@ -611,6 +661,27 @@ public class PurchaseDocumentController extends AbstractController implements In
         txtfont.setFontName("Calibri");
         txtfont.setFontHeightInPoints((short)10);
         txtstyle.setFont(txtfont);
+        txtstyle.setBorderRight(BorderStyle.THIN);
+        txtstyle.setBorderLeft(BorderStyle.THIN);
+        
+        XSSFCellStyle txtstyle2 = workbook.createCellStyle();
+        XSSFFont txtfont2 = workbook.createFont();
+        txtfont2.setFontName("Calibri");
+        txtfont2.setFontHeightInPoints((short)10);
+        txtstyle2.setFont(txtfont);
+        txtstyle2.setAlignment(HorizontalAlignment.RIGHT);
+        txtstyle2.setBorderRight(BorderStyle.THIN);
+        txtstyle2.setBorderLeft(BorderStyle.THIN);
+        
+        XSSFCellStyle txtstyle3 = workbook.createCellStyle();
+        XSSFFont txtfont3 = workbook.createFont();
+        txtfont3.setFontName("Calibri");
+        txtfont3.setFontHeightInPoints((short)10);
+        txtstyle3.setFont(txtfont);
+        txtstyle3.setAlignment(HorizontalAlignment.CENTER);
+        txtstyle3.setBorderRight(BorderStyle.THIN);
+        txtstyle3.setBorderLeft(BorderStyle.THIN);
+        
         
         for(int x = 0; x < this.items.size(); x++){
             
@@ -620,38 +691,36 @@ public class PurchaseDocumentController extends AbstractController implements In
             
             rownum = start;
             cellnum = 1;
-            this.createCell(sheetrow, sheet, cell, rownum, cellnum, this.items.get(x).getUom(), txtstyle);
+            this.createCell(sheetrow, sheet, cell, rownum, cellnum, this.items.get(x).getUom(), txtstyle3);
             
             rownum = start;
             cellnum = 2;
-            this.createCell(sheetrow, sheet, cell, rownum, cellnum, String.valueOf(this.items.get(x).getQty()), txtstyle);
+            this.createCell(sheetrow, sheet, cell, rownum, cellnum, String.valueOf(this.items.get(x).getQty()), txtstyle2);
             
             rownum = start;
             cellnum = 3;
-            this.createCell(sheetrow, sheet, cell, rownum, cellnum, nf.format(this.items.get(x).getUprice()), txtstyle);
+            this.createCell(sheetrow, sheet, cell, rownum, cellnum, nf.format(this.items.get(x).getUprice()), txtstyle2);
             
             rownum = start;
             cellnum = 4;
-            this.createCell(sheetrow, sheet, cell, rownum, cellnum, nf.format(this.items.get(x).getAmount()), txtstyle);
+            this.createCell(sheetrow, sheet, cell, rownum, cellnum, nf.format(this.items.get(x).getAmount()), txtstyle2);
             
             start++;
         }
         
         rownum = start;
         cellnum = 0;
-        txtstyle.setBorderLeft(BorderStyle.NONE);
-        txtstyle.setBorderRight(BorderStyle.NONE);
         this.createCell(sheetrow, sheet, cell, rownum, cellnum, "********NOTHING FOLLOWS********", txtstyle);
         
         //Total Sales
         rownum = 38;
         cellnum = 4;
-        this.createCell(sheetrow, sheet, cell, rownum, cellnum, nf.format(Double.parseDouble(this.totalfld.getText())));
+        this.createCell(sheetrow, sheet, cell, rownum, cellnum, this.totalfld.getText());
         
         //Total Sales
         rownum = 40;
         cellnum = 4;
-        this.createCell(sheetrow, sheet, cell, rownum, cellnum, nf.format(Double.parseDouble(this.totalfld.getText())));
+        this.createCell(sheetrow, sheet, cell, rownum, cellnum, this.totalfld.getText());
         
         file.close();
         
@@ -661,7 +730,10 @@ public class PurchaseDocumentController extends AbstractController implements In
             System.out.println("Directory Created");
             dir.mkdir();
         }
-        File file2 = new File(dir.getAbsolutePath()+ "\\" + "posample.xlsx");
+        
+        String filename = "[PO]" + this.supplier.getSupname() + "-(" + this.pm.getIdpurchases() + ").xlsx";
+        
+        File file2 = new File(dir.getAbsolutePath()+ "\\" + filename);
         if(!file2.exists()){
             file2.createNewFile();
         }
@@ -669,6 +741,8 @@ public class PurchaseDocumentController extends AbstractController implements In
         FileOutputStream outFile =new FileOutputStream(file2);
         workbook.write(outFile);
         outFile.close();
+        
+        pq.printed(Integer.valueOf(this.poidfld.getText()), super.getType());
 
         Alert alert = new Alert(Alert.AlertType.INFORMATION);
         alert.setTitle("Information Dialog");

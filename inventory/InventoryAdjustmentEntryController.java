@@ -23,6 +23,7 @@ import javafx.fxml.FXMLLoader;
 import javafx.fxml.Initializable;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
+import javafx.scene.control.Alert;
 import javafx.scene.control.Button;
 import javafx.scene.control.DatePicker;
 import javafx.scene.control.Label;
@@ -100,7 +101,7 @@ public class InventoryAdjustmentEntryController extends AbstractController imple
         
         if(isEdit){
             iam.setIamid(Integer.parseInt(this.invadjfld.getText()));
-            iq.editInventoryAdjustment(iam);
+            iq.editInventoryAdjustment(iam, super.getType());
             
             ArrayList<InventoryModel> models = new ArrayList();
             for(InventoryModel mod: this.items){
@@ -131,7 +132,7 @@ public class InventoryAdjustmentEntryController extends AbstractController imple
         
         ItemSelectorController soic = fxmlloader.<ItemSelectorController>getController();
         
-        soic.initData(null,super.getType());
+        soic.initData(super.getGlobalUser(),super.getType());
 
         Scene scene = new Scene(root);
         Stage stage = (Stage) addbtn.getScene().getWindow();
@@ -142,7 +143,20 @@ public class InventoryAdjustmentEntryController extends AbstractController imple
         substage.initOwner(stage);
         substage.showAndWait();
         
-        this.items.add(soic.getitem());
+        if(!soic.IsCancelled()){
+            if(soic.getitem() != null){
+                this.items.add(soic.getitem());
+            }else{
+                Alert alert = new Alert(Alert.AlertType.INFORMATION);
+                alert.setTitle("Information Dialog");
+                alert.setHeaderText(null);
+                alert.setContentText("You did not select an Item.");
+
+                alert.showAndWait();
+            }
+            
+        }
+       
         this.RefreshItems();
     }
     
@@ -182,9 +196,12 @@ public class InventoryAdjustmentEntryController extends AbstractController imple
 
     @FXML
     public void postToInventory(ActionEvent event) throws SQLException {
+        for(int i = 0; i < this.items.size(); i++){
+            this.items.get(i).setRemarks(this.iam_og.getDesc());
+        }
         
-        iq.PostUpdateInventory(this.items.iterator());
-        iq.changeInventoryAdjPost(this.items.iterator(), this.iam_og.getIamid());
+        iq.PostUpdateInventory(this.items.iterator(), super.getGlobalUser().getUsername(), "INVADJ", 0, "", "", this.iam_og.getIamid(), this.iam_og.getRefnum(), this.iam_og.getDesc(), super.getType());
+        iq.changeInventoryAdjPost(this.items.iterator(), this.iam_og.getIamid(), super.getType());
         
         Stage stage = (Stage) cancelbtn.getScene().getWindow();
         stage.close();
@@ -212,7 +229,7 @@ public class InventoryAdjustmentEntryController extends AbstractController imple
         this.reffld.setText(iam.getRefnum());
         this.ptifld.setText(iam.getPgistat());
         
-        Iterator ir = iq.getInventoryAdjustmentsItems(iam.getIamid());
+        Iterator ir = iq.getInventoryAdjustmentsItems(iam.getIamid(), super.getType());
         
         while(ir.hasNext()){
             items.add((InventoryModel) ir.next());
@@ -232,7 +249,7 @@ public class InventoryAdjustmentEntryController extends AbstractController imple
         this.reffld.setText(iam.getRefnum());
         this.ptifld.setText(iam.getPgistat());
         
-        Iterator ir = iq.getInventoryAdjustmentsItems(iam.getIamid());
+        Iterator ir = iq.getInventoryAdjustmentsItems(iam.getIamid(), super.getType());
         
         while(ir.hasNext()){
             items.add((InventoryModel) ir.next());
@@ -259,7 +276,18 @@ public class InventoryAdjustmentEntryController extends AbstractController imple
 
     @Override
     public void initData(UserModel user, int type) {
+        super.setGlobalUser(user);
         super.setType(type);
+        
+        if(type == 2){
+            ObservableList<TableColumn<InventoryModel, ?>> olist = (ObservableList<TableColumn<InventoryModel, ?>>) this.itemlist.getColumns();
+
+            for (int i = 0; i < olist.size(); i++) {
+                if(i == 0){
+                    olist.get(i).setText("PM Code#");
+                }
+            }
+        }
     }
     
 }

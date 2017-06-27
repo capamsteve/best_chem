@@ -92,6 +92,7 @@ public class SupplierController extends AbstractController implements Initializa
         this.isEdit = true;
         
         this.idfld.setText(String.valueOf(supplier.getSupid()));
+        this.idfld.setEditable(false);
         this.compfld.setText(supplier.getSupname());
         this.tinfld.setText(supplier.getSuptin());
         this.bsnstylefld.setText(supplier.getSupbustyp());

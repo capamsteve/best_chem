@@ -74,6 +74,7 @@ public class SupplierQuery {
             query = "CALL `SUPPLIER_EDIT` (?,?,?,?,?,?,?);";
         }
         else if(table == 2){
+            query = "CALL `MM_SUPPLIER_EDIT` (?,?,?,?,?,?,?);";
         }
         
         DBConnect dbc = DBConnect.getInstance();
@@ -97,6 +98,7 @@ public class SupplierQuery {
             query = "CALL `SUP_CONTACT_EDIT`(?,?,?,?)";
         }
         else if(table == 2){
+            query = "CALL `MM_SUP_CONTACT_EDIT`(?,?,?,?)";
         }
         DBQuery dbq = DBQuery.getInstance();
         DBConnect dbc = DBConnect.getInstance();
@@ -128,7 +130,7 @@ public class SupplierQuery {
             query = "CALL `SUP_CONTACT_DEL`(?)";
         }
         else if(table == 2){
-
+            query = "CALL `MM_SUP_CONTACT_DEL`(?)";
         }
         DBQuery dbq = DBQuery.getInstance();
         DBConnect dbc = DBConnect.getInstance();
@@ -186,10 +188,10 @@ public class SupplierQuery {
         String query = "";
         
         if(table == 1){
-            query = "SELECT * FROM bestchem_db2.suppliers;";
+            query = "SELECT * FROM suppliers;";
         }
         else if(table == 2){
-            query = "SELECT * FROM bestchem_db2.mm_suppliers;";
+            query = "SELECT * FROM mm_suppliers;";
         }
         
         DBConnect dbc = DBConnect.getInstance();
@@ -225,10 +227,10 @@ public class SupplierQuery {
         String query = "";
         
         if(table == 1){
-            query = "SELECT * FROM bestchem_db2.suppliers where idsuppliers = ?;";
+            query = "SELECT * FROM suppliers where idsuppliers = ?;";
         }
         else if(table == 2){
-            query = "SELECT * FROM bestchem_db2.mm_suppliers where idsuppliers = ?;";
+            query = "SELECT * FROM mm_suppliers where idsuppliers = ?;";
         }
         
         DBConnect dbc = DBConnect.getInstance();
@@ -266,10 +268,10 @@ public class SupplierQuery {
         String query = "";
         
         if(table == 1){
-            query = "SELECT * FROM bestchem_db2.supcontacts where sup_id = ?;";
+            query = "SELECT * FROM supcontacts where sup_id = ?;";
         }
         else if(table == 2){
-            query = "SELECT * FROM bestchem_db2.mm_supcontacts where sup_id = ?;";
+            query = "SELECT * FROM mm_supcontacts where sup_id = ?;";
         }
         
         DBConnect dbc = DBConnect.getInstance();

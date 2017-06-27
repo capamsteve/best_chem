@@ -74,7 +74,7 @@
          </font>
       </Label>
       <TextField fx:id="addressfld" layoutX="130.0" layoutY="207.0" prefHeight="25.0" prefWidth="645.0" />
-      <ToolBar layoutX="8.0" layoutY="238.0" prefHeight="40.0" prefWidth="771.0">
+      <ToolBar layoutX="8.0" layoutY="238.0" prefHeight="40.0" prefWidth="621.0">
          <items>
             <Button id="Addbtn" fx:id="addbtn" mnemonicParsing="false" onAction="#AddItem" text="Add" />
             <Button fx:id="editbtn" mnemonicParsing="false" onAction="#EditItem" text="Edit" />
@@ -113,5 +113,20 @@
       <TextField fx:id="contactbx" layoutX="131.0" layoutY="177.0" prefHeight="25.0" prefWidth="245.0" />
       <Button fx:id="pgrbtn" layoutX="544.0" layoutY="579.0" mnemonicParsing="false" onAction="#PostToInventory" text="Post To Inventory" />
       <Button fx:id="printbtn" layoutX="666.0" layoutY="580.0" mnemonicParsing="false" onAction="#export" text="Print" />
+      <Label layoutX="737.0" layoutY="248.0" text="/ 16">
+         <font>
+            <Font name="Arial Bold" size="17.0" />
+         </font>
+      </Label>
+      <Label fx:id="itemNum" layoutX="713.0" layoutY="248.0" text="00">
+         <font>
+            <Font name="Arial Bold" size="17.0" />
+         </font>
+      </Label>
+      <Label layoutX="637.0" layoutY="251.0" text="Total Items:">
+         <font>
+            <Font name="Arial" size="14.0" />
+         </font>
+      </Label>
    </children>
 </Pane>

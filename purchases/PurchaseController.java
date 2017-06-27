@@ -153,6 +153,7 @@ public class PurchaseController extends AbstractController implements Initializa
             povm.setPgistat(temp.get("pgistat").toString());
             povm.setStat(temp.get("status").toString());
             povm.setPrntstat(temp.get("prntstat").toString());
+            povm.setSupcname(temp.get("sup_c_name").toString());
             
             data.add(povm);
         }

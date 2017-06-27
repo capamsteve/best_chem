@@ -27,7 +27,7 @@ public class UtilitiesQuery {
         DBQuery db = DBQuery.getInstance();
         ArrayList list = new ArrayList();
         
-        PreparedStatement ps = dbc.getConnection().prepareStatement("call bestchem_db2.GET_UOM()");
+        PreparedStatement ps = dbc.getConnection().prepareStatement("call GET_UOM()");
         
         Iterator rs = db.getQueryResultSet(ps);
         
@@ -46,7 +46,7 @@ public class UtilitiesQuery {
         DBQuery db = DBQuery.getInstance();
         ArrayList list = new ArrayList();
         
-        PreparedStatement ps = dbc.getConnection().prepareStatement("call bestchem_db2.WAREHOUSE_GET()");
+        PreparedStatement ps = dbc.getConnection().prepareStatement("call WAREHOUSE_GET()");
         
         Iterator rs = db.getQueryResultSet(ps);
         
@@ -63,7 +63,7 @@ public class UtilitiesQuery {
     
     public void addUOM(String model) throws SQLException{
         DBConnect dbc = DBConnect.getInstance();
-        PreparedStatement ps = dbc.getConnection().prepareStatement("call bestchem_db2.ADD_UOM(?);");
+        PreparedStatement ps = dbc.getConnection().prepareStatement("call ADD_UOM(?);");
         
         ps.setString(1, model);
         
@@ -75,7 +75,7 @@ public class UtilitiesQuery {
     public void addWHS(String model) throws SQLException{
         DBConnect dbc = DBConnect.getInstance();
         
-        PreparedStatement ps = dbc.getConnection().prepareStatement("call bestchem_db2.WAREHOUSE_ADD(?);");
+        PreparedStatement ps = dbc.getConnection().prepareStatement("call WAREHOUSE_ADD(?);");
         
         ps.setString(1, model);
         

@@ -12,6 +12,7 @@ package viewmodels;
 public class UserViewModel {
     
     private int id;
+    private String uname;
     private String name;
     private String passwords;
     private String type;
@@ -70,6 +71,20 @@ public class UserViewModel {
      */
     public void setType(String type) {
         this.type = type;
+    }
+
+    /**
+     * @return the uname
+     */
+    public String getUname() {
+        return uname;
+    }
+
+    /**
+     * @param uname the uname to set
+     */
+    public void setUname(String uname) {
+        this.uname = uname;
     }
     
 }

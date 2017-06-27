@@ -321,7 +321,7 @@ public class SalesOrderController extends AbstractController implements Initiali
     public void addDR(ActionEvent event) throws IOException, SQLException {
         
         try{
-            if(!this.salestble.getSelectionModel().getSelectedItem().getStatus().equals("cancelled")){
+            if(!this.salestble.getSelectionModel().getSelectedItem().getStatus().equals("cancelled") && !this.salestble.getSelectionModel().getSelectedItem().getStatus().equals("complete")){
                 if(this.drq.getDRPGICount(this.salestble.getSelectionModel().getSelectedItem().getIdso()) == 0){
                     FXMLLoader fxmlloader = new FXMLLoader(getClass().getResource("/delivery/DeliveryReceiptView.fxml"));
                     Parent root = (Parent) fxmlloader.load();
@@ -339,17 +339,17 @@ public class SalesOrderController extends AbstractController implements Initiali
                     substage.initModality(Modality.WINDOW_MODAL);
                     substage.initOwner(stage);
                     substage.showAndWait();
+                    
+                    if(!drvc.isIsCancelled()){
+                        this.getDeliveryReceipts(this.salestble.getSelectionModel().getSelectedItem().getIdso());
+                        soq.changeStatSalesOrder(this.somod.getIdso(), Integer.valueOf(this.cust.getIdcustomer()), "With DR");
+                        if(drq.getDRPGICount1(this.somod.getIdso()) != 0){
+                            soq.changeStatSalesOrder(this.somod.getIdso(), Integer.valueOf(this.cust.getIdcustomer()), "Partially Delivered");
+                        }
+                        this.getSalesOrders();
+                    }
 
-                    this.getDeliveryReceipts(this.salestble.getSelectionModel().getSelectedItem().getIdso());
-                    soq.changeStatSalesOrder(this.somod.getIdso(), Integer.valueOf(this.cust.getIdcustomer()), "With DR");
-                    this.getSalesOrders();
-                    /**
-                    * 
-                    * SYSTEM CHECK HERE
-                    * 
-                    * 
-                    * 
-                    */
+                    
                 }else{
                     Alert alert = new Alert(Alert.AlertType.INFORMATION);
                     alert.setTitle("Information Dialog");
@@ -360,12 +360,15 @@ public class SalesOrderController extends AbstractController implements Initiali
                 }
                 
             }
-            else{
+            else {
                 Alert alert = new Alert(Alert.AlertType.INFORMATION);
                 alert.setTitle("Information Dialog");
                 alert.setHeaderText(null);
-                alert.setContentText("This Sales Order is already cancelled.");
-
+                if(this.salestble.getSelectionModel().getSelectedItem().getStatus().equals("complete")){
+                    alert.setContentText("This Sales Order is already cancelled.");
+                }else{
+                    alert.setContentText("This Sales Order is already complete.");
+                }
                 alert.showAndWait();
                 
             }
@@ -508,7 +511,7 @@ public class SalesOrderController extends AbstractController implements Initiali
     public void addSI(ActionEvent event) throws IOException, SQLException {
         
         try{
-            if(this.salestble.getSelectionModel().getSelectedItem().getStatus().equals("Partially Delivered")){
+            if(this.salestble.getSelectionModel().getSelectedItem().getStatus().equals("Partially Delivered") || this.salestble.getSelectionModel().getSelectedItem().getStatus().equals("complete")){
                 FXMLLoader fxmlloader = new FXMLLoader(getClass().getResource("/salesinvoices/SalesInvoiceView.fxml"));
                 Parent root = (Parent) fxmlloader.load();
 

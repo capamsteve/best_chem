@@ -28,7 +28,7 @@ public class SalesInvoiceQuery {
         
         DBConnect dbc = DBConnect.getInstance();
         
-        PreparedStatement st = dbc.getConnection().prepareStatement("call bestchem_db2.SI_ADD(?,?,?,?,?,?,?,?,?,?);", Statement.RETURN_GENERATED_KEYS);
+        PreparedStatement st = dbc.getConnection().prepareStatement("call SI_ADD(?,?,?,?,?,?,?,?,?,?);", Statement.RETURN_GENERATED_KEYS);
         
         st.setInt(1, simod.getCustomerid());
         st.setInt(2, simod.getSoidnvc());
@@ -61,7 +61,7 @@ public class SalesInvoiceQuery {
         
         DBConnect dbc = DBConnect.getInstance();
         
-        PreparedStatement ps = dbc.getConnection().prepareStatement("call bestchem_db2.SI_ITEMS_ADD(?,?);");
+        PreparedStatement ps = dbc.getConnection().prepareStatement("call SI_ITEMS_ADD(?,?);");
         while(items.hasNext()){
             SItemsModel item = (SItemsModel) items.next();
             
@@ -96,7 +96,7 @@ public class SalesInvoiceQuery {
     public void deleteInvoiceItems(Iterator items) throws SQLException{
         DBConnect dbc = DBConnect.getInstance();
         
-        PreparedStatement ps = dbc.getConnection().prepareStatement("UPDATE `bestchem_db2`.`salesinvoiceitems` SET `status`='DELETED' WHERE `idsalesinvoiceitems`=?;");
+        PreparedStatement ps = dbc.getConnection().prepareStatement("UPDATE `salesinvoiceitems` SET `status`='DELETED' WHERE `idsalesinvoiceitems`=?;");
         while(items.hasNext()){
             SItemsModel item = (SItemsModel) items.next();
             
@@ -115,7 +115,7 @@ public class SalesInvoiceQuery {
         DBQuery dbq = DBQuery.getInstance();
         DBConnect dbc = DBConnect.getInstance();
         
-        PreparedStatement st = dbc.getConnection().prepareStatement("SELECT * FROM bestchem_db2.salesinvoices where soidinvc = ?;");
+        PreparedStatement st = dbc.getConnection().prepareStatement("SELECT * FROM salesinvoices where soidinvc = ?;");
         
         st.setInt(1, soid);
         
@@ -129,7 +129,7 @@ public class SalesInvoiceQuery {
         DBQuery dbq = DBQuery.getInstance();
         DBConnect dbc = DBConnect.getInstance();
         
-        PreparedStatement st = dbc.getConnection().prepareStatement("SELECT * FROM bestchem_db2.salesinvoices where idsalesinvoices = ?;");
+        PreparedStatement st = dbc.getConnection().prepareStatement("SELECT * FROM salesinvoices where idsalesinvoices = ?;");
         
         st.setInt(1, id);
         
@@ -203,7 +203,7 @@ public class SalesInvoiceQuery {
             DBQuery dbq = DBQuery.getInstance();
             DBConnect dbc = DBConnect.getInstance();
 
-            PreparedStatement st = dbc.getConnection().prepareStatement("SELECT * FROM bestchem_db2.print_invoice where billing_id = ? and `status` = 'PRINT';");
+            PreparedStatement st = dbc.getConnection().prepareStatement("SELECT * FROM print_invoice where billing_id = ? and `status` = 'PRINT';");
 
             st.setInt(1, biid);
 
@@ -217,7 +217,7 @@ public class SalesInvoiceQuery {
             }
             
 
-            PreparedStatement st2 = dbc.getConnection().prepareStatement("UPDATE `bestchem_db2`.`print_invoice` SET `status`='CANCELLED' WHERE `idprint_invoice`=?;");
+            PreparedStatement st2 = dbc.getConnection().prepareStatement("UPDATE `print_invoice` SET `status`='CANCELLED' WHERE `idprint_invoice`=?;");
 
             st2.setInt(1, prnt_id);
             
@@ -242,7 +242,7 @@ public class SalesInvoiceQuery {
         DBQuery dbq = DBQuery.getInstance();
         DBConnect dbc = DBConnect.getInstance();
 
-        PreparedStatement st = dbc.getConnection().prepareStatement("UPDATE `bestchem_db2`.`salesinvoices` SET `printstat`='Y' WHERE `idsalesinvoices`=?;");
+        PreparedStatement st = dbc.getConnection().prepareStatement("UPDATE `salesinvoices` SET `printstat`='Y' WHERE `idsalesinvoices`=?;");
 
         st.setInt(1, biid);
         
@@ -254,7 +254,7 @@ public class SalesInvoiceQuery {
         DBQuery dbq = DBQuery.getInstance();
         DBConnect dbc = DBConnect.getInstance();
 
-        PreparedStatement st = dbc.getConnection().prepareStatement("UPDATE `bestchem_db2`.`salesinvoices` SET `status`='complete' WHERE `idsalesinvoices`=?;");
+        PreparedStatement st = dbc.getConnection().prepareStatement("UPDATE `salesinvoices` SET `status`='complete' WHERE `idsalesinvoices`=?;");
 
         st.setInt(1, biid);
         

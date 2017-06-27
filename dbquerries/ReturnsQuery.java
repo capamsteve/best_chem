@@ -35,10 +35,10 @@ public class ReturnsQuery {
         String query = "";
         
         if(table == 1){
-            query = "call bestchem_db2.RETURNS_ADD(?,?,?,?,?);";
+            query = "call RETURNS_ADD(?,?,?,?,?);";
         }
         else if(table == 2){
-            query = "call bestchem_db2.MM_RETURNS_ADD(?,?,?,?,?);";
+            query = "call MM_RETURNS_ADD(?,?,?,?,?);";
         }
                 
         DBQuery dbq = DBQuery.getInstance();
@@ -62,10 +62,10 @@ public class ReturnsQuery {
         String query = "";
         
         if(table == 1){
-            query = "SELECT * FROM bestchem_db2.returns;";
+            query = "SELECT * FROM returns;";
         }
         else if(table == 2){
-            query = "SELECT * FROM bestchem_db2.mm_returns;";
+            query = "SELECT * FROM mm_returns;";
         }
         
         DBQuery db = DBQuery.getInstance();
@@ -98,10 +98,10 @@ public class ReturnsQuery {
         String query = "";
         
         if(table == 1){
-            query = "SELECT * FROM bestchem_db2.returns where idreturns = ?;";
+            query = "SELECT * FROM returns where idreturns = ?;";
         }
         else if(table == 2){
-            query = "SELECT * FROM bestchem_db2.mm_returns where idreturns = ?;";
+            query = "SELECT * FROM mm_returns where idreturns = ?;";
         }
         
         DBQuery db = DBQuery.getInstance();
@@ -134,10 +134,10 @@ public class ReturnsQuery {
         String query = "";
         
         if(table == 1){
-            query = "SELECT * FROM bestchem_db2.returns where sku LIKE ?;";
+            query = "SELECT * FROM returns where sku LIKE ?;";
         }
         else if(table == 2){
-            query = "SELECT * FROM bestchem_db2.mm_returns where sku LIKE ?;";
+            query = "SELECT * FROM mm_returns where sku LIKE ?;";
         }
         
         DBQuery dbq = DBQuery.getInstance();
@@ -173,10 +173,10 @@ public class ReturnsQuery {
         String query = "";
         
         if(table == 1){
-            query = "call bestchem_db2.RETURNS_EDIT(?,?,?,?,?);";
+            query = "call RETURNS_EDIT(?,?,?,?,?);";
         }
         else if(table == 2){
-            query = "call bestchem_db2.MM_RETURNS_EDIT(?,?,?,?,?);";
+            query = "call MM_RETURNS_EDIT(?,?,?,?,?);";
         }
                 
         DBQuery dbq = DBQuery.getInstance();
@@ -238,6 +238,9 @@ public class ReturnsQuery {
         if(table == 1){
             query = "CALL RETURNS_ADJ_EDIT(?,?,?,?)";
         }
+        else{
+            query = "CALL MM_RETURNS_ADJ_EDIT(?,?,?,?)";
+        }
         
         DBQuery dbq = DBQuery.getInstance();
         DBConnect dbc = DBConnect.getInstance();
@@ -290,6 +293,9 @@ public class ReturnsQuery {
         if(table == 1){
             query = "call `RETURNS_ADJ_EDIT_ITEMS`(?);";
         }
+        else{
+            query = "call `MM_RETURNS_ADJ_EDIT_ITEMS`(?);";
+        }
         
         DBConnect dbc = DBConnect.getInstance();
         
@@ -315,10 +321,10 @@ public class ReturnsQuery {
         String query = "";
         
         if(table == 1){
-            query = "SELECT * FROM bestchem_db2.returns_adjustments;";
+            query = "SELECT * FROM returns_adjustments;";
         }
         else if(table == 2){
-            query = "SELECT * FROM bestchem_db2.mm_returns_adjustments;";
+            query = "SELECT * FROM mm_returns_adjustments;";
         }
         
         ArrayList<ReturnAdjustmentModel> ramlist = new ArrayList();
@@ -353,7 +359,7 @@ public class ReturnsQuery {
             query = "CALL `RETURNS_ADJ_GET_ITEMS`(?)";
         }
         else if(table == 2){
-            query = "SELECT * FROM bestchem_db2.returns_adjustments_items where return_id = ?;";
+            query = "CALL `MM_RETURNS_ADJ_GET_ITEMS`(?)";
         }
         
         ArrayList<ReturnsModel> ramlist = new ArrayList();
@@ -388,13 +394,28 @@ public class ReturnsQuery {
         return ramlist.iterator();
     }
     
-    public void PostReturnAdjustment(Iterator items, int ramid) throws SQLException{
+    public void PostReturnAdjustment(Iterator items, int ramid, int type) throws SQLException{
         
         DBConnect dbc = DBConnect.getInstance();
         
-        PreparedStatement ps = dbc.getConnection().prepareStatement("CALL `RETURNS_ADJ_PGI_STAT`(?)");
-        PreparedStatement ps1 = dbc.getConnection().prepareStatement("CALL `UPDATE_RETURNS_DEC`(?,?,?)");
-        PreparedStatement ps2 = dbc.getConnection().prepareStatement("CALL `UPDATE_RETURNS_INC`(?,?,?)");
+        String query1 = "";
+        String query2 = "";
+        String query3 = "";
+        
+        if(type == 1){
+            query1 = "CALL `RETURNS_ADJ_PGI_STAT`(?)";
+            query2 = "CALL `UPDATE_RETURNS_DEC`(?,?,?)";
+            query3 = "CALL `UPDATE_RETURNS_INC`(?,?,?)";
+        }
+        else{
+            query1 = "CALL `MM_RETURNS_ADJ_PGI_STAT`(?)";
+            query2 = "CALL `MM_UPDATE_RETURNS_DEC`(?,?,?)";
+            query3 = "CALL `MM_UPDATE_RETURNS_INC`(?,?,?)";
+        }
+        
+        PreparedStatement ps = dbc.getConnection().prepareStatement(query1);
+        PreparedStatement ps1 = dbc.getConnection().prepareStatement(query2);
+        PreparedStatement ps2 = dbc.getConnection().prepareStatement(query3);
         
         ps.setInt(1, ramid);
         

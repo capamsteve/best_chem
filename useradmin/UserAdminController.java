@@ -59,7 +59,7 @@ public class UserAdminController implements Initializable {
     public void getUsers() throws SQLException{
         Iterator ir = uq.getUsers();
         
-        String[] arr = {"id", "name", "passwords", "type"};
+        String[] arr = {"id", "name", "uname", "passwords", "type"};
         
         ObservableList<UserViewModel> data
                 = FXCollections.observableArrayList();
@@ -69,6 +69,7 @@ public class UserAdminController implements Initializable {
             UserViewModel uv = new UserViewModel();
             uv.setId(Integer.valueOf(map.get("idusers").toString()));
             uv.setName(map.get("username").toString());
+            uv.setUname(map.get("name").toString());
             uv.setPasswords(map.get("password").toString());
             uv.setType(map.get("usertype").toString());
             
@@ -91,6 +92,13 @@ public class UserAdminController implements Initializable {
 
     @FXML
     private Button addbtn;
+    
+    @FXML
+    private Button editbtn;
+
+    @FXML
+    private Button editpassbtn;
+
 
     @FXML
     public void AddUser(ActionEvent event) throws IOException, SQLException {
@@ -109,5 +117,15 @@ public class UserAdminController implements Initializable {
         substage.showAndWait();
         
         this.getUsers();
+    }
+    
+    @FXML
+    void EditUser(ActionEvent event) {
+
+    }
+
+    @FXML
+    void editPassword(ActionEvent event) {
+
     }
 }

@@ -5,6 +5,8 @@
  */
 package models;
 
+import java.math.RoundingMode;
+import java.text.NumberFormat;
 import java.util.ArrayList;
 
 /**
@@ -20,15 +22,23 @@ public class InventoryModel {
     private String wh;
     private int soh;
     private int csl;
+    private int units;
+    private String invent_type;
     private double poprice;
+    private String poprice1;
     private double sellprice;
+    private String sellprice1;
     private String mov;
     private int iadjid;
     private int iadjid_item;
     private int mgi_id;
     private int mgiid_item;
+    private int st_id;
+    private int stitem_id;
     private String pgistat;
     private ArrayList<PricesModel> prices;
+    private String remarks;
+    private NumberFormat nf= NumberFormat.getInstance();
     
     //public InventoryModel(){
     //    this.prices = new ArrayList();
@@ -36,6 +46,9 @@ public class InventoryModel {
     public InventoryModel(Integer id){
         this.prices = new ArrayList();
         this.idinventory = id;
+        nf.setMaximumFractionDigits(2);
+        nf.setMinimumFractionDigits(2);
+        nf.setRoundingMode(RoundingMode.HALF_EVEN);
     }
 
     /**
@@ -292,6 +305,104 @@ public class InventoryModel {
      */
     public void setPgistat(String pgistat) {
         this.pgistat = pgistat;
+    }
+
+    /**
+     * @return the poprice1
+     */
+    public String getPoprice1() {
+        return poprice1;
+    }
+
+    /**
+     * @param poprice1 the poprice1 to set
+     */
+    public void setPoprice1() {
+        this.poprice1 = nf.format(this.poprice);
+    }
+
+    /**
+     * @return the sellprice1
+     */
+    public String getSellprice1() {
+        return sellprice1;
+    }
+
+    /**
+     * @param sellprice1 the sellprice1 to set
+     */
+    public void setSellprice1() {
+        this.sellprice1 = nf.format(this.sellprice);
+    }
+
+    /**
+     * @return the units
+     */
+    public int getUnits() {
+        return units;
+    }
+
+    /**
+     * @param units the units to set
+     */
+    public void setUnits(int units) {
+        this.units = units;
+    }
+
+    /**
+     * @return the remarks
+     */
+    public String getRemarks() {
+        return remarks;
+    }
+
+    /**
+     * @param remarks the remarks to set
+     */
+    public void setRemarks(String remarks) {
+        this.remarks = remarks;
+    }
+
+    /**
+     * @return the st_id
+     */
+    public int getSt_id() {
+        return st_id;
+    }
+
+    /**
+     * @param st_id the st_id to set
+     */
+    public void setSt_id(int st_id) {
+        this.st_id = st_id;
+    }
+
+    /**
+     * @return the stitem_id
+     */
+    public int getStitem_id() {
+        return stitem_id;
+    }
+
+    /**
+     * @param stitem_id the stitem_id to set
+     */
+    public void setStitem_id(int stitem_id) {
+        this.stitem_id = stitem_id;
+    }
+
+    /**
+     * @return the invent_type
+     */
+    public String getInvent_type() {
+        return invent_type;
+    }
+
+    /**
+     * @param invent_type the invent_type to set
+     */
+    public void setInvent_type(String invent_type) {
+        this.invent_type = invent_type;
     }
     
 }

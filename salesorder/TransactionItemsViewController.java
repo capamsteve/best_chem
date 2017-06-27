@@ -12,23 +12,30 @@ import com.itextpdf.kernel.font.PdfFontFactory;
 import com.itextpdf.kernel.pdf.PdfDocument;
 import com.itextpdf.kernel.pdf.PdfWriter;
 import com.itextpdf.layout.Document;
+import com.itextpdf.layout.border.Border;
+import com.itextpdf.layout.element.Cell;
 import com.itextpdf.layout.element.List;
 import com.itextpdf.layout.element.ListItem;
 import com.itextpdf.layout.element.Paragraph;
+import com.itextpdf.layout.element.Table;
+import com.itextpdf.layout.property.TextAlignment;
 import customer.CustomerViewController;
 import dbquerries.DeliveryReceiptsQuery;
 import dbquerries.SalesInvoiceQuery;
 import dbquerries.SalesOrderQuery;
 import java.io.File;
 import java.io.IOException;
+import java.math.RoundingMode;
 import java.net.URL;
 import java.sql.Date;
 import java.sql.SQLException;
+import java.text.NumberFormat;
 import java.text.SimpleDateFormat;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.Locale;
 import java.util.Optional;
 import java.util.ResourceBundle;
 import javafx.collections.FXCollections;
@@ -184,7 +191,6 @@ public class TransactionItemsViewController extends AbstractController implement
         }
         
         this.RefreshItems();
-        this.itemNum.setText(String.valueOf(this.itemsList.size()));
         this.prntbtn.setDisable(true);
         this.computeTotal();
     }
@@ -192,6 +198,7 @@ public class TransactionItemsViewController extends AbstractController implement
     public void ViewMode(CustomerModel cust, SOViewModel somodel) throws SQLException{
         
         this.customer = cust;
+        this.sovm1 = somodel;
         
         this.statfld.setText(somodel.getStatus());
         this.statfld.setEditable(false);
@@ -234,17 +241,19 @@ public class TransactionItemsViewController extends AbstractController implement
         }
         
         this.RefreshItems();
-        this.itemNum.setText(String.valueOf(this.itemsList.size()));
         this.computeTotal();
         
     }
     
     public void RefreshItems(){
-        String[] arr = {"sku", "desc", "qty", "uom", "uprice", "amount", "vat"};
+        String[] arr = {"sku", "desc", "qty", "uom", "uprice1", "amount1", "vat1"};
         ObservableList<SOItemModel> data
                 = FXCollections.observableArrayList();
         
         for(int i = 0; i < this.itemsList.size(); i++){
+            itemsList.get(i).setAmount1();
+            itemsList.get(i).setUprice1();
+            itemsList.get(i).setVat1();
             data.add(itemsList.get(i));
         }
         ObservableList<TableColumn<SOItemModel, ?>> olist = (ObservableList<TableColumn<SOItemModel, ?>>) itemlist.getColumns();
@@ -253,9 +262,20 @@ public class TransactionItemsViewController extends AbstractController implement
             olist.get(i).setCellValueFactory(
                     new PropertyValueFactory<>(arr[i])
             );
+            if(i == 2 || i == 4 || i == 5 || i == 6){
+                olist.get(i).setStyle("-fx-alignment: CENTER-RIGHT;");
+            }
+            else if(i == 3){
+                olist.get(i).setStyle("-fx-alignment: CENTER;");
+            }
+            else{
+                olist.get(i).setStyle("-fx-alignment: CENTER-LEFT;");
+            }
+            
         }
         
         this.itemlist.setItems(data);
+        this.itemNum.setText(String.valueOf(this.itemsList.size()));
     }
     
     @FXML
@@ -307,7 +327,6 @@ public class TransactionItemsViewController extends AbstractController implement
                     alert.showAndWait();
                 }
                 
-                this.itemNum.setText(String.valueOf(itemsList.size()));
                 this.RefreshItems();
                 this.computeTotal();
             }
@@ -331,7 +350,12 @@ public class TransactionItemsViewController extends AbstractController implement
             total += model.getAmount();
         }
         
-        this.totalfld.setText(String.valueOf(total));
+        NumberFormat nf= NumberFormat.getInstance();
+        nf.setMaximumFractionDigits(2);
+        nf.setMinimumFractionDigits(2);
+        nf.setRoundingMode(RoundingMode.HALF_EVEN);
+        
+        this.totalfld.setText(nf.format(total));
     }
 
     @FXML
@@ -411,17 +435,27 @@ public class TransactionItemsViewController extends AbstractController implement
     
     @FXML
     void cancelSO(ActionEvent event) throws SQLException {
-        
-        Alert alert = new Alert(AlertType.CONFIRMATION);
-        alert.setTitle("Confirmation");
-        String s = "Cancel this sales order?";
-        alert.setContentText(s);
-        
-        Stage stage = (Stage) cancelbtn.getScene().getWindow();
-        Optional<ButtonType> result = alert.showAndWait();
-        if ((result.isPresent()) && (result.get() == ButtonType.OK)) {
-            soq.cancelSalesOrder(Integer.parseInt(this.soidfld.getText()), Integer.parseInt(this.customer.getIdcustomer()), "cancelled", "DELETED");
-            stage.close();
+        if(drq.getDRCount(this.sovm1.getIdso()) == 0){
+            
+            Alert alert = new Alert(AlertType.CONFIRMATION);
+            alert.setTitle("Confirmation");
+            String s = "Cancel this sales order?";
+            alert.setContentText(s);
+
+            Stage stage = (Stage) cancelbtn.getScene().getWindow();
+            Optional<ButtonType> result = alert.showAndWait();
+            if ((result.isPresent()) && (result.get() == ButtonType.OK)) {
+                soq.cancelSalesOrder(Integer.parseInt(this.soidfld.getText()), Integer.parseInt(this.customer.getIdcustomer()), "cancelled", "DELETED");
+                stage.close();
+            }
+        }
+        else{
+            Alert alert = new Alert(Alert.AlertType.INFORMATION);
+            alert.setTitle("Information Dialog");
+            alert.setHeaderText(null);
+            alert.setContentText("You have an open Delivery Receipt.");
+
+            alert.showAndWait();
         }
     }
     
@@ -538,26 +572,85 @@ public class TransactionItemsViewController extends AbstractController implement
                 + "\nCustomer PO: " + this.cpofld.getText()
                 + "\nAdddress: " + this.customer.getAddress()
         ).setFont(font));
-
-        List list = new List()
-            .setSymbolIndent(12)
-            .setListSymbol("\u00a0")
-            .setFont(font);
-
-        for(int i = 0; i < this.itemsList.size(); i++){
-            list.add(new ListItem(this.itemsList.get(i).getSku() + "\u00a0 \u00a0 \u00a0 \u00a0"
-                    + this.itemsList.get(i).getDesc() + "\u00a0 \u00a0 \u00a0 \u00a0"
-                    + this.itemsList.get(i).getQty() + "\u00a0 \u00a0 \u00a0 \u00a0"
-                    + this.itemsList.get(i).getUprice() + "\u00a0 \u00a0 \u00a0 \u00a0"
-                    + this.itemsList.get(i).getAmount() + "\u00a0 \u00a0 \u00a0 \u00a0"
-                    + ""));
-        }
-       
-        // Add the list
-        list.add(new ListItem("\u00a0 \u00a0 \u00a0 \u00a0 **************Nothing Follows**************"));
-        document.add(list.setFont(font));
         
-        document.add(new Paragraph("Total: " + this.totalfld.getText()).setFont(font));
+        document.add(new Paragraph(""));
+        
+        Table table = new Table(new float[]{50f, 240f, 47f, 100f, 113f});
+        
+        Cell cell; 
+        cell = new Cell().add("SKU").setTextAlignment(TextAlignment.CENTER);
+        //cell.setBorder(Border.NO_BORDER);
+        table.addCell(cell);
+        cell = new Cell().add("Description").setTextAlignment(TextAlignment.CENTER);
+        //cell.setBorder(Border.NO_BORDER);
+        table.addCell(cell);
+        cell = new Cell().add("Quantity").setTextAlignment(TextAlignment.CENTER);
+        //cell.setBorder(Border.NO_BORDER);
+        table.addCell(cell);
+        cell = new Cell().add("Unit Price").setTextAlignment(TextAlignment.CENTER);
+        //cell.setBorder(Border.NO_BORDER);
+        table.addCell(cell);
+        cell = new Cell().add("Amount").setTextAlignment(TextAlignment.CENTER);
+        //cell.setBorder(Border.NO_BORDER);
+        table.addCell(cell);
+        
+        NumberFormat nf= NumberFormat.getInstance();
+        nf.setMaximumFractionDigits(2);
+        nf.setMinimumFractionDigits(2);
+        nf.setRoundingMode(RoundingMode.UNNECESSARY);
+        
+        for (int i = 0; i < this.itemsList.size(); i++) {
+            cell = new Cell().add(this.itemsList.get(i).getSku()).setTextAlignment(TextAlignment.CENTER);
+            cell.setBorderBottom(Border.NO_BORDER);
+            table.addCell(cell);
+            cell = new Cell().add(this.itemsList.get(i).getDesc()).setTextAlignment(TextAlignment.CENTER);
+            cell.setBorderBottom(Border.NO_BORDER);
+            table.addCell(cell);
+            cell = new Cell().add(String.valueOf(this.itemsList.get(i).getQty())).setTextAlignment(TextAlignment.RIGHT);
+            cell.setBorderBottom(Border.NO_BORDER);
+            table.addCell(cell);
+            this.itemsList.get(i).setUprice1();
+            cell = new Cell().add(new Paragraph("Php " + this.itemsList.get(i).getUprice1())).setTextAlignment(TextAlignment.CENTER);
+            cell.setBorderBottom(Border.NO_BORDER);
+            table.addCell(cell);
+            this.itemsList.get(i).setAmount1();
+            cell = new Cell().add(new Paragraph("Php " + this.itemsList.get(i).getAmount1())).setTextAlignment(TextAlignment.RIGHT);
+            cell.setBorderBottom(Border.NO_BORDER);
+            table.addCell(cell);
+        }
+        
+        cell = new Cell().add("");
+        table.addCell(cell);
+        cell = new Cell().add("****NOTHING FOLLOWS*****");
+        table.addCell(cell);
+        cell = new Cell().add("");
+        table.addCell(cell);
+        cell = new Cell().add("");
+        //cell.setBorder(Border.NO_BORDER);
+        table.addCell(cell);
+        cell = new Cell().add("");
+        //cell.setBorder(Border.NO_BORDER);
+        table.addCell(cell);
+        //table.setBorder(Border.NO_BORDER);
+        
+        cell = new Cell().add("");
+        cell.setBorder(Border.NO_BORDER);
+        table.addCell(cell);
+        cell = new Cell().add("");
+        cell.setBorder(Border.NO_BORDER);
+        table.addCell(cell);
+        cell = new Cell().add("");
+        cell.setBorder(Border.NO_BORDER);
+        table.addCell(cell);
+        cell = new Cell().add("Total:");
+        //cell.setBorder(Border.NO_BORDER);
+        table.addCell(cell);
+        cell = new Cell().add(new Paragraph("Php " + totalfld.getText())).setTextAlignment(TextAlignment.RIGHT);
+        //cell.setBorder(Border.NO_BORDER);
+        table.addCell(cell);
+        //table.setBorder(Border.NO_BORDER);
+        
+        document.add(table.setFont(font));
         
         document.close();
 

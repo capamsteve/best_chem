@@ -54,12 +54,13 @@
          <children>
             <TableView fx:id="itemlist" prefHeight="282.0" prefWidth="60.0">
                <columns>
-                  <TableColumn prefWidth="147.0" resizable="false" text="SKU#" />
-                  <TableColumn prefWidth="257.0" resizable="false" text="SKU Description" />
-                  <TableColumn prefWidth="92.0" resizable="false" text="Order Quantity" />
-                  <TableColumn prefWidth="109.0" resizable="false" text="Delivery Quantity" />
-                  <TableColumn editable="false" prefWidth="129.0" resizable="false" sortable="false" text="Remaining Quantity" />
+                  <TableColumn prefWidth="111.0" resizable="false" text="SKU#" />
+                  <TableColumn prefWidth="264.0" resizable="false" text="SKU Description" />
+                  <TableColumn prefWidth="95.0" resizable="false" text="Order Quantity" />
+                  <TableColumn prefWidth="105.0" resizable="false" text="Delivery Quantity" />
+                  <TableColumn editable="false" prefWidth="123.0" resizable="false" sortable="false" text="Remaining Quantity" />
                   <TableColumn minWidth="0.0" prefWidth="36.0" resizable="false" text="UOM" />
+                  <TableColumn minWidth="0.0" prefWidth="36.0" resizable="false" text="SOH" />
                </columns>
             </TableView>
          </children>

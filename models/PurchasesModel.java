@@ -23,6 +23,8 @@ public class PurchasesModel {
     private String stat;
     private String pgistat;
     private String prntstat;
+    private String supplier;
+    private String address;
     
     private ArrayList<PurchaseItemModel> purchases;
     
@@ -168,6 +170,34 @@ public class PurchasesModel {
      */
     public void setStat(String stat) {
         this.stat = stat;
+    }
+
+    /**
+     * @return the supplier
+     */
+    public String getSupplier() {
+        return supplier;
+    }
+
+    /**
+     * @param supplier the supplier to set
+     */
+    public void setSupplier(String supplier) {
+        this.supplier = supplier;
+    }
+
+    /**
+     * @return the address
+     */
+    public String getAddress() {
+        return address;
+    }
+
+    /**
+     * @param address the address to set
+     */
+    public void setAddress(String address) {
+        this.address = address;
     }
     
 }

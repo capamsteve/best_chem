@@ -6,9 +6,9 @@
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
 
-<Pane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="400.0" prefWidth="702.0" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1" fx:controller="purchases.PGRDocumentController">
+<Pane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="400.0" prefWidth="880.0" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1" fx:controller="purchases.PGRDocumentController">
    <children>
-      <StackPane layoutX="29.0" layoutY="65.0" prefHeight="282.0" prefWidth="644.0">
+      <StackPane layoutX="19.0" layoutY="65.0" prefHeight="282.0" prefWidth="844.0">
          <children>
             <TableView fx:id="itemlist" prefHeight="282.0" prefWidth="60.0">
                <columns>
@@ -17,16 +17,18 @@
                   <TableColumn prefWidth="92.0" resizable="false" text="Order Quantity" />
                   <TableColumn prefWidth="109.0" resizable="false" text="Actual Quantity" />
                   <TableColumn minWidth="0.0" prefWidth="36.0" resizable="false" text="UOM" />
+                  <TableColumn minWidth="0.0" prefWidth="202.0" resizable="false" text="Batch Number" />
                </columns>
             </TableView>
          </children>
       </StackPane>
-      <ToolBar layoutX="29.0" layoutY="25.0" prefHeight="40.0" prefWidth="644.0">
+      <ToolBar layoutX="19.0" layoutY="25.0" prefHeight="40.0" prefWidth="844.0">
          <items>
             <Button fx:id="editbtn" mnemonicParsing="false" onAction="#EditItem" text="Edit Delivery Quantity" />
             <Button fx:id="resetbtn" mnemonicParsing="false" onAction="#ResetItems" text="Reset" />
+            <Button fx:id="editbatchbtn" mnemonicParsing="false" onAction="#editBatch" text="Edit Batch Number" />
          </items>
       </ToolBar>
-      <Button fx:id="pgrbtn" layoutX="560.0" layoutY="361.0" mnemonicParsing="false" onAction="#PostToInventory" text="Post Good Receipt" />
+      <Button fx:id="pgrbtn" layoutX="748.0" layoutY="355.0" mnemonicParsing="false" onAction="#PostToInventory" text="Post Good Receipt" />
    </children>
 </Pane>

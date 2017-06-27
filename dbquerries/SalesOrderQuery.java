@@ -25,7 +25,7 @@ public class SalesOrderQuery {
     public void addSalesOrder(SalesOrderModel somodel) throws SQLException{
         DBConnect dbc = DBConnect.getInstance();
         
-        PreparedStatement st = dbc.getConnection().prepareStatement("call bestchem_db2.SalesOrder_ADD(?,?,?,?);", Statement.RETURN_GENERATED_KEYS);
+        PreparedStatement st = dbc.getConnection().prepareStatement("call SalesOrder_ADD(?,?,?,?);", Statement.RETURN_GENERATED_KEYS);
         
         st.setString(1, somodel.getCustomerpo());
         st.setInt(2, somodel.getCustid());
@@ -50,7 +50,7 @@ public class SalesOrderQuery {
     public void addSalesOrderItems(Iterator items, int salesid) throws SQLException{
         DBConnect dbc = DBConnect.getInstance();
         
-        PreparedStatement ps = dbc.getConnection().prepareStatement("call bestchem_db2.SALESORDERITEMS_ADD(?,?,?,?,?,?,?,?);");
+        PreparedStatement ps = dbc.getConnection().prepareStatement("call SALESORDERITEMS_ADD(?,?,?,?,?,?,?,?);");
         while(items.hasNext()){
             SOItemModel item = (SOItemModel) items.next();
             
@@ -75,7 +75,7 @@ public class SalesOrderQuery {
         DBConnect dbc = DBConnect.getInstance();
         DBQuery dbq = DBQuery.getInstance();
         
-        PreparedStatement ps = dbc.getConnection().prepareStatement("SELECT idsalesorder, sodate, status, sodeliverydate, customerpo FROM bestchem_db2.salesorders where customer_idcustomer = ?;");
+        PreparedStatement ps = dbc.getConnection().prepareStatement("SELECT idsalesorder, sodate, status, sodeliverydate, customerpo FROM salesorders where customer_idcustomer = ?;");
         ps.setInt(1, customer);
         
         Iterator rs = dbq.getQueryResultSet(ps);
@@ -218,7 +218,7 @@ public class SalesOrderQuery {
         DBQuery dbq = DBQuery.getInstance();
         DBConnect dbc = DBConnect.getInstance();
         
-        PreparedStatement st = dbc.getConnection().prepareStatement("SELECT * FROM bestchem_db2.salesorders where customer_idcustomer = ? AND salesorders.idsalesorder LIKE ?;");
+        PreparedStatement st = dbc.getConnection().prepareStatement("SELECT * FROM salesorders where customer_idcustomer = ? AND salesorders.idsalesorder LIKE ?;");
         
         soid = "%" + soid + "%";
         

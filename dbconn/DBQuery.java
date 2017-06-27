@@ -46,6 +46,21 @@ public class DBQuery {
             return null;
         }
     }
+    public Iterator getQueryResultSet2(PreparedStatement pt) {
+        try {
+            DBConnect dbc = DBConnect.getInstance();
+            Connection con = dbc.getConnection();
+            Iterator list;
+            try (ResultSet rs = pt.executeQuery()) {
+                list = this.resultSetToArrayListLabels(rs);
+            }
+            dbc.closeConnection();
+            return list;
+        } catch (Exception e) {
+            e.printStackTrace();
+            return null;
+        }
+    }
     
     public void executeUpdateQuery(PreparedStatement pt) {
         try {
@@ -64,8 +79,23 @@ public class DBQuery {
         ArrayList list = new ArrayList(50);
         while (rs.next()){
            HashMap row = new HashMap(columns);
-           for(int i=1; i<=columns; ++i){           
+           for(int i=1; i<=columns; ++i){
             row.put(md.getColumnName(i),rs.getObject(i));
+           }
+            list.add(row);
+        }
+
+       return list.iterator();
+      }
+    
+    private Iterator resultSetToArrayListLabels(ResultSet rs) throws SQLException{
+        ResultSetMetaData md = rs.getMetaData();
+        int columns = md.getColumnCount();
+        ArrayList list = new ArrayList(50);
+        while (rs.next()){
+           HashMap row = new HashMap(columns);
+           for(int i=1; i<=columns; ++i){
+            row.put(md.getColumnLabel(i),rs.getObject(i));
            }
             list.add(row);
         }

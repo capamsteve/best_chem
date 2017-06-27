@@ -53,6 +53,7 @@ import models.SItemsModel;
 import models.SOItemModel;
 import models.UserModel;
 import org.apache.poi.ss.usermodel.Cell;
+import org.apache.poi.ss.usermodel.HorizontalAlignment;
 import org.apache.poi.xssf.usermodel.XSSFCellStyle;
 import org.apache.poi.xssf.usermodel.XSSFFont;
 import org.apache.poi.xssf.usermodel.XSSFRow;
@@ -162,6 +163,8 @@ public class SalesInvoiceController extends AbstractController implements Initia
     @FXML
     private TextField totalfld;
     
+    private double tots;
+    
     /**
      * Initializes the controller class.
      */
@@ -181,6 +184,7 @@ public class SalesInvoiceController extends AbstractController implements Initia
         
         System.out.println(cust.getCompany());
         System.out.println(sovm.getCustomerpo());
+        System.out.println(model.getVendor_code());
         
     }
     
@@ -520,12 +524,18 @@ public class SalesInvoiceController extends AbstractController implements Initia
     }
     
     public void RefreshLineItems() throws SQLException{
-        String[] arr2 = {"sku", "desc", "qty", "uom", "uprice", "discnt", "amount", "vat"};
+        String[] arr2 = {"sku", "desc", "qty", "uom", "uprice1", "discnt1", "amount1", "vat1"};
         
         ObservableList<SOItemModel> data2
                 = FXCollections.observableArrayList();
-        
-        data2.addAll(this.items1);
+        for(int i = 0; i < this.items1.size(); i++){
+            this.items1.get(i).setAmount1();
+            this.items1.get(i).setDiscnt1();
+            this.items1.get(i).setUprice1();
+            this.items1.get(i).setVat1();
+            
+            data2.add(this.items1.get(i));
+        }
         
         ObservableList<TableColumn<SOItemModel, ?>> olist2;
         olist2 = (ObservableList<TableColumn<SOItemModel, ?>>) this.itemlist1.getColumns();
@@ -534,6 +544,15 @@ public class SalesInvoiceController extends AbstractController implements Initia
             olist2.get(i).setCellValueFactory(
                     new PropertyValueFactory<>(arr2[i])
             );
+            if(i == 2 || i == 4 || i == 5 || i == 6 || i == 7){
+                olist2.get(i).setStyle("-fx-alignment: CENTER-RIGHT;");
+            }
+            else if(i == 3){
+                olist2.get(i).setStyle("-fx-alignment: CENTER;");
+            }
+            else{
+                olist2.get(i).setStyle("-fx-alignment: CENTER-LEFT;");
+            }
         }
         
         this.itemlist1.getItems().clear();
@@ -605,6 +624,7 @@ public class SalesInvoiceController extends AbstractController implements Initia
                     delsims.add(simod2);
                 }
                 
+                drq.changeInvcStatus(delsims.iterator(), "N");
                 siq.deleteInvoiceItems(delsims.iterator());
             }
             if(!this.items.isEmpty()){
@@ -616,9 +636,11 @@ public class SalesInvoiceController extends AbstractController implements Initia
                     }
                 }
                 
+                drq.changeInvcStatus(addinEdit.iterator(), "Y");
                 siq.addSalesInvoiceItems(addinEdit.iterator(), Integer.valueOf(this.sidfld.getText()));
             }
         }else{
+            drq.changeInvcStatus(salesinvoice.getSitems().iterator(), "Y");
             siq.addSalesInvoice(salesinvoice);
         }
         
@@ -641,7 +663,7 @@ public class SalesInvoiceController extends AbstractController implements Initia
         NumberFormat nf= NumberFormat.getInstance();
         nf.setMaximumFractionDigits(2);
         nf.setMinimumFractionDigits(2);
-        nf.setRoundingMode(RoundingMode.CEILING);
+        nf.setRoundingMode(RoundingMode.HALF_EVEN);
         
         TextInputDialog dialog = new TextInputDialog();
         dialog.setTitle("Sales Invoice Printing");
@@ -697,7 +719,7 @@ public class SalesInvoiceController extends AbstractController implements Initia
         rownum = 5;
         cellnum = 0;
         String comname = "";
-        for(int i = 0; i < 24; i++){
+        for(int i = 0; i < 10; i++){
             comname += "\u00a0 ";
         }
         comname += this.model.getCompany();
@@ -711,17 +733,24 @@ public class SalesInvoiceController extends AbstractController implements Initia
         //CPO
         rownum = 5;
         cellnum = 8;
-        this.createCell(sheetrow, sheet, cell, rownum, cellnum, this.cpofld.getText());
+        String cpo = "     " + this.cpofld.getText();
+        this.createCell(sheetrow, sheet, cell, rownum, cellnum, cpo);
         
         //Address
         rownum = 7;
         cellnum = 0;
         this.createCell(sheetrow, sheet, cell, rownum, cellnum, this.model.getAddress());
         
+        //TIN
+        rownum = 7;
+        cellnum = 6;
+        this.createCell(sheetrow, sheet, cell, rownum, cellnum, this.model.getTin());
+        
         //Vendor Code
         rownum = 7;
-        cellnum = 1;
-        this.createCell(sheetrow, sheet, cell, rownum, cellnum, this.model.getVendor_code());
+        cellnum = 8;
+        String vndr = "     " + this.model.getVendor_code();
+        this.createCell(sheetrow, sheet, cell, rownum, cellnum, vndr);
         
         //Items
         int start = 10;
@@ -730,29 +759,38 @@ public class SalesInvoiceController extends AbstractController implements Initia
         txtfont.setFontName("Calibri");
         txtfont.setFontHeightInPoints((short)10);
         txtstyle.setFont(txtfont);
+        
+        XSSFCellStyle txtstyle2 = workbook.createCellStyle();
+        XSSFFont txtfont2 = workbook.createFont();
+        txtfont2.setFontName("Calibri");
+        txtfont2.setFontHeightInPoints((short)10);
+        txtstyle2.setFont(txtfont);
+        txtstyle2.setAlignment(HorizontalAlignment.RIGHT);
         for(int i = 0; i < this.itemlist1.getItems().size(); i++){
             
-            rownum = start;
-            cellnum = 0;
-            this.createCell(sheetrow, sheet, cell, rownum, cellnum, this.itemlist1.getItems().get(i).getSku(), txtstyle);
-            
-            rownum = start;
-            cellnum = 2;
-            this.createCell(sheetrow, sheet, cell, rownum, cellnum, this.itemlist1.getItems().get(i).getDesc(), txtstyle);
-            
-            rownum = start;
-            cellnum = 6;
-            this.createCell(sheetrow, sheet, cell, rownum, cellnum, String.valueOf(this.itemlist1.getItems().get(i).getQty()), txtstyle);
-            
-            rownum = start;
-            cellnum = 7;
-            this.createCell(sheetrow, sheet, cell, rownum, cellnum, nf.format(this.itemlist1.getItems().get(i).getUprice()), txtstyle);
-            
-            rownum = start;
-            cellnum = 9;
-            this.createCell(sheetrow, sheet, cell, rownum, cellnum, nf.format(this.itemlist1.getItems().get(i).getAmount()), txtstyle);
-            
-            start++;
+            if(this.itemlist1.getItems().get(i).getQty() != 0){
+                rownum = start;
+                cellnum = 0;
+                this.createCell(sheetrow, sheet, cell, rownum, cellnum, this.itemlist1.getItems().get(i).getSku(), txtstyle);
+
+                rownum = start;
+                cellnum = 2;
+                this.createCell(sheetrow, sheet, cell, rownum, cellnum, this.itemlist1.getItems().get(i).getDesc(), txtstyle);
+
+                rownum = start;
+                cellnum = 6;
+                this.createCell(sheetrow, sheet, cell, rownum, cellnum, String.valueOf(this.itemlist1.getItems().get(i).getQty()), txtstyle2);
+
+                rownum = start;
+                cellnum = 7;
+                this.createCell(sheetrow, sheet, cell, rownum, cellnum, nf.format(this.itemlist1.getItems().get(i).getUprice()), txtstyle2);
+
+                rownum = start;
+                cellnum = 9;
+                this.createCell(sheetrow, sheet, cell, rownum, cellnum, nf.format(this.itemlist1.getItems().get(i).getAmount()), txtstyle);
+
+                start++;
+            }
         }
         
         rownum = start;
@@ -760,35 +798,35 @@ public class SalesInvoiceController extends AbstractController implements Initia
         this.createCell(sheetrow, sheet, cell, rownum, cellnum, "********NOTHING FOLLOWS********", txtstyle);
         
         //Less Discount
-        rownum = 37;
+        rownum = 36;
         cellnum = 9;
-        Double lessdcnt = Double.parseDouble(this.totalfld.getText()) * (this.model.getDiscount() / 100);
+        Double lessdcnt = this.tots * (this.model.getDiscount() / 100);
         this.createCell(sheetrow, sheet, cell, rownum, cellnum, nf.format(lessdcnt));
 
         //Total Sales
-        rownum = 38;
+        rownum = 37;
         cellnum = 9;
-        this.createCell(sheetrow, sheet, cell, rownum, cellnum, nf.format(Double.parseDouble(this.totalfld.getText())));
+        this.createCell(sheetrow, sheet, cell, rownum, cellnum, this.totalfld.getText());
 
         //Vatable
-        rownum = 39;
+        rownum = 38;
         cellnum = 9;
-        Double vatable = Double.parseDouble(this.totalfld.getText()) - lessdcnt;
+        Double vatable = this.tots - lessdcnt;
         this.createCell(sheetrow, sheet, cell, rownum, cellnum, nf.format(vatable));
         
         //User Name
         rownum = 38;
         cellnum = 2;
-        this.createCell(sheetrow, sheet, cell, rownum, cellnum, super.getGlobalUser().getUsername());
+        this.createCell(sheetrow, sheet, cell, rownum, cellnum, super.getGlobalUser().getName());
 
         //Vatable less
         rownum = 40;
         cellnum = 9;
-        Double vatableless = vatable * (1 + (this.model.getVAT()/ 100));
+        Double vatableless = (vatable / 1.12) * ((this.model.getVAT()/ 100));
         this.createCell(sheetrow, sheet, cell, rownum, cellnum, nf.format(vatableless));
 
         //Sales Invoice ID:
-        rownum = 42;
+        rownum = 41;
         cellnum = 8;
         
         String siid = "No. " + result.get();
@@ -803,7 +841,10 @@ public class SalesInvoiceController extends AbstractController implements Initia
             System.out.println("Directory Created");
             dir.mkdir();
         }
-        File file2 = new File(dir.getAbsolutePath()+ "\\" + "invoicesample.xlsx");
+        
+        String filename = "[SI]" + this.model.getCompany() + "-(" + result.get() + ").xlsx";
+        
+        File file2 = new File(dir.getAbsolutePath()+ "\\" + filename);
         if(!file2.exists()){
             file2.createNewFile();
         }
@@ -881,7 +922,14 @@ public class SalesInvoiceController extends AbstractController implements Initia
             
             total += model.getAmount();
         }
-        this.totalfld.setText(String.valueOf(total));
+        
+        this.tots = total;
+        
+        NumberFormat nf= NumberFormat.getInstance();
+        nf.setMaximumFractionDigits(2);
+        nf.setMinimumFractionDigits(2);
+        nf.setRoundingMode(RoundingMode.HALF_EVEN);
+        this.totalfld.setText(nf.format(total));
     }
     
     @FXML

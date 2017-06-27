@@ -50,7 +50,7 @@ public class UserQuery {
         
         if(set.hasNext()){
             HashMap map = (HashMap)set.next();
-            model = new UserModel((int)map.get("idusers"), (String)map.get("username"), (String)map.get("usertype"));
+            model = new UserModel((int)map.get("idusers"), (String)map.get("username"), (String)map.get("usertype"), (String)map.get("name"));
         }
         
         return model;
@@ -85,7 +85,7 @@ public class UserQuery {
         
         DBQuery dbq = DBQuery.getInstance();
         DBConnect dbc = DBConnect.getInstance();
-        PreparedStatement st = dbc.getConnection().prepareStatement("SELECT * FROM bestchem_db2.user_type;");
+        PreparedStatement st = dbc.getConnection().prepareStatement("SELECT * FROM user_type;");
         
         Iterator rs = dbq.getQueryResultSet(st);
         
@@ -100,7 +100,7 @@ public class UserQuery {
         
         DBQuery dbq = DBQuery.getInstance();
         DBConnect dbc = DBConnect.getInstance();
-        PreparedStatement st = dbc.getConnection().prepareStatement("SELECT * FROM bestchem_db2.users;");
+        PreparedStatement st = dbc.getConnection().prepareStatement("SELECT * FROM users;");
         
         Iterator rs = dbq.getQueryResultSet(st);
         

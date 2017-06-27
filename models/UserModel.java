@@ -16,16 +16,20 @@ public class UserModel {
     private String password;
     private String role;
     
-    public UserModel(String username, String password, String role){
+    private String name;
+    
+    public UserModel(String username, String password, String role, String name){
         this.username = username;
         this.password = password;
         this.role = role;
+        this.name = name;
     }
     
-    public UserModel(int id, String username, String role){
+    public UserModel(int id, String username, String role, String name){
         this.id = id;
         this.username = username;
         this.role = role;
+        this.name = name;
     }
 
     /**
@@ -82,6 +86,20 @@ public class UserModel {
      */
     public void setPassword(String password) {
         this.password = password;
+    }
+
+    /**
+     * @return the name
+     */
+    public String getName() {
+        return name;
+    }
+
+    /**
+     * @param name the name to set
+     */
+    public void setName(String name) {
+        this.name = name;
     }
     
     

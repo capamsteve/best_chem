@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.image.*?>
+<?import javafx.scene.text.*?>
+<?import java.lang.*?>
+<?import java.util.*?>
+<?import javafx.scene.*?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+
+<Pane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="445.0" prefWidth="683.0" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1" fx:controller="mm_purchases.POItemsController">
+   <children>
+      <Label layoutX="92.0" layoutY="23.0" text="Add Item">
+         <font>
+            <Font name="Rockwell" size="26.0" />
+         </font>
+      </Label>
+      <ImageView fitHeight="40.0" fitWidth="38.0" layoutX="34.0" layoutY="20.0" pickOnBounds="true" preserveRatio="true">
+         <image>
+            <Image url="@../res/BC.PNG" />
+         </image>
+      </ImageView>
+      <Label layoutX="24.0" layoutY="72.0" text="PM Code">
+         <font>
+            <Font name="Arial" size="14.0" />
+         </font>
+      </Label>
+      <TextField fx:id="inventoryidfld" layoutX="87.0" layoutY="67.0" prefHeight="25.0" prefWidth="245.0" />
+      <StackPane layoutX="23.0" layoutY="97.0" prefHeight="299.0" prefWidth="639.0">
+         <children>
+            <TableView fx:id="inventorytable" prefHeight="200.0" prefWidth="200.0">
+               <columns>
+                  <TableColumn prefWidth="100.0" text="PM Code" />
+                  <TableColumn prefWidth="314.0" text="Description" />
+                  <TableColumn minWidth="0.0" prefWidth="46.0" text="UOM" />
+                  <TableColumn prefWidth="74.0" text="Warehouse" />
+                  <TableColumn prefWidth="103.0" text="Price" />
+               </columns>
+            </TableView>
+         </children>
+      </StackPane>
+      <TextField fx:id="qtyfld" layoutX="67.0" layoutY="404.0" prefHeight="25.0" prefWidth="79.0" />
+      <Label layoutX="24.0" layoutY="408.0" text="QTY:">
+         <font>
+            <Font name="Arial" size="14.0" />
+         </font>
+      </Label>
+      <Button fx:id="saveitembtn" layoutX="565.0" layoutY="404.0" mnemonicParsing="false" onAction="#saveItem" text="Add" />
+      <Button fx:id="cancelbtn" layoutX="610.0" layoutY="404.0" mnemonicParsing="false" onAction="#cancelHandler" text="Cancel" />
+      <Button fx:id="searchbtn" layoutX="341.0" layoutY="67.0" mnemonicParsing="false">
+         <graphic>
+            <ImageView fitHeight="15.0" fitWidth="21.0" pickOnBounds="true" preserveRatio="true">
+               <image>
+                  <Image url="@../res/searchicon.png" />
+               </image>
+            </ImageView>
+         </graphic>
+      </Button>
+   </children>
+</Pane>

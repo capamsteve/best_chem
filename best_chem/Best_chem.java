@@ -19,6 +19,8 @@ public class Best_chem extends Application {
     
     @Override
     public void start(Stage stage) throws Exception {
+        System.out.println("java.version: " + System.getProperty("java.version"));
+        System.out.println("javafx.runtime.version: " + System.getProperty("javafx.runtime.version"));
         Parent root = FXMLLoader.load(getClass().getResource("/user/Login.fxml"));
         
         Scene scene = new Scene(root);

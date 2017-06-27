@@ -24,8 +24,10 @@ import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
 import javafx.scene.control.TextInputDialog;
 import javafx.scene.control.cell.PropertyValueFactory;
+import javafx.stage.Stage;
 import models.InventoryModel;
 import models.PurchaseItemModel;
+import models.SupplierModel;
 import models.UserModel;
 
 /**
@@ -48,6 +50,9 @@ public class PGRDocumentController extends AbstractController implements Initial
 
     @FXML
     private Button editbtn;
+    
+    @FXML
+    private Button editbatchbtn;
 
     @FXML
     private TableView<PurchaseItemModel> itemlist;
@@ -56,6 +61,8 @@ public class PGRDocumentController extends AbstractController implements Initial
     private Button pgrbtn;
     
     private int pmiid;
+    
+    private SupplierModel supmod;
     
     private ArrayList<PurchaseItemModel> purchases = new ArrayList();
     
@@ -86,6 +93,24 @@ public class PGRDocumentController extends AbstractController implements Initial
         }
         this.RefreshItems();
     }
+    
+    @FXML
+    void editBatch(ActionEvent event){
+        TextInputDialog dialog = new TextInputDialog();
+        dialog.setTitle("Edit Batch Number");
+        dialog.setHeaderText("Item: " + this.itemlist.getSelectionModel().getSelectedItem().getSku() + "-" 
+                + this.itemlist.getSelectionModel().getSelectedItem().getDesc() + "\n" 
+                + "Current Quantity: " + this.itemlist.getSelectionModel().getSelectedItem().getQty());
+
+        Optional<String> result = dialog.showAndWait();
+        
+        if(result.isPresent()){
+            this.purchases.get(this.itemlist.getSelectionModel().getFocusedIndex()).setBatchnum(result.get());
+            this.itemlist.getItems().clear();
+            this.RefreshItems();
+        }
+    }
+    
 
     @FXML
     void PostToInventory(ActionEvent event) throws SQLException {
@@ -95,16 +120,21 @@ public class PGRDocumentController extends AbstractController implements Initial
             
             mod.setSoh(this.purchases.get(i).getActualqty());
             mod.setMov("INC");
+            mod.setRemarks(this.purchases.get(i).getBatchnum());
             
             mods.add(mod);
         }
         
-        iq.PostUpdateInventory(mods.iterator());
-        pq.PGItems(this.purchases.iterator(), this.pmiid);
+        iq.PostUpdateInventory(mods.iterator(), super.getGlobalUser().getUsername(), "PostGoodsReceipt", this.supmod.getSupid(), this.supmod.getSupname(), "Supplier", this.pmiid, "", "", super.getType());
+        pq.PGItems(this.purchases.iterator(), this.pmiid, super.getType());
+        pq.GeneratePGR(this.pmiid, super.getType());
+        
+        Stage stage = (Stage) this.pgrbtn.getScene().getWindow();
+        stage.close();
     }
     
     public void RefreshItems(){
-        String[] arr = {"sku", "desc", "qty", "actualqty", "uom"};
+        String[] arr = {"sku", "desc", "qty", "actualqty", "uom", "batchnum"};
         ObservableList<PurchaseItemModel> data
                 = FXCollections.observableArrayList();
         
@@ -123,7 +153,7 @@ public class PGRDocumentController extends AbstractController implements Initial
         this.itemlist.setItems(data);
     }
     
-    public void setPOItems(Iterator ir, int pmid){
+    public void setPOItems(Iterator ir, int pmid, SupplierModel sup){
         
         while(ir.hasNext()){
             PurchaseItemModel itm = (PurchaseItemModel) ir.next();
@@ -131,6 +161,7 @@ public class PGRDocumentController extends AbstractController implements Initial
             this.purchases.add(itm);
         }
         
+        this.supmod = sup;
         this.pmiid = pmid;
         this.RefreshItems();
         

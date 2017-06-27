@@ -7,8 +7,10 @@ package purchases;
 
 import best_chem.AbstractController;
 import dbquerries.InventoryQuery;
+import dbquerries.SupplierQuery;
 import java.net.URL;
 import java.sql.SQLException;
+import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.ResourceBundle;
 import java.util.logging.Level;
@@ -19,6 +21,7 @@ import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.control.Button;
+import javafx.scene.control.ComboBox;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
 import javafx.scene.control.TextField;
@@ -27,6 +30,7 @@ import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyEvent;
 import javafx.stage.Stage;
 import models.InventoryModel;
+import models.SupplierModel;
 import models.UserModel;
 import salesorder.SOItemsController;
 
@@ -55,11 +59,17 @@ public class POItemsController extends AbstractController implements Initializab
     private TableView<InventoryModel> inventorytable;
     
     @FXML
+    private ComboBox<String> supplierbox;
+    private ArrayList<String> supdata = new ArrayList();
+    
+    @FXML
     private Button searchbtn;
     
     private boolean isCancelled = false;
     
+    
     private final InventoryQuery iq = new InventoryQuery();
+    private final SupplierQuery sq = new SupplierQuery();
 
     @FXML
     public void saveItem(ActionEvent event) throws SQLException {
@@ -136,6 +146,8 @@ public class POItemsController extends AbstractController implements Initializab
                 Logger.getLogger(SOItemsController.class.getName()).log(Level.SEVERE, null, ex);
             }
         });
+        
+        
     }    
 
     /**
@@ -148,6 +160,25 @@ public class POItemsController extends AbstractController implements Initializab
     @Override
     public void initData(UserModel user, int type) {
         super.setType(type);
+        
+        if(super.getType() == 1){
+            this.supplierbox.setVisible(false);
+        }
+        
+        try {
+            Iterator ir = sq.getAllSuppliers(super.getType());
+            
+            while(ir.hasNext()){
+                SupplierModel supmod = (SupplierModel) ir.next();
+                this.supdata.add(supmod.getSupname());
+            }
+            
+            System.out.println(this.supdata.size());
+            
+            this.supplierbox.getItems().addAll(supdata);
+        } catch (SQLException ex) {
+            Logger.getLogger(POItemsController.class.getName()).log(Level.SEVERE, null, ex);
+        }
     }
     
 }

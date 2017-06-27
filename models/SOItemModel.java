@@ -5,6 +5,9 @@
  */
 package models;
 
+import java.math.RoundingMode;
+import java.text.NumberFormat;
+
 /**
  *
  * @author Steven
@@ -18,13 +21,23 @@ public class SOItemModel {
     private String uom;
     private Integer idinventory;
     private double uprice;
+    private String uprice1;
     private double discnt;
+    private String discnt1;
     private double amount;
+    private String amount1;
     private double vat;
+    private String vat1;
     private String stat;
+    
+    private NumberFormat nf= NumberFormat.getInstance();
+    
     
     public SOItemModel(Integer idinventory){
         this.idinventory = idinventory;
+        nf.setMaximumFractionDigits(2);
+        nf.setMinimumFractionDigits(2);
+        nf.setRoundingMode(RoundingMode.HALF_EVEN);
     }
     
     public Integer getId(){
@@ -207,5 +220,61 @@ public class SOItemModel {
             return false;
         }
         return true;
+    }
+
+    /**
+     * @param uprice1 the uprice1 to set
+     */
+    public void setUprice1() {
+        this.uprice1 = nf.format(this.uprice);
+    }
+
+    /**
+     * @param discnt1 the discnt1 to set
+     */
+    public void setDiscnt1() {
+        this.discnt1 = nf.format(this.discnt);
+    }
+
+    /**
+     * @param amount1 the amount1 to set
+     */
+    public void setAmount1() {
+        this.amount1 = nf.format(this.amount);
+    }
+
+    /**
+     * @param vat1 the vat1 to set
+     */
+    public void setVat1() {
+        this.vat1 = nf.format(this.vat);
+    }
+
+    /**
+     * @return the uprice1
+     */
+    public String getUprice1() {
+        return uprice1;
+    }
+
+    /**
+     * @return the discnt1
+     */
+    public String getDiscnt1() {
+        return discnt1;
+    }
+
+    /**
+     * @return the amount1
+     */
+    public String getAmount1() {
+        return amount1;
+    }
+
+    /**
+     * @return the vat1
+     */
+    public String getVat1() {
+        return vat1;
     }
 }

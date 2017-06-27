@@ -64,7 +64,7 @@ public class DRSelectorController implements Initializable {
         ObservableList<DRModel> data
                 = FXCollections.observableArrayList();
         
-        Iterator rs = rq.getDeliverReceipts(soid, "Y", "complete");
+        Iterator rs = rq.getDeliverReceiptsByInvoice(soid, "Y", "complete", "N");
         
         while(rs.hasNext()){
             HashMap temp = (HashMap) rs.next();

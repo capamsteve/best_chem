@@ -200,7 +200,7 @@ public class ReturnsAdjustmentController extends AbstractController implements I
          * Get ITEMS convert to Y
          */
         
-        rq.PostReturnAdjustment(this.items.iterator(), this.ram_og.getRamid());
+        rq.PostReturnAdjustment(this.items.iterator(), this.ram_og.getRamid(), super.getType());
         
         Stage stage = (Stage) cancelbtn.getScene().getWindow();
         stage.close();
@@ -223,6 +223,7 @@ public class ReturnsAdjustmentController extends AbstractController implements I
 
     @Override
     public void initData(UserModel user, int type) {
+        super.setGlobalUser(user);
         super.setType(type);
     }
     

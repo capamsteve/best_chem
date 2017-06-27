@@ -21,6 +21,7 @@ import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.control.Button;
 import javafx.scene.control.ComboBox;
+import javafx.scene.control.Label;
 import javafx.scene.control.TextField;
 import javafx.stage.Stage;
 import models.UserModel;
@@ -52,6 +53,9 @@ public class InventoryItemController extends AbstractController implements Initi
 
     @FXML
     private TextField sohfld;
+    
+    @FXML
+    private TextField unitsfld;
 
     @FXML
     private Button cancelbtn;
@@ -61,6 +65,15 @@ public class InventoryItemController extends AbstractController implements Initi
 
     @FXML
     private Button savebtn;
+    
+    @FXML
+    private Label desclabel;
+
+    @FXML
+    private Label skulabel;
+    
+    @FXML
+    private TextField typefld;
 
     //Queries
     private final UtilitiesQuery uq = new UtilitiesQuery();
@@ -114,6 +127,8 @@ public class InventoryItemController extends AbstractController implements Initi
         this.sohfld.setText(String.valueOf(model.getSoh()));
         this.sohfld.setDisable(true);
         this.cslfld.setText(String.valueOf(model.getCsl()));
+        this.unitsfld.setText(String.valueOf(model.getUnits()));
+        this.typefld.setText(model.getInvent_type());
         
         this.savebtn.setText("Save Item");
     }
@@ -128,6 +143,8 @@ public class InventoryItemController extends AbstractController implements Initi
         inventory.setUom(this.uomfld.getSelectionModel().getSelectedItem());
         inventory.setWh(this.wrhsfld.getSelectionModel().getSelectedItem());
         inventory.setCsl(Integer.parseInt(this.cslfld.getText()));
+        inventory.setUnits(Integer.parseInt(this.unitsfld.getText()));
+        inventory.setInvent_type(this.typefld.getText());
         
         
         InventoryQuery iq = new InventoryQuery();
@@ -154,6 +171,12 @@ public class InventoryItemController extends AbstractController implements Initi
     @Override
     public void initData(UserModel user, int type) {
         super.setType(type);
+        super.setGlobalUser(user);
+        
+        if(type == 2){
+            this.desclabel.setText("PM Description");
+            this.skulabel.setText("PM Code#");
+        }
     }
     
 }

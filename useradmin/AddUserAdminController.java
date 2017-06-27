@@ -62,6 +62,9 @@ public class AddUserAdminController implements Initializable {
 
     @FXML
     private Button cancelbtn;
+    
+    @FXML
+    private TextField namefld;
 
     @FXML
     private ComboBox<String> usertyp;
@@ -74,7 +77,7 @@ public class AddUserAdminController implements Initializable {
     @FXML
     public void AddHandler(ActionEvent event) throws SQLException, UnsupportedEncodingException {
         
-        UserModel model = new UserModel(this.cnpersonfld.getText(), this.passfld.getText(), this.usertyp.getSelectionModel().getSelectedItem());
+        UserModel model = new UserModel(this.cnpersonfld.getText(), this.passfld.getText(), this.usertyp.getSelectionModel().getSelectedItem(), this.namefld.getText());
         
         uq.addUser(model);
         

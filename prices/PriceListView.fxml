@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.text.*?>
+<?import javafx.scene.image.*?>
+<?import java.lang.*?>
+<?import java.util.*?>
+<?import javafx.scene.*?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+
+<Pane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="557.0" prefWidth="761.0" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1" fx:controller="prices.PriceListViewController">
+   <children>
+      <StackPane layoutX="18.0" layoutY="122.0" prefHeight="413.0" prefWidth="722.0">
+         <children>
+            <TableView fx:id="pricetable" editable="true" prefHeight="200.0" prefWidth="200.0">
+               <columns>
+                  <TableColumn prefWidth="90.0" text="PM Code#" />
+                  <TableColumn prefWidth="284.0" text="Description" />
+                  <TableColumn minWidth="0.0" prefWidth="125.0" text="PO Price" />
+                  <TableColumn minWidth="0.0" prefWidth="37.0" text="UOM" />
+                  <TableColumn minWidth="0.0" prefWidth="69.0" text="Warehouse" />
+                  <TableColumn prefWidth="115.0" text="Effect Date" />
+               </columns>
+            </TableView>
+         </children>
+      </StackPane>
+      <ToolBar layoutX="19.0" layoutY="82.0" prefHeight="40.0" prefWidth="722.0">
+         <items>
+            <Button fx:id="addPricebtn" mnemonicParsing="false" onAction="#addPrice" text="Add Price" />
+            <Button fx:id="editPricebtn" mnemonicParsing="false" onAction="#editPrice" text="Edit Price" />
+            <TextField fx:id="prifld" promptText="Search SKU#" />
+            <Button fx:id="prsearchbtn" mnemonicParsing="false">
+               <graphic>
+                  <ImageView fitHeight="15.0" fitWidth="21.0" pickOnBounds="true" preserveRatio="true">
+                     <image>
+                        <Image url="@../res/searchicon.png" />
+                     </image>
+                  </ImageView>
+               </graphic>
+            </Button>
+            <Button fx:id="exportPricebtn" mnemonicParsing="false" onAction="#exportPrice" text="Export Price List" />
+         </items>
+      </ToolBar>
+      <ImageView fitHeight="40.0" fitWidth="38.0" layoutX="34.0" layoutY="25.0" pickOnBounds="true" preserveRatio="true">
+         <image>
+            <Image url="@../res/BC.PNG" />
+         </image>
+      </ImageView>
+      <Label layoutX="84.0" layoutY="31.0" text="Supplier Price List">
+         <font>
+            <Font name="Rockwell" size="26.0" />
+         </font>
+      </Label>
+   </children>
+</Pane>

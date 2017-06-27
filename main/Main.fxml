@@ -43,7 +43,7 @@
                      <children>
                         <StackPane layoutY="39.0" prefHeight="440.0" prefWidth="951.0">
                            <children>
-                              <TableView fx:id="customertable" prefHeight="200.0" prefWidth="200.0">
+                              <TableView fx:id="customertable" editable="true" prefHeight="200.0" prefWidth="200.0">
                                 <columns>
                                     <TableColumn prefWidth="104.0" text="Customer#" />
                                   <TableColumn prefWidth="230.0" text="Company" />
@@ -67,7 +67,7 @@
                      <children>
                         <StackPane layoutY="39.0" prefHeight="440.0" prefWidth="951.0">
                            <children>
-                              <TableView fx:id="suppliertable" prefHeight="200.0" prefWidth="200.0">
+                              <TableView fx:id="suppliertable" editable="true" prefHeight="200.0" prefWidth="200.0">
                                  <columns>
                                     <TableColumn prefWidth="147.0" text="Supplier#" />
                                     <TableColumn prefWidth="300.0" text="Name" />
@@ -97,14 +97,14 @@
                                        <children>
                                           <StackPane layoutX="-1.0" layoutY="39.0" prefHeight="390.0" prefWidth="944.0">
                                              <children>
-                                                <TableView fx:id="inventorytable" prefHeight="200.0" prefWidth="200.0">
+                                                <TableView fx:id="inventorytable" editable="true" prefHeight="200.0" prefWidth="200.0">
                                                   <columns>
                                                     <TableColumn prefWidth="147.0" text="SKU#" />
-                                                    <TableColumn prefWidth="300.0" text="Description" />
-                                                      <TableColumn minWidth="0.0" prefWidth="51.0" text="UOM" />
-                                                      <TableColumn prefWidth="239.0" text="Warehouse" />
-                                                      <TableColumn prefWidth="91.0" text="Stock on Hand" />
-                                                      <TableColumn prefWidth="115.0" text="Critical Stock Level" />
+                                                    <TableColumn prefWidth="404.0" text="Description" />
+                                                      <TableColumn minWidth="0.0" prefWidth="59.0" text="UOM" />
+                                                      <TableColumn prefWidth="96.0" text="Warehouse" />
+                                                      <TableColumn prefWidth="95.0" text="Stock on Hand" />
+                                                      <TableColumn prefWidth="128.0" text="Critical Stock Level" />
                                                   </columns>
                                                 </TableView>
                                              </children>
@@ -115,6 +115,16 @@
                                                 <Button fx:id="editInventorybtn" mnemonicParsing="false" onAction="#editInventory" text="Edit Item" />
                                                 <Button fx:id="iabtn" mnemonicParsing="false" onAction="#inventoryAdjustment" text="Add Inventory Adjustment" />
                                                 <Button fx:id="addmgibtn" mnemonicParsing="false" onAction="#addMGI" text="Add Manual Goods Issue" />
+                                                <TextField fx:id="invfld" promptText="Search SKU#" />
+                                                <Button fx:id="invsearchbtn" mnemonicParsing="false">
+                                                   <graphic>
+                                                      <ImageView fitHeight="15.0" fitWidth="21.0" pickOnBounds="true" preserveRatio="true">
+                                                         <image>
+                                                            <Image url="@../res/searchicon.png" />
+                                                         </image>
+                                                      </ImageView>
+                                                   </graphic>
+                                                </Button>
                                             </items>
                                           </ToolBar>
                                        </children></AnchorPane>
@@ -191,7 +201,7 @@
                                        <children>
                                           <StackPane layoutX="-1.0" layoutY="39.0" prefHeight="390.0" prefWidth="944.0">
                                              <children>
-                                                <TableView fx:id="returntable" prefHeight="200.0" prefWidth="200.0">
+                                                <TableView fx:id="returntable" editable="true" prefHeight="200.0" prefWidth="200.0">
                                                    <columns>
                                                       <TableColumn prefWidth="235.5" text="SKU#" />
                                                       <TableColumn minWidth="0.0" prefWidth="182.0" text="Description" />
@@ -207,13 +217,23 @@
                                                 <Button fx:id="addreturnbtn" mnemonicParsing="false" onAction="#addReturns" text="Add Returns" />
                                                 <Button fx:id="editreturnbtn" mnemonicParsing="false" onAction="#editReturns" text="Edit Returns" />
                                                 <Button fx:id="returnsabtn" mnemonicParsing="false" onAction="#returnsAdjustment" text="Returns Adjustment" />
+                                                <TextField fx:id="retfld" promptText="Search SKU#" />
+                                                <Button fx:id="returnsearchbtn" mnemonicParsing="false">
+                                                   <graphic>
+                                                      <ImageView fitHeight="15.0" fitWidth="21.0" pickOnBounds="true" preserveRatio="true">
+                                                         <image>
+                                                            <Image url="@../res/searchicon.png" />
+                                                         </image>
+                                                      </ImageView>
+                                                   </graphic>
+                                                </Button>
                                              </items>
                                           </ToolBar>
                                        </children>
                                     </AnchorPane>
                               </content>
                             </Tab>
-                            <Tab text="Transactions">
+                            <Tab text="Returns Adjustment">
                               <content>
                                 <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0">
                                        <children>
@@ -251,20 +271,31 @@
                      <children>
                         <StackPane layoutY="39.0" prefHeight="440.0" prefWidth="951.0">
                            <children>
-                              <TableView fx:id="pricetable" prefHeight="200.0" prefWidth="200.0">
+                              <TableView fx:id="pricetable" editable="true" prefHeight="200.0" prefWidth="200.0">
                                  <columns>
                                     <TableColumn prefWidth="118.0" text="SKU#" />
-                                    <TableColumn prefWidth="234.0" text="Description" />
-                                    <TableColumn minWidth="0.0" prefWidth="96.0" text="PO Price" />
-                                    <TableColumn prefWidth="127.0" text="Selling Price" />
-                                    <TableColumn minWidth="0.0" prefWidth="81.0" text="UOM" />
-                                    <TableColumn prefWidth="347.0" text="Effect Date" />
+                                    <TableColumn prefWidth="367.0" text="Description" />
+                                    <TableColumn minWidth="0.0" prefWidth="92.0" text="PO Price" />
+                                    <TableColumn prefWidth="115.0" text="Selling Price" />
+                                    <TableColumn minWidth="0.0" prefWidth="40.0" text="UOM" />
+                                    <TableColumn minWidth="0.0" text="Warehouse" />
+                                    <TableColumn prefWidth="138.0" text="Effect Date" />
                                  </columns>
                               </TableView>
                            </children>
                         </StackPane>
                         <Button fx:id="addPricebtn" layoutX="10.0" layoutY="7.0" mnemonicParsing="false" onAction="#addPrice" text="Add Price" />
                         <Button fx:id="editPricebtn" layoutX="85.0" layoutY="7.0" mnemonicParsing="false" onAction="#editPrice" text="Edit Price" />
+                        <Button fx:id="prsearchbtn" layoutX="323.0" layoutY="8.0" mnemonicParsing="false">
+                           <graphic>
+                              <ImageView fitHeight="15.0" fitWidth="21.0" pickOnBounds="true" preserveRatio="true">
+                                 <image>
+                                    <Image url="@../res/searchicon.png" />
+                                 </image>
+                              </ImageView>
+                           </graphic>
+                        </Button>
+                        <TextField fx:id="prifld" layoutX="166.0" layoutY="7.0" promptText="Search SKU#" />
                      </children>
                   </AnchorPane>
                </content>
@@ -279,7 +310,7 @@
                               <Font name="Arial" size="14.0" />
                            </font>
                         </Label>
-                        <Button fx:id="exportbtn" layoutX="16.0" layoutY="180.0" mnemonicParsing="false" onAction="#exportReport" text="Export Report" />
+                        <Button fx:id="exportbtn" layoutX="23.0" layoutY="202.0" mnemonicParsing="false" onAction="#exportReport" text="Export Report" />
                         <Label layoutX="23.0" layoutY="134.0" text="To:">
                            <font>
                               <Font name="Arial" size="14.0" />
@@ -301,7 +332,7 @@
                      <children>
                         <StackPane layoutY="38.0" prefHeight="440.0" prefWidth="951.0">
                            <children>
-                              <TableView fx:id="whstable" prefHeight="200.0" prefWidth="200.0">
+                              <TableView fx:id="whstable" editable="true" prefHeight="200.0" prefWidth="200.0">
                                  <columns>
                                     <TableColumn prefWidth="949.0" text="Warehouses" />
                                     <TableColumn minWidth="0.0" prefWidth="0.0" text="Column X" />
@@ -323,7 +354,7 @@
                         <Button fx:id="adduombtn" layoutX="13.0" layoutY="6.0" mnemonicParsing="false" onAction="#addUOM" text="Add UOM" />
                         <StackPane layoutY="38.0" prefHeight="440.0" prefWidth="951.0">
                            <children>
-                              <TableView fx:id="uomtable" prefHeight="200.0" prefWidth="200.0">
+                              <TableView fx:id="uomtable" editable="true" prefHeight="200.0" prefWidth="200.0">
                                  <columns>
                                     <TableColumn prefWidth="948.0" text="Unit of Measurements (UOM)" />
                                     <TableColumn minWidth="0.0" prefWidth="2.0" text="Column X" />

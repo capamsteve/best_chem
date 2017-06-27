@@ -47,7 +47,10 @@ import javafx.scene.control.Tab;
 import javafx.scene.control.TabPane;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
+import javafx.scene.control.TextField;
 import javafx.scene.control.cell.PropertyValueFactory;
+import javafx.scene.input.KeyCode;
+import javafx.scene.input.KeyEvent;
 import javafx.scene.text.Text;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
@@ -66,6 +69,7 @@ import prices.EditPriceViewController;
 import purchases.PurchaseController;
 import returns.ReturnsAdjustmentController;
 import returns.ReturnsController;
+import salesorder.SOItemsController;
 import salesorder.SalesOrderController;
 import supplier.SupplierController;
 import utilities.UOMController;
@@ -215,6 +219,24 @@ public class MainController extends AbstractController implements Initializable 
     private ComboBox<String> reportsbox;
     
     @FXML
+    private Button invsearchbtn;
+    
+    @FXML
+    private Button prsearchbtn;
+    
+    @FXML
+    private Button returnsearchbtn;
+    
+    @FXML
+    private TextField invfld;
+    
+    @FXML
+    private TextField retfld;
+    
+    @FXML
+    private TextField prifld;
+    
+    @FXML
     private TableView<ReturnAdjustmentModel> returnadjtable;
     
     @FXML
@@ -251,6 +273,36 @@ public class MainController extends AbstractController implements Initializable 
         reportslist.add("FG Inventory Critical Stock Report");
         
         this.reportsbox.getItems().addAll(reportslist);
+        
+        this.invfld.setOnKeyPressed((KeyEvent event) -> {
+            if(event.getCode().equals(KeyCode.ENTER)){
+                try {
+                    this.getInventoryBySKU(invfld.getText());
+                } catch (SQLException ex) {
+                    Logger.getLogger(SOItemsController.class.getName()).log(Level.SEVERE, null, ex);
+                }
+            }
+        });
+        
+        this.retfld.setOnKeyPressed((KeyEvent event) -> {
+            if(event.getCode().equals(KeyCode.ENTER)){
+                try {
+                    this.getReturns(retfld.getText());
+                } catch (SQLException ex) {
+                    Logger.getLogger(SOItemsController.class.getName()).log(Level.SEVERE, null, ex);
+                }
+            }
+        });
+        
+        this.prifld.setOnKeyPressed((KeyEvent event) -> {
+            if(event.getCode().equals(KeyCode.ENTER)){
+                try {
+                    this.getPrices(prifld.getText());
+                } catch (SQLException ex) {
+                    Logger.getLogger(SOItemsController.class.getName()).log(Level.SEVERE, null, ex);
+                }
+            }
+        });
         
     }
     
@@ -502,7 +554,7 @@ public class MainController extends AbstractController implements Initializable 
         
         SupplierController sc = fxmlloader.<SupplierController>getController();
         sc.AddMode();
-        sc.initData(null, super.getType());
+        sc.initData(super.getGlobalUser(), super.getType());
 
         Scene scene = new Scene(root);
         Stage stage = (Stage) addsupbtn.getScene().getWindow();
@@ -525,7 +577,7 @@ public class MainController extends AbstractController implements Initializable 
             Parent root = (Parent) fxmlloader.load();
 
             SupplierController sc = fxmlloader.<SupplierController>getController();
-            sc.initData(null, super.getType());
+            sc.initData(super.getGlobalUser(), super.getType());
             sc.EditMode(this.suppliertable.getSelectionModel().getSelectedItem());
 
             Scene scene = new Scene(root);
@@ -557,7 +609,7 @@ public class MainController extends AbstractController implements Initializable 
             Parent root = (Parent) fxmlloader.load();
 
             SupplierController sc = fxmlloader.<SupplierController>getController();
-            sc.initData(null, super.getType());
+            sc.initData(super.getGlobalUser(), super.getType());
             sc.ViewMode(this.suppliertable.getSelectionModel().getSelectedItem());
 
             Scene scene = new Scene(root);
@@ -657,7 +709,7 @@ public class MainController extends AbstractController implements Initializable 
         InventoryItemController iic = fxmlloader.<InventoryItemController>getController();
         
         iic.AddMode();
-        iic.initData(null, super.getType());
+        iic.initData(super.getGlobalUser(), super.getType());
 
         Scene scene = new Scene(root);
         Stage stage = (Stage) addInventorybtn.getScene().getWindow();
@@ -682,7 +734,7 @@ public class MainController extends AbstractController implements Initializable 
             InventoryItemController iic = fxmlloader.<InventoryItemController>getController();
 
             iic.EditMode(this.inventorytable.getSelectionModel().getSelectedItem());
-            iic.initData(null, super.getType());
+            iic.initData(super.getGlobalUser(), super.getType());
 
             Scene scene = new Scene(root);
             Stage stage = (Stage) editInventorybtn.getScene().getWindow();
@@ -714,7 +766,7 @@ public class MainController extends AbstractController implements Initializable 
         Parent root = (Parent) fxmlloader.load();
         
         InventoryAdjustmentEntryController iaec = fxmlloader.<InventoryAdjustmentEntryController>getController();
-        iaec.initData(null, super.getType());
+        iaec.initData(super.getGlobalUser(), super.getType());
         iaec.AddMode();
         
         Scene scene = new Scene(root);
@@ -737,7 +789,7 @@ public class MainController extends AbstractController implements Initializable 
         Parent root = (Parent) fxmlloader.load();
         
         InventoryAdjustmentEntryController iaec = fxmlloader.<InventoryAdjustmentEntryController>getController();
-        iaec.initData(null, super.getType());
+        iaec.initData(super.getGlobalUser(), super.getType());
         iaec.Edit(this.inventoryadjtable.getSelectionModel().getSelectedItem());
         
         Scene scene = new Scene(root);
@@ -760,7 +812,7 @@ public class MainController extends AbstractController implements Initializable 
         Parent root = (Parent) fxmlloader.load();
         
         InventoryAdjustmentEntryController iaec = fxmlloader.<InventoryAdjustmentEntryController>getController();
-        iaec.initData(null, super.getType());
+        iaec.initData(super.getGlobalUser(), super.getType());
         iaec.ViewMode(this.inventoryadjtable.getSelectionModel().getSelectedItem());
         
         Scene scene = new Scene(root);
@@ -853,7 +905,7 @@ public class MainController extends AbstractController implements Initializable 
         ObservableList<MGIModel> data
                 = FXCollections.observableArrayList();
         
-        Iterator rs = iq.getMGI(super.getType());
+        Iterator rs = iq.getMGI(super.getType(), 1);
         
         while(rs.hasNext()){
             data.add((MGIModel)rs.next());
@@ -888,6 +940,48 @@ public class MainController extends AbstractController implements Initializable 
             olist.get(i).setCellValueFactory(
                     new PropertyValueFactory<>(arr[i])
             );
+            
+            if(i == 4 || i == 5){
+                olist.get(i).setStyle("-fx-alignment: CENTER-RIGHT;");
+            }
+            else if(i == 2 || i == 3){
+                olist.get(i).setStyle("-fx-alignment: CENTER;");
+            }
+            else{
+                olist.get(i).setStyle("-fx-alignment: CENTER-LEFT;");
+            }
+        }
+        inventorytable.getItems().clear();
+        inventorytable.setItems(data);
+    }
+    public void getInventoryBySKU(String sku) throws SQLException{
+        String[] arr = {"sku", "description", "uom", "wh", "soh", "csl"};
+        ObservableList<InventoryModel> data
+                = FXCollections.observableArrayList();
+        
+        Iterator rs = iq.getInventories(sku, super.getType());
+        
+        while(rs.hasNext()){
+            data.add((InventoryModel)rs.next());
+        }
+        
+        ObservableList<TableColumn<InventoryModel, ?>> olist;
+        olist = (ObservableList<TableColumn<InventoryModel, ?>>) inventorytable.getColumns();
+
+        for (int i = 0; i < olist.size(); i++) {
+            olist.get(i).setCellValueFactory(
+                    new PropertyValueFactory<>(arr[i])
+            );
+            
+            if(i == 4 || i == 5){
+                olist.get(i).setStyle("-fx-alignment: CENTER-RIGHT;");
+            }
+            else if(i == 2 || i == 3){
+                olist.get(i).setStyle("-fx-alignment: CENTER;");
+            }
+            else{
+                olist.get(i).setStyle("-fx-alignment: CENTER-LEFT;");
+            }
         }
         inventorytable.getItems().clear();
         inventorytable.setItems(data);
@@ -931,7 +1025,7 @@ public class MainController extends AbstractController implements Initializable 
         
         ReturnsController rc = fxmlloader.<ReturnsController>getController();
         rc.AddMode();
-        rc.initData(null, super.getType());
+        rc.initData(super.getGlobalUser(), super.getType());
         
         Scene scene = new Scene(root);
         Stage stage = (Stage) this.addreturnbtn.getScene().getWindow();
@@ -956,7 +1050,7 @@ public class MainController extends AbstractController implements Initializable 
 
             ReturnsController rc = fxmlloader.<ReturnsController>getController();
             rc.EditMode(this.returntable.getSelectionModel().getSelectedItem());
-            rc.initData(null, super.getType());
+            rc.initData(super.getGlobalUser(), super.getType());
 
             Scene scene = new Scene(root);
             Stage stage = (Stage) this.addreturnbtn.getScene().getWindow();
@@ -988,7 +1082,7 @@ public class MainController extends AbstractController implements Initializable 
         Parent root = (Parent) fxmlloader.load();
         
         ReturnsAdjustmentController rac = fxmlloader.<ReturnsAdjustmentController>getController();
-        rac.initData(null, super.getType());
+        rac.initData(super.getGlobalUser(), super.getType());
         rac.AddMode();
         
         Scene scene = new Scene(root);
@@ -1012,7 +1106,7 @@ public class MainController extends AbstractController implements Initializable 
             Parent root = (Parent) fxmlloader.load();
 
             ReturnsAdjustmentController rac = fxmlloader.<ReturnsAdjustmentController>getController();
-            rac.initData(null, super.getType());
+            rac.initData(super.getGlobalUser(), super.getType());
             rac.EditMode(this.returnadjtable.getSelectionModel().getSelectedItem());
 
             Scene scene = new Scene(root);
@@ -1037,7 +1131,7 @@ public class MainController extends AbstractController implements Initializable 
         Parent root = (Parent) fxmlloader.load();
         
         ReturnsAdjustmentController rac = fxmlloader.<ReturnsAdjustmentController>getController();
-        rac.initData(null, super.getType());
+        rac.initData(super.getGlobalUser(), super.getType());
         rac.ViewMode(this.returnadjtable.getSelectionModel().getSelectedItem());
         
         Scene scene = new Scene(root);
@@ -1050,6 +1144,9 @@ public class MainController extends AbstractController implements Initializable 
         substage.initModality(Modality.WINDOW_MODAL);
         substage.initOwner(stage);
         substage.showAndWait();
+        
+        this.getReturnsAdjustments();
+        this.getReturns();
 
     }
     
@@ -1078,6 +1175,40 @@ public class MainController extends AbstractController implements Initializable 
         this.returntable.setItems(data);
     }
     
+    public void getReturns(String sku) throws SQLException{
+        
+        String[] arr = {"sku", "skudesc", "retuom", "retwhs", "soh"};
+        ObservableList<ReturnsModel> data
+                = FXCollections.observableArrayList();
+        
+        Iterator rs = rq.getReturnsBySku(sku, super.getType());
+        
+        while(rs.hasNext()){
+            data.add((ReturnsModel)rs.next());
+        }
+        
+        ObservableList<TableColumn<ReturnsModel, ?>> olist;
+        olist = (ObservableList<TableColumn<ReturnsModel, ?>>) this.returntable.getColumns();
+
+        for (int i = 0; i < olist.size(); i++) {
+            olist.get(i).setCellValueFactory(
+                    new PropertyValueFactory<>(arr[i])
+            );
+            
+            if(i == 4){
+                olist.get(i).setStyle("-fx-alignment: CENTER-RIGHT;");
+            }
+            else if(i == 2 || i == 3){
+                olist.get(i).setStyle("-fx-alignment: CENTER;");
+            }
+            else{
+                olist.get(i).setStyle("-fx-alignment: CENTER-LEFT;");
+            }
+        }
+        this.returntable.getItems().clear();
+        this.returntable.setItems(data);
+    }
+    
     //DONE
     public void getReturnsAdjustments() throws SQLException{
         
@@ -1099,7 +1230,8 @@ public class MainController extends AbstractController implements Initializable 
                     new PropertyValueFactory<>(arr[i])
             );
         }
-    
+        
+        this.returnadjtable.getItems().clear();
         this.returnadjtable.setItems(data);
     }
     
@@ -1120,7 +1252,7 @@ public class MainController extends AbstractController implements Initializable 
         
         AddPriceViewController apvc = fxmlloader.<AddPriceViewController>getController();
         
-        apvc.initData(null, super.getType());
+        apvc.initData(super.getGlobalUser(), super.getType());
 
         Scene scene = new Scene(root);
         Stage stage = (Stage) addPricebtn.getScene().getWindow();
@@ -1145,7 +1277,7 @@ public class MainController extends AbstractController implements Initializable 
 
             EditPriceViewController epvc = fxmlloader.<EditPriceViewController>getController();
 
-            epvc.initData(null, super.getType());
+            epvc.initData(super.getGlobalUser(), super.getType());
             epvc.setPrice(this.pricetable.getSelectionModel().getSelectedItem());
 
             Scene scene = new Scene(root);
@@ -1173,7 +1305,7 @@ public class MainController extends AbstractController implements Initializable 
     
     //DONE
     public void getPrices() throws SQLException{
-        String[] arr = {"sku", "skudesc", "poprice", "sellingprice", "skuom", "effdte"};
+        String[] arr = {"sku", "skudesc", "poprice1", "sellingprice1", "skuom", "whs" ,"effdte"};
         ObservableList<PricesModel> data = FXCollections.observableArrayList();
         Iterator rs = iq.getAllPrices(super.getType());
         
@@ -1188,7 +1320,10 @@ public class MainController extends AbstractController implements Initializable 
             model.setPoprice(Double.parseDouble(map.get("poPrice").toString()));
             model.setSellingprice(Double.parseDouble(map.get("sellingPrice").toString()));
             model.setSkuom(map.get("skuom").toString());
+            model.setWhs(map.get("skuwh").toString());
             model.setEffdte(Date.valueOf(map.get("effectivedte").toString()));
+            model.setPoprice1();
+            model.setSellingprice1();
             data.add(model);
         }
         ObservableList<TableColumn<PricesModel, ?>> olist;
@@ -1198,6 +1333,60 @@ public class MainController extends AbstractController implements Initializable 
             olist.get(i).setCellValueFactory(
                     new PropertyValueFactory<>(arr[i])
             );
+            
+            if(i == 2 || i == 3){
+                olist.get(i).setStyle("-fx-alignment: CENTER-RIGHT;");
+            }
+            else if(i == 4){
+                olist.get(i).setStyle("-fx-alignment: CENTER;");
+            }
+            else{
+                olist.get(i).setStyle("-fx-alignment: CENTER-LEFT;");
+            }
+        }
+        pricetable.setItems(data);
+    }
+    
+     public void getPrices(String sku) throws SQLException{
+        String[] arr = {"sku", "skudesc", "poprice1", "sellingprice1", "skuom", "whs" ,"effdte"};
+        ObservableList<PricesModel> data = FXCollections.observableArrayList();
+        Iterator rs = iq.getAllPrices(sku, super.getType());
+        
+        while(rs.hasNext()){
+            HashMap map = (HashMap) rs.next();
+            PricesModel model = new PricesModel();
+            
+            model.setIdprices(Integer.parseInt(map.get("idPrices").toString()));
+            model.setIdinventory(Integer.parseInt(map.get("idinventory").toString()));
+            model.setSku(map.get("sku").toString());
+            model.setSkudesc(map.get("skudesc").toString());
+            model.setPoprice(Double.parseDouble(map.get("poPrice").toString()));
+            model.setSellingprice(Double.parseDouble(map.get("sellingPrice").toString()));
+            model.setSkuom(map.get("skuom").toString());
+            model.setWhs(map.get("skuwh").toString());
+            
+            model.setEffdte(Date.valueOf(map.get("effectivedte").toString()));
+            model.setPoprice1();
+            model.setSellingprice1();
+            data.add(model);
+        }
+        ObservableList<TableColumn<PricesModel, ?>> olist;
+        olist = (ObservableList<TableColumn<PricesModel, ?>>) pricetable.getColumns();
+
+        for (int i = 0; i < olist.size(); i++) {
+            olist.get(i).setCellValueFactory(
+                    new PropertyValueFactory<>(arr[i])
+            );
+            
+            if(i == 2 || i == 3){
+                olist.get(i).setStyle("-fx-alignment: CENTER-RIGHT;");
+            }
+            else if(i == 4){
+                olist.get(i).setStyle("-fx-alignment: CENTER;");
+            }
+            else{
+                olist.get(i).setStyle("-fx-alignment: CENTER-LEFT;");
+            }
         }
         pricetable.setItems(data);
     }
@@ -1387,13 +1576,13 @@ public class MainController extends AbstractController implements Initializable 
                 roq.SRSummaryReport(); 
                 break;
             case "Sales Return Detailed Report" :  
-                roq.SRDetailedReport(); 
+                roq.SRDetailedReport(Date.valueOf(this.fromdte.getValue()), Date.valueOf(this.todte.getValue())); 
                 break;
             case "FG Inventory Summary Report" :  
                 roq.InventorySummaryReport(); 
                 break;
             case "FG Inventory Detailed Report" :  
-                roq.InventoryDetailedReport(); 
+                roq.InventoryDetailedReport(Date.valueOf(this.fromdte.getValue()), Date.valueOf(this.todte.getValue())); 
                 break;
             case "FG Inventory Critical Stock Report" :  
                 roq.InventoryCriticalStockReport(); 

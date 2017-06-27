@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
+<?import javafx.geometry.*?>
 <?import java.lang.*?>
 <?import javafx.scene.control.*?>
 <?import javafx.scene.image.*?>
@@ -48,7 +49,7 @@
          </image>
       </ImageView>
       <Button layoutX="907.0" layoutY="31.0" mnemonicParsing="false" text="Refresh" />
-      <TabPane layoutX="11.0" layoutY="87.0" prefHeight="507.0" prefWidth="951.0" tabClosingPolicy="UNAVAILABLE">
+      <TabPane fx:id="mm_pane" layoutX="11.0" layoutY="87.0" prefHeight="507.0" prefWidth="951.0" tabClosingPolicy="UNAVAILABLE">
          <tabs>
             <Tab fx:id="suppliertab" text="Supplier">
                <content>
@@ -69,7 +70,8 @@
                         <Button fx:id="viewsupbtn" layoutX="199.0" layoutY="7.0" mnemonicParsing="false" onAction="#viewSupplier" text="View Supplier" />
                         <Button fx:id="editsupbtn" layoutX="105.0" layoutY="7.0" mnemonicParsing="false" onAction="#editSupplier" text="Edit Supplier" />
                         <Button fx:id="addsupbtn" layoutX="10.0" layoutY="7.0" mnemonicParsing="false" onAction="#addSupplier" text="Add Supplier" />
-                        <Button fx:id="viewPurchases" layoutX="298.0" layoutY="7.0" mnemonicParsing="false" onAction="#viewPurchases" text="View Purchases" />
+                        <Button fx:id="viewprchbtn" layoutX="298.0" layoutY="7.0" mnemonicParsing="false" onAction="#viewPurchases" text="View Purchases" />
+                        <Button fx:id="viewprcbtn" layoutX="403.0" layoutY="7.0" mnemonicParsing="false" onAction="#viewPriceList" text="View Price List" />
                      </children>
                   </AnchorPane>
                </content>
@@ -88,7 +90,7 @@
                                              <children>
                                                 <TableView fx:id="inventorytable" prefHeight="200.0" prefWidth="200.0">
                                                    <columns>
-                                                      <TableColumn prefWidth="147.0" text="SKU#" />
+                                                      <TableColumn prefWidth="147.0" text="PM Code#" />
                                                       <TableColumn prefWidth="300.0" text="Description" />
                                                       <TableColumn minWidth="0.0" prefWidth="51.0" text="UOM" />
                                                       <TableColumn prefWidth="239.0" text="Warehouse" />
@@ -104,6 +106,7 @@
                                                 <Button fx:id="editInventorybtn" mnemonicParsing="false" onAction="#editInventory" text="Edit Item" />
                                                 <Button fx:id="iabtn" mnemonicParsing="false" onAction="#inventoryAdjustment" text="Add Inventory Adjustment" />
                                                 <Button fx:id="addmgibtn" mnemonicParsing="false" onAction="#addMGI" text="Add Manual Goods Issue" />
+                                                <Button fx:id="addmgrbtn" mnemonicParsing="false" onAction="#addMGR" text="Add Manual Goods Receipt" />
                                              </items>
                                           </ToolBar>
                                        </children>
@@ -119,8 +122,10 @@
                                                 <TableView fx:id="inventoryadjtable" prefHeight="200.0" prefWidth="200.0">
                                                    <columns>
                                                       <TableColumn prefWidth="147.0" text="INVADJ#" />
-                                                      <TableColumn prefWidth="643.0" text="INVADJ Date" />
-                                                      <TableColumn minWidth="0.0" prefWidth="153.0" text="Status Y/N" />
+                                                      <TableColumn prefWidth="194.0" text="INVADJ Date" />
+                                                      <TableColumn minWidth="0.0" prefWidth="375.0" text="Description" />
+                                                      <TableColumn minWidth="0.0" prefWidth="78.0" text="Reference#" />
+                                                      <TableColumn minWidth="0.0" prefWidth="149.0" text="Post To Inventory Status" />
                                                    </columns>
                                                 </TableView>
                                              </children>
@@ -161,6 +166,86 @@
                                     </AnchorPane>
                                  </content>
                               </Tab>
+                              <Tab text="Mannual Goods Receipts">
+                                 <content>
+                                    <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0">
+                                       <children>
+                                          <StackPane layoutX="-1.0" layoutY="39.0" prefHeight="390.0" prefWidth="944.0">
+                                             <children>
+                                                <TableView fx:id="mgrtable" prefHeight="200.0" prefWidth="200.0">
+                                                   <columns>
+                                                      <TableColumn prefWidth="147.0" text="GR#" />
+                                                      <TableColumn prefWidth="257.0" text="GR Date" />
+                                                      <TableColumn minWidth="0.0" prefWidth="395.0" text="Supplier Name" />
+                                                      <TableColumn prefWidth="144.0" text="PGR Status" />
+                                                   </columns>
+                                                </TableView>
+                                             </children>
+                                          </StackPane>
+                                          <ToolBar layoutX="-1.0" prefHeight="40.0" prefWidth="945.0">
+                                             <items>
+                                                <Button fx:id="editmgrbtn" mnemonicParsing="false" onAction="#editMGR" text="Edit Manual Goods Receipt" />
+                                                <Button fx:id="viewmgrbtn" mnemonicParsing="false" onAction="#viewMGR" text="View Manual Goods Receipt" />
+                                             </items>
+                                          </ToolBar>
+                                       </children>
+                                    </AnchorPane>
+                                 </content>
+                              </Tab>
+                              <Tab text="Stock Transfer">
+                                 <content>
+                                    <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0">
+                                       <children>
+                                          <StackPane layoutX="-1.0" layoutY="39.0" prefHeight="390.0" prefWidth="944.0">
+                                             <children>
+                                                <TableView fx:id="sttable" prefHeight="200.0" prefWidth="200.0">
+                                                   <columns>
+                                                      <TableColumn prefWidth="147.0" text="ST#" />
+                                                      <TableColumn prefWidth="257.0" text="ST Date" />
+                                                      <TableColumn minWidth="0.0" prefWidth="395.0" text="Sold To" />
+                                                      <TableColumn prefWidth="144.0" text="ST Status" />
+                                                   </columns>
+                                                </TableView>
+                                             </children>
+                                          </StackPane>
+                                          <ToolBar layoutX="-1.0" prefHeight="40.0" prefWidth="945.0">
+                                             <items>
+                                                <Button fx:id="addstbtn" mnemonicParsing="false" onAction="#addST" text="Add Stock Transfer" />
+                                                <Button fx:id="editstbtn" mnemonicParsing="false" onAction="#editST" text="Edit Stock Transfer" />
+                                                <Button fx:id="viewstbtn" mnemonicParsing="false" onAction="#viewST" text="View Stock Transfer" />
+                                             </items>
+                                          </ToolBar>
+                                       </children>
+                                    </AnchorPane>
+                                 </content>
+                              </Tab>
+                              <Tab text="Stock Transmittal">
+                                 <content>
+                                    <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0">
+                                       <children>
+                                          <StackPane layoutX="-1.0" layoutY="39.0" prefHeight="390.0" prefWidth="944.0">
+                                             <children>
+                                                <TableView fx:id="stmtable" prefHeight="200.0" prefWidth="200.0">
+                                                   <columns>
+                                                      <TableColumn prefWidth="147.0" text="GI#" />
+                                                      <TableColumn prefWidth="257.0" text="GI Date" />
+                                                      <TableColumn minWidth="0.0" prefWidth="395.0" text="Supplier Name" />
+                                                      <TableColumn prefWidth="144.0" text="PGI Status" />
+                                                   </columns>
+                                                </TableView>
+                                             </children>
+                                          </StackPane>
+                                          <ToolBar layoutX="-1.0" prefHeight="40.0" prefWidth="945.0">
+                                             <items>
+                                                <Button fx:id="addstmbtn" mnemonicParsing="false" onAction="#addSTM" text="Add Stock Transmittal" />
+                                                <Button fx:id="editstmbtn" mnemonicParsing="false" onAction="#editSTM" text="Edit Stock Transmittal" />
+                                                <Button fx:id="viewstmbtn" mnemonicParsing="false" onAction="#viewSTM" text="View Stock Transmittal" />
+                                             </items>
+                                          </ToolBar>
+                                       </children>
+                                    </AnchorPane>
+                                 </content>
+                              </Tab>
                            </tabs>
                         </TabPane>
                      </children>
@@ -171,22 +256,49 @@
                <content>
                   <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0">
                      <children>
-                        <StackPane layoutY="39.0" prefHeight="440.0" prefWidth="951.0">
+                        <Button fx:id="viewbombtn" layoutX="14.0" layoutY="27.0" mnemonicParsing="false" onAction="#viewBOM" text="View Bill Of Material (BOM)" />
+                        <StackPane layoutX="14.0" layoutY="60.0" prefHeight="419.0" prefWidth="441.0">
                            <children>
-                              <TableView fx:id="suppliertable1" prefHeight="200.0" prefWidth="200.0">
+                              <TableView fx:id="fginventorytable" prefHeight="200.0" prefWidth="200.0">
+                                <columns>
+                                  <TableColumn prefWidth="84.0" text="SKU" />
+                                  <TableColumn prefWidth="248.0" text="Description" />
+                                    <TableColumn prefWidth="36.0" text="UOM" />
+                                    <TableColumn prefWidth="72.0" text="Warehouse" />
+                                </columns>
+                              </TableView>
+                           </children>
+                        </StackPane>
+                        <Label layoutX="14.0" layoutY="4.0" text="FG Inventory">
+                           <font>
+                              <Font name="System Bold" size="15.0" />
+                           </font>
+                           <padding>
+                              <Insets right="20.0" />
+                           </padding>
+                        </Label>
+                        <StackPane layoutX="484.0" layoutY="60.0" prefHeight="418.0" prefWidth="467.0">
+                           <children>
+                              <TableView fx:id="pminventorytable" editable="true" prefHeight="200.0" prefWidth="200.0">
                                  <columns>
-                                    <TableColumn prefWidth="147.0" text="SKU#" />
-                                    <TableColumn prefWidth="218.0" text="SKU Description" />
-                                    <TableColumn minWidth="0.0" prefWidth="58.0" text="UOM" />
-                                    <TableColumn prefWidth="96.0" text="Warehouse" />
+                                    <TableColumn prefWidth="75.0" text="PM Code" />
+                                    <TableColumn prefWidth="214.0" text="Description" />
+                                    <TableColumn prefWidth="38.0" text="UOM" />
+                                    <TableColumn prefWidth="70.0" text="Warehouse" />
+                                    <TableColumn prefWidth="69.0" text="BOM Qty" />
                                  </columns>
                               </TableView>
                            </children>
                         </StackPane>
-                        <Button fx:id="viewsupbtn1" layoutX="199.0" layoutY="7.0" mnemonicParsing="false" onAction="#viewSupplier" text="View Supplier" />
-                        <Button fx:id="editsupbtn1" layoutX="105.0" layoutY="7.0" mnemonicParsing="false" onAction="#editSupplier" text="Edit Supplier" />
-                        <Button fx:id="addsupbtn1" layoutX="10.0" layoutY="7.0" mnemonicParsing="false" onAction="#addSupplier" text="Add Supplier" />
-                        <Button fx:id="viewPurchases1" layoutX="298.0" layoutY="7.0" mnemonicParsing="false" onAction="#viewPurchases" text="View Purchases" />
+                        <Label layoutX="484.0" layoutY="39.0" text="PM Inventory">
+                           <font>
+                              <Font name="System Bold" size="15.0" />
+                           </font>
+                           <padding>
+                              <Insets right="20.0" />
+                           </padding>
+                        </Label>
+                        <Button fx:id="exportbombtn" layoutX="193.0" layoutY="27.0" mnemonicParsing="false" onAction="#exportBOM" text="Export Bill of Material (BOM)" />
                      </children>
                   </AnchorPane>
                </content>
@@ -205,11 +317,11 @@
                                              <children>
                                                 <TableView fx:id="returntable" prefHeight="200.0" prefWidth="200.0">
                                                    <columns>
-                                                      <TableColumn prefWidth="235.5" text="SKU#" />
-                                                      <TableColumn minWidth="0.0" prefWidth="182.0" text="Description" />
-                                                      <TableColumn minWidth="0.0" prefWidth="79.0" text="UOM" />
-                                                      <TableColumn prefWidth="204.0" text="Warehouse" />
-                                                      <TableColumn minWidth="0.0" prefWidth="242.0" text="Returned Stock Quantity" />
+                                                      <TableColumn prefWidth="143.0" text="PM Code#" />
+                                                      <TableColumn minWidth="0.0" prefWidth="515.0" text="Description" />
+                                                      <TableColumn minWidth="0.0" prefWidth="39.0" text="UOM" />
+                                                      <TableColumn prefWidth="82.0" text="Warehouse" />
+                                                      <TableColumn minWidth="0.0" prefWidth="164.0" text="Returned Stock Quantity" />
                                                    </columns>
                                                 </TableView>
                                              </children>
@@ -218,7 +330,6 @@
                                              <items>
                                                 <Button fx:id="addreturnbtn" mnemonicParsing="false" onAction="#addReturns" text="Add Returns" />
                                                 <Button fx:id="editreturnbtn" mnemonicParsing="false" onAction="#editReturns" text="Edit Returns" />
-                                                <Button fx:id="viewreturnbtn" mnemonicParsing="false" onAction="#viewReturns" text="View Returns" />
                                                 <Button fx:id="returnsabtn" mnemonicParsing="false" onAction="#returnsAdjustment" text="Returns Adjustment" />
                                              </items>
                                           </ToolBar>
@@ -226,7 +337,7 @@
                                     </AnchorPane>
                                  </content>
                               </Tab>
-                              <Tab text="Transactions">
+                              <Tab text="Return Adjustments">
                                  <content>
                                     <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0">
                                        <children>
@@ -258,164 +369,29 @@
                   </AnchorPane>
                </content>
             </Tab>
-            <Tab fx:id="pricestab" text="PM Prices">
-               <content>
-                  <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0">
-                     <children>
-                        <StackPane layoutY="39.0" prefHeight="440.0" prefWidth="951.0">
-                           <children>
-                              <TableView fx:id="pricetable" prefHeight="200.0" prefWidth="200.0">
-                                 <columns>
-                                    <TableColumn prefWidth="118.0" text="SKU#" />
-                                    <TableColumn prefWidth="234.0" text="Description" />
-                                    <TableColumn minWidth="0.0" prefWidth="96.0" text="PO Price" />
-                                    <TableColumn prefWidth="127.0" text="Selling Price" />
-                                    <TableColumn minWidth="0.0" prefWidth="81.0" text="UOM" />
-                                    <TableColumn prefWidth="347.0" text="Effect Date" />
-                                 </columns>
-                              </TableView>
-                           </children>
-                        </StackPane>
-                        <Button fx:id="addPricebtn" layoutX="10.0" layoutY="7.0" mnemonicParsing="false" onAction="#addPrice" text="Add Price" />
-                        <Button fx:id="editPricebtn" layoutX="85.0" layoutY="7.0" mnemonicParsing="false" onAction="#editPrice" text="Edit Price" />
-                     </children>
-                  </AnchorPane>
-               </content>
-            </Tab>
             <Tab fx:id="reports" text="Reports">
                <content>
                   <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="441.0" prefWidth="874.0">
                      <children>
-                        <TabPane layoutX="9.0" layoutY="12.0" prefHeight="455.0" prefWidth="943.0" tabClosingPolicy="UNAVAILABLE">
-                           <tabs>
-                              <Tab text="Purchases Reports">
-                                 <content>
-                                    <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0">
-                                       <children>
-                                          <DatePicker layoutX="57.0" layoutY="7.0" />
-                                          <DatePicker layoutX="284.0" layoutY="8.0" />
-                                          <Label layoutX="10.0" layoutY="12.0" text="From:">
-                                             <font>
-                                                <Font name="Arial" size="14.0" />
-                                             </font>
-                                          </Label>
-                                          <Label layoutX="255.0" layoutY="12.0" text="To:">
-                                             <font>
-                                                <Font name="Arial" size="14.0" />
-                                             </font>
-                                          </Label>
-                                          <Button layoutX="469.0" layoutY="8.0" mnemonicParsing="false" text="Export Report" />
-                                       </children>
-                                    </AnchorPane>
-                                 </content>
-                              </Tab>
-                              <Tab text="Sales Order Report">
-                                 <content>
-                                    <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0">
-                                       <children>
-                                          <DatePicker layoutX="57.0" layoutY="7.0" />
-                                          <DatePicker layoutX="284.0" layoutY="8.0" />
-                                          <Label layoutX="10.0" layoutY="12.0" text="From:">
-                                             <font>
-                                                <Font name="Arial" size="14.0" />
-                                             </font>
-                                          </Label>
-                                          <Label layoutX="255.0" layoutY="12.0" text="To:">
-                                             <font>
-                                                <Font name="Arial" size="14.0" />
-                                             </font>
-                                          </Label>
-                                          <Button layoutX="469.0" layoutY="8.0" mnemonicParsing="false" text="Export Report" />
-                                       </children>
-                                    </AnchorPane>
-                                 </content>
-                              </Tab>
-                              <Tab text="Sales Return Summary Report">
-                                 <content>
-                                    <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0">
-                                       <children>
-                                          <DatePicker layoutX="57.0" layoutY="7.0" />
-                                          <DatePicker layoutX="284.0" layoutY="8.0" />
-                                          <Label layoutX="10.0" layoutY="12.0" text="From:">
-                                             <font>
-                                                <Font name="Arial" size="14.0" />
-                                             </font>
-                                          </Label>
-                                          <Label layoutX="255.0" layoutY="12.0" text="To:">
-                                             <font>
-                                                <Font name="Arial" size="14.0" />
-                                             </font>
-                                          </Label>
-                                          <Button layoutX="469.0" layoutY="8.0" mnemonicParsing="false" text="Export Report" />
-                                       </children>
-                                    </AnchorPane>
-                                 </content>
-                              </Tab>
-                              <Tab text="FG Inventory Summary Report">
-                                 <content>
-                                    <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0">
-                                       <children>
-                                          <DatePicker layoutX="57.0" layoutY="7.0" />
-                                          <DatePicker layoutX="284.0" layoutY="8.0" />
-                                          <Label layoutX="10.0" layoutY="12.0" text="From:">
-                                             <font>
-                                                <Font name="Arial" size="14.0" />
-                                             </font>
-                                          </Label>
-                                          <Label layoutX="255.0" layoutY="12.0" text="To:">
-                                             <font>
-                                                <Font name="Arial" size="14.0" />
-                                             </font>
-                                          </Label>
-                                          <Button layoutX="469.0" layoutY="8.0" mnemonicParsing="false" text="Export Report" />
-                                       </children>
-                                    </AnchorPane>
-                                 </content>
-                              </Tab>
-                              <Tab text="FG Inventory Detailed Report">
-                                 <content>
-                                    <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0">
-                                       <children>
-                                          <DatePicker layoutX="57.0" layoutY="7.0" />
-                                          <DatePicker layoutX="284.0" layoutY="8.0" />
-                                          <Label layoutX="10.0" layoutY="12.0" text="From:">
-                                             <font>
-                                                <Font name="Arial" size="14.0" />
-                                             </font>
-                                          </Label>
-                                          <Label layoutX="255.0" layoutY="12.0" text="To:">
-                                             <font>
-                                                <Font name="Arial" size="14.0" />
-                                             </font>
-                                          </Label>
-                                          <Button layoutX="469.0" layoutY="8.0" mnemonicParsing="false" text="Export Report" />
-                                       </children>
-                                    </AnchorPane>
-                                 </content>
-                              </Tab>
-                              <Tab text="FG Inventory Critical Stock Report">
-                                 <content>
-                                    <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0">
-                                       <children>
-                                          <DatePicker layoutX="57.0" layoutY="7.0" />
-                                          <DatePicker layoutX="284.0" layoutY="8.0" />
-                                          <Label layoutX="10.0" layoutY="12.0" text="From:">
-                                             <font>
-                                                <Font name="Arial" size="14.0" />
-                                             </font>
-                                          </Label>
-                                          <Label layoutX="255.0" layoutY="12.0" text="To:">
-                                             <font>
-                                                <Font name="Arial" size="14.0" />
-                                             </font>
-                                          </Label>
-                                          <Button layoutX="469.0" layoutY="8.0" mnemonicParsing="false" text="Export Report" />
-                                       </children>
-                                    </AnchorPane>
-                                 </content>
-                              </Tab>
-                           </tabs>
-                        </TabPane>
+                        <DatePicker fx:id="todte" layoutX="70.0" layoutY="130.0" prefHeight="25.0" prefWidth="200.0" />
+                        <DatePicker fx:id="fromdte" layoutX="70.0" layoutY="80.0" prefHeight="25.0" prefWidth="201.0" />
+                        <Label layoutX="23.0" layoutY="84.0" text="From:">
+                           <font>
+                              <Font name="Arial" size="14.0" />
+                           </font>
+                        </Label>
+                        <Label layoutX="23.0" layoutY="134.0" text="To:">
+                           <font>
+                              <Font name="Arial" size="14.0" />
+                           </font>
+                        </Label>
+                        <Button fx:id="exportbtn" layoutX="23.0" layoutY="202.0" mnemonicParsing="false" onAction="#exportReport" text="Export Report" />
+                        <Label layoutX="23.0" layoutY="35.0" text="Select Report: ">
+                           <font>
+                              <Font name="Arial" size="14.0" />
+                           </font>
+                        </Label>
+                        <ComboBox fx:id="reportsbox" layoutX="124.0" layoutY="31.0" prefWidth="150.0" />
                      </children>
                   </AnchorPane>
                </content>

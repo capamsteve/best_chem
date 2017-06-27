@@ -8,20 +8,27 @@ package main;
 
 import best_chem.AbstractController;
 import dbquerries.InventoryQuery;
+import dbquerries.PMInventoryQuery;
+import dbquerries.ReportsQuery;
 import dbquerries.ReturnsQuery;
+import dbquerries.StockTransferQuery;
+import dbquerries.StockTransmittalQuery;
 import dbquerries.SupplierQuery;
 import dbquerries.UtilitiesQuery;
+import inventory.BOMViewController;
 import inventory.InventoryAdjustmentEntryController;
 import inventory.InventoryItemController;
 import java.io.IOException;
 import java.net.URL;
 import java.sql.Date;
 import java.sql.SQLException;
-import java.util.HashMap;
+import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.ResourceBundle;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import javafx.beans.value.ChangeListener;
+import javafx.beans.value.ObservableValue;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
@@ -32,29 +39,41 @@ import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.control.Alert;
 import javafx.scene.control.Button;
+import javafx.scene.control.ComboBox;
+import javafx.scene.control.DatePicker;
 import javafx.scene.control.Tab;
+import javafx.scene.control.TabPane;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
 import javafx.scene.control.cell.PropertyValueFactory;
+import javafx.scene.input.MouseButton;
+import javafx.scene.input.MouseEvent;
 import javafx.scene.text.Text;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
+import mgi.ManualGoodsIssueController;
+import mgr.ManualGoodsReceiptController;
 import models.InventoryAdjustmentModel;
 import models.InventoryModel;
 import models.MGIModel;
 import models.PricesModel;
 import models.ReturnAdjustmentModel;
 import models.ReturnsModel;
+import models.StockTransferModel;
+import models.StockTransmittalModel;
 import models.SupplierModel;
 import models.UOMmodel;
 import models.UserModel;
 import models.WHSModel;
-import prices.AddPriceViewController;
-import prices.EditPriceViewController;
-import purchases.PurchaseController;
+import prices.PriceListViewController;
+import mm_purchases.PurchaseController;
+import models.BOModel;
+import purchases.PurchaseOrderSelectorController;
 import returns.ReturnsAdjustmentController;
 import returns.ReturnsController;
+import stocktransfer.StockTransferController;
 import supplier.SupplierController;
+import transmittal.StockTransmittalViewController;
 import utilities.UOMController;
 import utilities.WHSController;
 
@@ -182,12 +201,189 @@ public class MainController_1 extends AbstractController implements Initializabl
     
     @FXML
     private Button editreturnadjbtn;
+    
+    
+    @FXML
+    private ComboBox<String> reportsbox;
+
+    @FXML
+    private Button viewmgrbtn;
+
+    @FXML
+    private Button exportbtn;
+
+    @FXML
+    private Button editmgrbtn;
+
+    @FXML
+    private Button addmgrbtn;
+
+    @FXML
+    private Tab suppliertab1;
+
+    @FXML
+    private TableView<MGIModel> mgrtable;
+
+    @FXML
+    private Button viewprchbtn;
+
+    @FXML
+    private TableView<BOModel> pminventorytable;
+
+    @FXML
+    private Button viewbombtn;
+
+    @FXML
+    private Button viewprcbtn;
+
+    @FXML
+    private DatePicker todte;
+    
+    @FXML
+    private TableView<InventoryModel> fginventorytable;
+
+    @FXML
+    private DatePicker fromdte;
+    
+    @FXML
+    private TabPane mm_pane;
+
+    @FXML
+    private Button viewstbtn;
+
+    @FXML
+    private TableView<StockTransferModel> sttable;
+
+    @FXML
+    private Button addstbtn;
+
+    @FXML
+    private Button editstbtn;
+    
+        
+    @FXML
+    private Button editstmbtn;
+
+    @FXML
+    private Button viewstmbtn;
+
+    @FXML
+    private Button addstmbtn;
+    
+    @FXML
+    private Button exportbombtn;
+
+    @FXML
+    private TableView<StockTransmittalModel> stmtable;
 
     @FXML
     private TableView<ReturnAdjustmentModel> returnadjtable;
     
+    private final ArrayList<String> reportslist = new ArrayList();
+    
     private final UtilitiesQuery uq = new UtilitiesQuery();
     private final SupplierQuery sq = new SupplierQuery();
+    private final InventoryQuery iq = new InventoryQuery();
+    private final ReturnsQuery rq = new ReturnsQuery();
+    private final ReportsQuery roq = new ReportsQuery();
+    private final StockTransferQuery stq = new StockTransferQuery();
+    private final StockTransmittalQuery stq2 = new StockTransmittalQuery();
+    private final PMInventoryQuery pim = new PMInventoryQuery();
+    
+    @Override
+    public void initData(UserModel user, int type) {
+        super.setGlobalUser(user);
+        super.setType(type);
+        useridfld.setText(String.valueOf(super.getGlobalUser().getId()));
+        
+        try {
+            this.getSuppliers();
+        } catch (SQLException ex) {
+            Logger.getLogger(MainController_1.class.getName()).log(Level.SEVERE, null, ex);
+        }
+        
+        this.fginventorytable.setOnMouseClicked((MouseEvent event) -> {
+            if(event.getButton().equals(MouseButton.PRIMARY)){
+                try {
+                    this.getBOM(this.fginventorytable.getSelectionModel().getSelectedItem().getIdinventory());
+                } catch (SQLException ex) {
+                    Logger.getLogger(MainController_1.class.getName()).log(Level.SEVERE, null, ex);
+                }
+            }
+        });
+        
+        this.mm_pane.getSelectionModel().selectedIndexProperty().addListener(new ChangeListener<Number>(){
+
+            @Override
+            public void changed(ObservableValue<? extends Number> observable, Number oldValue, Number newValue) {
+                try {
+                    switch(Integer.parseInt(newValue.toString())){
+                        case 0 : getSuppliers(); 
+                            break;
+                        case 1 : getInventory();
+                                 getInventoryAdjustments();//PM INVENTORY
+                                 getMGI();
+                                 getMGR();
+                                 getStockTransfers();
+                                 getStockTransmittals();
+                            break;
+                        case 2 : getFGInventory();//BOM    
+                                 
+                            break;
+                        case 3 : getReturns();//PM RETURNS
+                                 getReturnsAdjustments();
+                            break;
+                        case 4 :  
+                            break;
+                        case 5 : getWHS();
+                            break;
+                        case 6 : getUOMS();
+                            break;
+                    }
+                } catch (SQLException ex) {
+                    Logger.getLogger(MainController.class.getName()).log(Level.SEVERE, null, ex);
+                }
+            }
+            
+        });
+    }
+
+    @Override
+    public void initialize(URL location, ResourceBundle resources) {
+        reportslist.add("Purchases Report");
+        reportslist.add("PM Stock Transfer Report");
+        reportslist.add("PM Return Summary Report");
+        reportslist.add("PM Return Detailed Report");
+        reportslist.add("PM Inventory Summary Report");
+        reportslist.add("PM Inventory Detailed Report");
+        reportslist.add("PM Inventory Critical Stock Report");
+        reportslist.add("PM Stock Transfer Report");
+        
+        this.reportsbox.getItems().addAll(reportslist);
+    }
+    
+    /**
+     * 
+     * SUPPLIER
+     * 1. add
+     * 2. edit
+     * 3. view purchases
+     * 4. view price list
+     * 
+     * PM INVENTORY
+     * 
+     * BOM
+     * 
+     * PM RETURNS
+     * 
+     * REPORTS
+     * 
+     * WHS
+     * 
+     * UOM
+     * 
+     * 
+     */
 
     @FXML
     public void addSupplier(ActionEvent event) throws IOException, SQLException {
@@ -196,7 +392,7 @@ public class MainController_1 extends AbstractController implements Initializabl
         
         SupplierController sc = fxmlloader.<SupplierController>getController();
         sc.AddMode();
-        sc.initData(null, super.getType());
+        sc.initData(super.getGlobalUser(), super.getType());
 
         Scene scene = new Scene(root);
         Stage stage = (Stage) addsupbtn.getScene().getWindow();
@@ -219,7 +415,7 @@ public class MainController_1 extends AbstractController implements Initializabl
             Parent root = (Parent) fxmlloader.load();
 
             SupplierController sc = fxmlloader.<SupplierController>getController();
-            sc.initData(null, super.getType());
+            sc.initData(super.getGlobalUser(), super.getType());
             sc.EditMode(this.suppliertable.getSelectionModel().getSelectedItem());
 
             Scene scene = new Scene(root);
@@ -251,7 +447,7 @@ public class MainController_1 extends AbstractController implements Initializabl
             Parent root = (Parent) fxmlloader.load();
 
             SupplierController sc = fxmlloader.<SupplierController>getController();
-            sc.initData(null, super.getType());
+            sc.initData(super.getGlobalUser(), super.getType());
             sc.ViewMode(this.suppliertable.getSelectionModel().getSelectedItem());
 
             Scene scene = new Scene(root);
@@ -276,6 +472,60 @@ public class MainController_1 extends AbstractController implements Initializabl
         }
     }
     
+    //DONE
+    @FXML
+    public void viewPurchases(ActionEvent event) {
+        try{
+            FXMLLoader fxmlloader = new FXMLLoader(getClass().getResource("/mm_purchases/PurchaseView.fxml"));
+            Parent root = (Parent) fxmlloader.load();
+
+            PurchaseController poc = fxmlloader.<PurchaseController>getController();
+            poc.initData(this.getGlobalUser(), super.getType());
+            poc.setSupplier(this.suppliertable.getSelectionModel().getSelectedItem());
+
+            Scene scene = new Scene(root);
+            Stage stage = (Stage) this.viewprchbtn.getScene().getWindow();
+            Stage substage = new Stage();
+            substage.setScene(scene);
+            substage.setResizable(false);
+            substage.sizeToScene();
+            substage.setTitle("View Purchase Orders");
+            substage.initModality(Modality.WINDOW_MODAL);
+            substage.initOwner(stage);
+            substage.showAndWait();
+        }catch(Exception e){
+            e.printStackTrace();
+            Alert alert = new Alert(Alert.AlertType.INFORMATION);
+            alert.setTitle("Information Dialog");
+            alert.setHeaderText(null);
+            alert.setContentText("Please Select A Supplier");
+
+            alert.showAndWait();
+        }
+    }
+    
+    @FXML
+    void viewPriceList(ActionEvent event) throws IOException, SQLException {
+        FXMLLoader fxmlloader = new FXMLLoader(getClass().getResource("/prices/PriceListView.fxml"));
+        Parent root = (Parent) fxmlloader.load();
+
+        PriceListViewController plvc = fxmlloader.<PriceListViewController>getController();
+        plvc.initData(super.getGlobalUser(), super.getType());
+        plvc.setSupplier(this.suppliertable.getSelectionModel().getSelectedItem());
+        
+        Scene scene = new Scene(root);
+        Stage stage = (Stage) this.viewprchbtn.getScene().getWindow();
+        Stage substage = new Stage();
+        substage.setScene(scene);
+        substage.setResizable(false);
+        substage.sizeToScene();
+        substage.setTitle("View Price List");
+        substage.initModality(Modality.WINDOW_MODAL);
+        substage.initOwner(stage);
+        substage.showAndWait();
+    }
+    
+    //DONE
     public void getSuppliers() throws SQLException{
         
         Iterator rs = sq.getAllSuppliers(super.getType());
@@ -303,47 +553,16 @@ public class MainController_1 extends AbstractController implements Initializabl
         this.suppliertable.setItems(data);
         
     }
-
-    @FXML
-    public void viewPurchases(ActionEvent event) {
-        try{
-            FXMLLoader fxmlloader = new FXMLLoader(getClass().getResource("/purchases/PurchaseView.fxml"));
-            Parent root = (Parent) fxmlloader.load();
-
-            PurchaseController poc = fxmlloader.<PurchaseController>getController();
-            poc.initData(this.getGlobalUser(), super.getType());
-            poc.setSupplier(this.suppliertable.getSelectionModel().getSelectedItem());
-
-            Scene scene = new Scene(root);
-            Stage stage = (Stage) this.viewPurchases.getScene().getWindow();
-            Stage substage = new Stage();
-            substage.setScene(scene);
-            substage.setResizable(false);
-            substage.sizeToScene();
-            substage.setTitle("View Purchase Orders");
-            substage.initModality(Modality.WINDOW_MODAL);
-            substage.initOwner(stage);
-            substage.showAndWait();
-        }catch(Exception e){
-            e.printStackTrace();
-            Alert alert = new Alert(Alert.AlertType.INFORMATION);
-            alert.setTitle("Information Dialog");
-            alert.setHeaderText(null);
-            alert.setContentText("Please Select A Supplier");
-
-            alert.showAndWait();
-        }
-    }
-
+    
+    //DONE
     @FXML
     public void addInventory(ActionEvent event) throws IOException, SQLException {
         FXMLLoader fxmlloader = new FXMLLoader(getClass().getResource("/inventory/InventoryItemView.fxml"));
         Parent root = (Parent) fxmlloader.load();
         
         InventoryItemController iic = fxmlloader.<InventoryItemController>getController();
-        System.out.println("BEFORE: " + super.getType());
         iic.AddMode();
-        iic.initData(null, super.getType());
+        iic.initData(super.getGlobalUser(), super.getType());
 
         Scene scene = new Scene(root);
         Stage stage = (Stage) addInventorybtn.getScene().getWindow();
@@ -367,7 +586,7 @@ public class MainController_1 extends AbstractController implements Initializabl
         InventoryItemController iic = fxmlloader.<InventoryItemController>getController();
         
         iic.EditMode(this.inventorytable.getSelectionModel().getSelectedItem());
-        iic.initData(null, super.getType());
+        iic.initData(super.getGlobalUser(), super.getType());
 
         Scene scene = new Scene(root);
         Stage stage = (Stage) editInventorybtn.getScene().getWindow();
@@ -382,6 +601,41 @@ public class MainController_1 extends AbstractController implements Initializabl
         
         this.getInventory();
     }
+    
+    @FXML
+    void viewBOM(ActionEvent event) throws IOException, SQLException {
+        FXMLLoader fxmlloader = new FXMLLoader(getClass().getResource("/inventory/BOMView.fxml"));
+        Parent root = (Parent) fxmlloader.load();
+        
+        BOMViewController bvc = fxmlloader.<BOMViewController>getController();
+        
+        bvc.EditMode(this.fginventorytable.getSelectionModel().getSelectedItem());
+        bvc.initData(super.getGlobalUser(), super.getType());
+
+        Scene scene = new Scene(root);
+        Stage stage = (Stage) editInventorybtn.getScene().getWindow();
+        Stage substage = new Stage();
+        substage.setScene(scene);
+        substage.setResizable(false);
+        substage.sizeToScene();
+        substage.setTitle("Edit Inventory");
+        substage.initModality(Modality.WINDOW_MODAL);
+        substage.initOwner(stage);
+        substage.showAndWait();
+    }
+    
+    @FXML
+    void exportBOM(ActionEvent event) throws IOException, SQLException {
+        
+        this.roq.BOM_REPORT();
+        
+        Alert alert = new Alert(Alert.AlertType.INFORMATION);
+        alert.setTitle("Information Dialog");
+        alert.setHeaderText(null);
+        alert.setContentText("Please check My Documents/Reports");
+
+        alert.showAndWait();
+    }
 
     @FXML
     public void inventoryAdjustment(ActionEvent event) throws IOException, SQLException {
@@ -389,7 +643,8 @@ public class MainController_1 extends AbstractController implements Initializabl
         Parent root = (Parent) fxmlloader.load();
         
         InventoryAdjustmentEntryController iaec = fxmlloader.<InventoryAdjustmentEntryController>getController();
-        iaec.initData(null, super.getType());
+        iaec.AddMode();
+        iaec.initData(super.getGlobalUser(), super.getType());
         
         Scene scene = new Scene(root);
         Stage stage = (Stage) this.iabtn.getScene().getWindow();
@@ -402,42 +657,332 @@ public class MainController_1 extends AbstractController implements Initializabl
         substage.initOwner(stage);
         substage.showAndWait();
         
-        this.getReturnsAdjustments();
+        this.getInventoryAdjustments();
     }
     
     @FXML
-    void editReturnAdjustment(ActionEvent event) {
-
+    void editAdjustment(ActionEvent event) throws SQLException, IOException {
+        FXMLLoader fxmlloader = new FXMLLoader(getClass().getResource("/inventory/InventoryAdjustmentEntry.fxml"));
+        Parent root = (Parent) fxmlloader.load();
+        
+        InventoryAdjustmentEntryController iaec = fxmlloader.<InventoryAdjustmentEntryController>getController();
+        iaec.initData(super.getGlobalUser(), super.getType());
+        iaec.Edit(this.inventoryadjtable.getSelectionModel().getSelectedItem());
+        
+        Scene scene = new Scene(root);
+        Stage stage = (Stage) iabtn.getScene().getWindow();
+        Stage substage = new Stage();
+        substage.setScene(scene);
+        substage.setResizable(false);
+        substage.sizeToScene();
+        substage.setTitle("Inventory Adjustment Entry");
+        substage.initModality(Modality.WINDOW_MODAL);
+        substage.initOwner(stage);
+        substage.showAndWait();
+        
+        this.getInventoryAdjustments();
     }
 
     @FXML
-    void viewReturnAdjustment(ActionEvent event) {
-
+    void viewAdjustment(ActionEvent event) throws IOException, SQLException {
+        FXMLLoader fxmlloader = new FXMLLoader(getClass().getResource("/inventory/InventoryAdjustmentEntry.fxml"));
+        Parent root = (Parent) fxmlloader.load();
+        
+        InventoryAdjustmentEntryController iaec = fxmlloader.<InventoryAdjustmentEntryController>getController();
+        iaec.initData(super.getGlobalUser(), super.getType());
+        iaec.ViewMode(this.inventoryadjtable.getSelectionModel().getSelectedItem());
+        
+        Scene scene = new Scene(root);
+        Stage stage = (Stage) iabtn.getScene().getWindow();
+        Stage substage = new Stage();
+        substage.setScene(scene);
+        substage.setResizable(false);
+        substage.sizeToScene();
+        substage.setTitle("Inventory Adjustment Entry");
+        substage.initModality(Modality.WINDOW_MODAL);
+        substage.initOwner(stage);
+        substage.showAndWait();
+        
+        this.getInventory();
+        this.getInventoryAdjustments();
     }
     
     @FXML
-    void addMGI(ActionEvent event) {
+    void addMGI(ActionEvent event) throws IOException, SQLException {
+        FXMLLoader fxmlloader = new FXMLLoader(getClass().getResource("/mgi/ManualGoodsIssue.fxml"));
+        Parent root = (Parent) fxmlloader.load();
+        
+        ManualGoodsIssueController mgic = fxmlloader.<ManualGoodsIssueController>getController();
+        mgic.initData(super.getGlobalUser(), super.getType());
+        mgic.AddMode();
+        
+        Scene scene = new Scene(root);
+        Stage stage = (Stage) iabtn.getScene().getWindow();
+        Stage substage = new Stage();
+        substage.setScene(scene);
+        substage.setResizable(false);
+        substage.sizeToScene();
+        substage.setTitle("Manual Goods Issue");
+        substage.initModality(Modality.WINDOW_MODAL);
+        substage.initOwner(stage);
+        substage.showAndWait();
+        
+        this.getMGI();
+    }
+
+    @FXML
+    void editMGI(ActionEvent event) throws SQLException, IOException {
+        FXMLLoader fxmlloader = new FXMLLoader(getClass().getResource("/mgi/ManualGoodsIssue.fxml"));
+        Parent root = (Parent) fxmlloader.load();
+        
+        ManualGoodsIssueController mgic = fxmlloader.<ManualGoodsIssueController>getController();
+        mgic.initData(super.getGlobalUser(), super.getType());
+        mgic.EditMode(this.mgitable.getSelectionModel().getSelectedItem());
+        
+        Scene scene = new Scene(root);
+        Stage stage = (Stage) iabtn.getScene().getWindow();
+        Stage substage = new Stage();
+        substage.setScene(scene);
+        substage.setResizable(false);
+        substage.sizeToScene();
+        substage.setTitle("Edit Manual Goods Issue");
+        substage.initModality(Modality.WINDOW_MODAL);
+        substage.initOwner(stage);
+        substage.showAndWait();
+        
+        this.getMGI();
+    }
+
+    @FXML
+    void viewMGI(ActionEvent event) throws SQLException, IOException {
+        FXMLLoader fxmlloader = new FXMLLoader(getClass().getResource("/mgi/ManualGoodsIssue.fxml"));
+        Parent root = (Parent) fxmlloader.load();
+        
+        ManualGoodsIssueController mgic = fxmlloader.<ManualGoodsIssueController>getController();
+        mgic.initData(super.getGlobalUser(), super.getType());
+        mgic.ViewMode(this.mgitable.getSelectionModel().getSelectedItem());
+        
+        Scene scene = new Scene(root);
+        Stage stage = (Stage) iabtn.getScene().getWindow();
+        Stage substage = new Stage();
+        substage.setScene(scene);
+        substage.setResizable(false);
+        substage.sizeToScene();
+        substage.setTitle("View Manual Goods Issue");
+        substage.initModality(Modality.WINDOW_MODAL);
+        substage.initOwner(stage);
+        substage.showAndWait();
+        
+        this.getMGI();
+        this.getInventory();
+    }
+    
+    @FXML
+    void addMGR(ActionEvent event) throws IOException, SQLException {
+        FXMLLoader fxmlloader = new FXMLLoader(getClass().getResource("/mgr/ManualGoodsReceipt.fxml"));
+        Parent root = (Parent) fxmlloader.load();
+        
+        ManualGoodsReceiptController mgic = fxmlloader.<ManualGoodsReceiptController>getController();
+        mgic.initData(super.getGlobalUser(), super.getType());
+        mgic.AddMode();
+        
+        Scene scene = new Scene(root);
+        Stage stage = (Stage) iabtn.getScene().getWindow();
+        Stage substage = new Stage();
+        substage.setScene(scene);
+        substage.setResizable(false);
+        substage.sizeToScene();
+        substage.setTitle("Manual Goods Issue");
+        substage.initModality(Modality.WINDOW_MODAL);
+        substage.initOwner(stage);
+        substage.showAndWait();
+        
+        this.getMGR();
+    }
+
+    @FXML
+    void editMGR(ActionEvent event) throws SQLException, IOException {
+        FXMLLoader fxmlloader = new FXMLLoader(getClass().getResource("/mgr/ManualGoodsReceipt.fxml"));
+        Parent root = (Parent) fxmlloader.load();
+        
+        ManualGoodsReceiptController mgic = fxmlloader.<ManualGoodsReceiptController>getController();
+        mgic.initData(super.getGlobalUser(), super.getType());
+        mgic.EditMode(this.mgrtable.getSelectionModel().getSelectedItem());
+        
+        Scene scene = new Scene(root);
+        Stage stage = (Stage) iabtn.getScene().getWindow();
+        Stage substage = new Stage();
+        substage.setScene(scene);
+        substage.setResizable(false);
+        substage.sizeToScene();
+        substage.setTitle("Edit Manual Goods Issue");
+        substage.initModality(Modality.WINDOW_MODAL);
+        substage.initOwner(stage);
+        substage.showAndWait();
+        
+        this.getMGR();
+    }
+
+    @FXML
+    void viewMGR(ActionEvent event) throws SQLException, IOException {
+        FXMLLoader fxmlloader = new FXMLLoader(getClass().getResource("/mgr/ManualGoodsReceipt.fxml"));
+        Parent root = (Parent) fxmlloader.load();
+        
+        ManualGoodsReceiptController mgic = fxmlloader.<ManualGoodsReceiptController>getController();
+        mgic.initData(super.getGlobalUser(), super.getType());
+        mgic.ViewMode(this.mgrtable.getSelectionModel().getSelectedItem());
+        
+        Scene scene = new Scene(root);
+        Stage stage = (Stage) iabtn.getScene().getWindow();
+        Stage substage = new Stage();
+        substage.setScene(scene);
+        substage.setResizable(false);
+        substage.sizeToScene();
+        substage.setTitle("View Manual Goods Issue");
+        substage.initModality(Modality.WINDOW_MODAL);
+        substage.initOwner(stage);
+        substage.showAndWait();
+        
+        this.getMGR();
+        this.getInventory();
+    }
+    
+    @FXML
+    void addST(ActionEvent event) throws IOException {
+        FXMLLoader fxmlloader = new FXMLLoader(getClass().getResource("/stocktransfer/StockTransfer.fxml"));
+        Parent root = (Parent) fxmlloader.load();
+        
+        StockTransferController stc = fxmlloader.<StockTransferController>getController();
+        stc.initData(super.getGlobalUser(), super.getType());
+        stc.AddMode();
+        
+        Scene scene = new Scene(root);
+        Stage stage = (Stage) iabtn.getScene().getWindow();
+        Stage substage = new Stage();
+        substage.setScene(scene);
+        substage.setResizable(false);
+        substage.sizeToScene();
+        substage.setTitle("Stock Transfer");
+        substage.initModality(Modality.WINDOW_MODAL);
+        substage.initOwner(stage);
+        substage.showAndWait();
 
     }
 
     @FXML
-    void editAdjustment(ActionEvent event) {
+    void editST(ActionEvent event) throws IOException, SQLException {
+        FXMLLoader fxmlloader = new FXMLLoader(getClass().getResource("/stocktransfer/StockTransfer.fxml"));
+        Parent root = (Parent) fxmlloader.load();
+        
+        StockTransferController stc = fxmlloader.<StockTransferController>getController();
+        stc.initData(super.getGlobalUser(), super.getType());
+        stc.EditMode(this.sttable.getSelectionModel().getSelectedItem());
+        
+        Scene scene = new Scene(root);
+        Stage stage = (Stage) iabtn.getScene().getWindow();
+        Stage substage = new Stage();
+        substage.setScene(scene);
+        substage.setResizable(false);
+        substage.sizeToScene();
+        substage.setTitle("Stock Transfer");
+        substage.initModality(Modality.WINDOW_MODAL);
+        substage.initOwner(stage);
+        substage.showAndWait();
 
     }
 
     @FXML
-    void viewAdjustment(ActionEvent event) {
+    void viewST(ActionEvent event) throws IOException, SQLException {
+        FXMLLoader fxmlloader = new FXMLLoader(getClass().getResource("/stocktransfer/StockTransfer.fxml"));
+        Parent root = (Parent) fxmlloader.load();
+        
+        StockTransferController stc = fxmlloader.<StockTransferController>getController();
+        stc.initData(super.getGlobalUser(), super.getType());
+        stc.ViewMode(this.sttable.getSelectionModel().getSelectedItem());
+        
+        Scene scene = new Scene(root);
+        Stage stage = (Stage) iabtn.getScene().getWindow();
+        Stage substage = new Stage();
+        substage.setScene(scene);
+        substage.setResizable(false);
+        substage.sizeToScene();
+        substage.setTitle("Stock Transfer");
+        substage.initModality(Modality.WINDOW_MODAL);
+        substage.initOwner(stage);
+        substage.showAndWait();
+        
+        this.getStockTransfers();
 
     }
 
     @FXML
-    void editMGI(ActionEvent event) {
+    void addSTM(ActionEvent event) throws IOException, SQLException {
+        FXMLLoader fxmlloader = new FXMLLoader(getClass().getResource("/transmittal/StockTransmittalView.fxml"));
+        Parent root = (Parent) fxmlloader.load();
+        
+        StockTransmittalViewController stc = fxmlloader.<StockTransmittalViewController>getController();
+        stc.initData(super.getGlobalUser(), super.getType());
+        stc.AddMode();
+        
+        Scene scene = new Scene(root);
+        Stage stage = (Stage) iabtn.getScene().getWindow();
+        Stage substage = new Stage();
+        substage.setScene(scene);
+        substage.setResizable(false);
+        substage.sizeToScene();
+        substage.setTitle("Stock Transfer");
+        substage.initModality(Modality.WINDOW_MODAL);
+        substage.initOwner(stage);
+        substage.showAndWait();
+        
+        this.getStockTransmittals();
 
     }
 
     @FXML
-    void viewMGI(ActionEvent event) {
+    void editSTM(ActionEvent event) throws IOException, SQLException {
+        FXMLLoader fxmlloader = new FXMLLoader(getClass().getResource("/transmittal/StockTransmittalView.fxml"));
+        Parent root = (Parent) fxmlloader.load();
+        
+        StockTransmittalViewController stc = fxmlloader.<StockTransmittalViewController>getController();
+        stc.initData(super.getGlobalUser(), super.getType());
+        stc.EditMode(this.stmtable.getSelectionModel().getSelectedItem());
+        
+        Scene scene = new Scene(root);
+        Stage stage = (Stage) iabtn.getScene().getWindow();
+        Stage substage = new Stage();
+        substage.setScene(scene);
+        substage.setResizable(false);
+        substage.sizeToScene();
+        substage.setTitle("Stock Transfer");
+        substage.initModality(Modality.WINDOW_MODAL);
+        substage.initOwner(stage);
+        substage.showAndWait();
+        
+        this.getStockTransmittals();
+    }
 
+    @FXML
+    void viewSTM(ActionEvent event) throws IOException, SQLException {
+        FXMLLoader fxmlloader = new FXMLLoader(getClass().getResource("/transmittal/StockTransmittalView.fxml"));
+        Parent root = (Parent) fxmlloader.load();
+        
+        StockTransmittalViewController stc = fxmlloader.<StockTransmittalViewController>getController();
+        stc.initData(super.getGlobalUser(), super.getType());
+        stc.ViewMode(this.stmtable.getSelectionModel().getSelectedItem());
+        
+        Scene scene = new Scene(root);
+        Stage stage = (Stage) iabtn.getScene().getWindow();
+        Stage substage = new Stage();
+        substage.setScene(scene);
+        substage.setResizable(false);
+        substage.sizeToScene();
+        substage.setTitle("Stock Transfer");
+        substage.initModality(Modality.WINDOW_MODAL);
+        substage.initOwner(stage);
+        substage.showAndWait();
+        
+        this.getStockTransmittals();
     }
     
     public void getInventory() throws SQLException{
@@ -460,7 +1005,174 @@ public class MainController_1 extends AbstractController implements Initializabl
                     new PropertyValueFactory<>(arr[i])
             );
         }
-        inventorytable.setItems(data);
+        this.inventorytable.getItems().clear();
+        this.inventorytable.setItems(data);
+    }
+    
+    public void getFGInventory() throws SQLException{
+        InventoryQuery iq = new InventoryQuery();
+        String[] arr = {"sku", "description", "uom", "wh", "soh", "csl"};
+        ObservableList<InventoryModel> data
+                = FXCollections.observableArrayList();
+        
+        Iterator rs = iq.getInventories(1);
+        
+        while(rs.hasNext()){
+            data.add((InventoryModel)rs.next());
+        }
+        
+        ObservableList<TableColumn<InventoryModel, ?>> olist;
+        olist = (ObservableList<TableColumn<InventoryModel, ?>>) this.fginventorytable.getColumns();
+
+        for (int i = 0; i < olist.size(); i++) {
+            olist.get(i).setCellValueFactory(
+                    new PropertyValueFactory<>(arr[i])
+            );
+        }
+        this.fginventorytable.getItems().clear();
+        this.fginventorytable.setItems(data);
+    }
+    
+    public void getBOM(int id) throws SQLException{
+        String[] arr = {"sku", "description", "bom_qty", "uom", "whouse",};
+        ObservableList<BOModel> data
+                = FXCollections.observableArrayList();
+        
+        Iterator ir = this.pim.getBOM(id);
+        
+        while(ir.hasNext()){
+            BOModel bom = (BOModel) ir.next();
+            System.out.println("FROM DB: " + bom.getIdinventory());
+            data.add(bom);
+        }
+        
+        ObservableList<TableColumn<BOModel, ?>> olist;
+        olist = (ObservableList<TableColumn<BOModel, ?>>) this.pminventorytable.getColumns();
+
+        for (int i = 0; i < olist.size(); i++) {
+            olist.get(i).setCellValueFactory(
+                    new PropertyValueFactory<>(arr[i])
+            );
+        }
+        this.pminventorytable.getItems().clear();
+        this.pminventorytable.setItems(data);
+    }
+    
+    public void getInventoryAdjustments() throws SQLException{
+        String[] arr = {"iamid", "iam_dte", "desc", "refnum", "pgistat"};
+        ObservableList<InventoryAdjustmentModel> data
+                = FXCollections.observableArrayList();
+        
+        Iterator rs = iq.getInventoryAdjustments(super.getType());
+        
+        while(rs.hasNext()){
+            data.add((InventoryAdjustmentModel)rs.next());
+        }
+        
+        ObservableList<TableColumn<InventoryAdjustmentModel, ?>> olist;
+        olist = (ObservableList<TableColumn<InventoryAdjustmentModel, ?>>) this.inventoryadjtable.getColumns();
+
+        for (int i = 0; i < olist.size(); i++) {
+            olist.get(i).setCellValueFactory(
+                    new PropertyValueFactory<>(arr[i])
+            );
+        }
+        this.inventoryadjtable.getItems().clear();
+        this.inventoryadjtable.setItems(data);
+    }
+    
+    public void getMGI() throws SQLException{
+        String[] arr = {"ginum", "gidte", "custname", "pgistat"};
+        ObservableList<MGIModel> data
+                = FXCollections.observableArrayList();
+        
+        Iterator rs = iq.getMGI(super.getType(), 1);
+        
+        while(rs.hasNext()){
+            data.add((MGIModel)rs.next());
+        }
+        
+        ObservableList<TableColumn<MGIModel, ?>> olist;
+        olist = (ObservableList<TableColumn<MGIModel, ?>>) this.mgitable.getColumns();
+
+        for (int i = 0; i < olist.size(); i++) {
+            olist.get(i).setCellValueFactory(
+                    new PropertyValueFactory<>(arr[i])
+            );
+        }
+        this.mgitable.getItems().clear();
+        this.mgitable.setItems(data);
+    }
+    
+    public void getMGR() throws SQLException{
+        String[] arr = {"ginum", "gidte", "custname", "pgistat"};
+        ObservableList<MGIModel> data
+                = FXCollections.observableArrayList();
+        
+        Iterator rs = iq.getMGI(super.getType(), 2);
+        
+        while(rs.hasNext()){
+            data.add((MGIModel)rs.next());
+        }
+        
+        ObservableList<TableColumn<MGIModel, ?>> olist;
+        olist = (ObservableList<TableColumn<MGIModel, ?>>) this.mgrtable.getColumns();
+
+        for (int i = 0; i < olist.size(); i++) {
+            olist.get(i).setCellValueFactory(
+                    new PropertyValueFactory<>(arr[i])
+            );
+        }
+        this.mgrtable.getItems().clear();
+        this.mgrtable.setItems(data);
+    }
+    
+    public void getStockTransfers() throws SQLException{
+        
+        String[] arr = {"idst", "st_dte", "slto", "stat"};
+        ObservableList<StockTransferModel> data
+                = FXCollections.observableArrayList();
+        
+        Iterator rs = stq.getStockTransfers();
+        
+        while(rs.hasNext()){
+            data.add((StockTransferModel)rs.next());
+        }
+        
+        ObservableList<TableColumn<StockTransferModel, ?>> olist;
+        olist = (ObservableList<TableColumn<StockTransferModel, ?>>) this.sttable.getColumns();
+
+        for (int i = 0; i < olist.size(); i++) {
+            olist.get(i).setCellValueFactory(
+                    new PropertyValueFactory<>(arr[i])
+            );
+        }
+        this.sttable.getItems().clear();
+        this.sttable.setItems(data);
+    }
+    
+    public void getStockTransmittals() throws SQLException{
+        
+        String[] arr = {"stid", "gi_dte", "supname", "pgistat"};
+        ObservableList<StockTransmittalModel> data
+                = FXCollections.observableArrayList();
+        
+        Iterator rs = stq2.getTransmittals();
+        
+        while(rs.hasNext()){
+            data.add((StockTransmittalModel)rs.next());
+        }
+        
+        ObservableList<TableColumn<StockTransmittalModel, ?>> olist;
+        olist = (ObservableList<TableColumn<StockTransmittalModel, ?>>) this.stmtable.getColumns();
+
+        for (int i = 0; i < olist.size(); i++) {
+            olist.get(i).setCellValueFactory(
+                    new PropertyValueFactory<>(arr[i])
+            );
+        }
+        this.stmtable.getItems().clear();
+        this.stmtable.setItems(data);
     }
 
     @FXML
@@ -471,7 +1183,7 @@ public class MainController_1 extends AbstractController implements Initializabl
         
         ReturnsController rc = fxmlloader.<ReturnsController>getController();
         rc.AddMode();
-        rc.initData(null, super.getType());
+        rc.initData(super.getGlobalUser(), super.getType());
         
         Scene scene = new Scene(root);
         Stage stage = (Stage) this.addreturnbtn.getScene().getWindow();
@@ -489,13 +1201,35 @@ public class MainController_1 extends AbstractController implements Initializabl
     }
 
     @FXML
-    public void editReturns(ActionEvent event) {
+    public void editReturns(ActionEvent event) throws SQLException, IOException {
+        try{
+            FXMLLoader fxmlloader = new FXMLLoader(getClass().getResource("/returns/ReturnsView.fxml"));
+            Parent root = (Parent) fxmlloader.load();
 
-    }
+            ReturnsController rc = fxmlloader.<ReturnsController>getController();
+            rc.EditMode(this.returntable.getSelectionModel().getSelectedItem());
+            rc.initData(super.getGlobalUser(), super.getType());
 
-    @FXML
-    public void viewReturns(ActionEvent event) {
+            Scene scene = new Scene(root);
+            Stage stage = (Stage) this.addreturnbtn.getScene().getWindow();
+            Stage substage = new Stage();
+            substage.setScene(scene);
+            substage.setResizable(false);
+            substage.sizeToScene();
+            substage.setTitle("Edit Returns");
+            substage.initModality(Modality.WINDOW_MODAL);
+            substage.initOwner(stage);
+            substage.showAndWait();
 
+            this.getReturns();
+        }catch(NullPointerException e){
+            Alert alert = new Alert(Alert.AlertType.INFORMATION);
+            alert.setTitle("Information Dialog");
+            alert.setHeaderText(null);
+            alert.setContentText("Please Select a returns adjustment");
+
+            alert.showAndWait();
+        }
     }
     
     @FXML
@@ -505,7 +1239,8 @@ public class MainController_1 extends AbstractController implements Initializabl
         Parent root = (Parent) fxmlloader.load();
         
         ReturnsAdjustmentController rac = fxmlloader.<ReturnsAdjustmentController>getController();
-        rac.initData(null, super.getType());
+        rac.initData(super.getGlobalUser(), super.getType());
+        rac.AddMode();
         
         Scene scene = new Scene(root);
         Stage stage = (Stage) this.returnsabtn.getScene().getWindow();
@@ -518,6 +1253,55 @@ public class MainController_1 extends AbstractController implements Initializabl
         substage.initOwner(stage);
         substage.showAndWait();
 
+    }
+    
+    @FXML
+    void editReturnAdjustment(ActionEvent event) throws SQLException, IOException {
+        if(this.returnadjtable.getSelectionModel().getSelectedItem().getPgistat().equals("N")){
+            FXMLLoader fxmlloader = new FXMLLoader(getClass().getResource("/returns/ReturnsAdjustmentView.fxml"));
+            Parent root = (Parent) fxmlloader.load();
+
+            ReturnsAdjustmentController rac = fxmlloader.<ReturnsAdjustmentController>getController();
+            rac.initData(super.getGlobalUser(), super.getType());
+            rac.EditMode(this.returnadjtable.getSelectionModel().getSelectedItem());
+
+            Scene scene = new Scene(root);
+            Stage stage = (Stage) this.returnsabtn.getScene().getWindow();
+            Stage substage = new Stage();
+            substage.setScene(scene);
+            substage.setResizable(false);
+            substage.sizeToScene();
+            substage.setTitle("Returns Adjustment Entry");
+            substage.initModality(Modality.WINDOW_MODAL);
+            substage.initOwner(stage);
+            substage.showAndWait();
+
+            this.getReturnsAdjustments();
+        }
+    }
+
+    @FXML
+    void viewReturnAdjustment(ActionEvent event) throws SQLException, IOException {
+        FXMLLoader fxmlloader = new FXMLLoader(getClass().getResource("/returns/ReturnsAdjustmentView.fxml"));
+        Parent root = (Parent) fxmlloader.load();
+        
+        ReturnsAdjustmentController rac = fxmlloader.<ReturnsAdjustmentController>getController();
+        rac.initData(super.getGlobalUser(), super.getType());
+        rac.ViewMode(this.returnadjtable.getSelectionModel().getSelectedItem());
+        
+        Scene scene = new Scene(root);
+        Stage stage = (Stage) this.returnsabtn.getScene().getWindow();
+        Stage substage = new Stage();
+        substage.setScene(scene);
+        substage.setResizable(false);
+        substage.sizeToScene();
+        substage.setTitle("Returns Adjustment Entry");
+        substage.initModality(Modality.WINDOW_MODAL);
+        substage.initOwner(stage);
+        substage.showAndWait();
+        
+        this.getReturnsAdjustments();
+        this.getReturns();
     }
     
     public void getReturns() throws SQLException{
@@ -541,12 +1325,11 @@ public class MainController_1 extends AbstractController implements Initializabl
                     new PropertyValueFactory<>(arr[i])
             );
         }
+        this.returntable.getItems().clear();
         this.returntable.setItems(data);
     }
     
     public void getReturnsAdjustments() throws SQLException{
-        
-        ReturnsQuery rq = new ReturnsQuery();
         
         String[] arr = {"ramid", "ramdte", "refnum", "desc", "pgistat"};
         ObservableList<ReturnAdjustmentModel> data
@@ -567,90 +1350,6 @@ public class MainController_1 extends AbstractController implements Initializabl
             );
         }
         this.returnadjtable.setItems(data);
-    }
-
-    @FXML
-    public void addPrice(ActionEvent event) throws IOException, SQLException {
-        FXMLLoader fxmlloader = new FXMLLoader(getClass().getResource("/prices/AddPriceView.fxml"));
-        Parent root = (Parent) fxmlloader.load();
-        
-        AddPriceViewController apvc = fxmlloader.<AddPriceViewController>getController();
-        
-        apvc.initData(null, super.getType());
-
-        Scene scene = new Scene(root);
-        Stage stage = (Stage) addPricebtn.getScene().getWindow();
-        Stage substage = new Stage();
-        substage.setScene(scene);
-        substage.setResizable(false);
-        substage.sizeToScene();
-        substage.setTitle("Add Prices");
-        substage.initModality(Modality.WINDOW_MODAL);
-        substage.initOwner(stage);
-        substage.showAndWait();
-        
-        this.getPrices();
-    }
-
-    @FXML
-    public void editPrice(ActionEvent event) throws IOException, SQLException {
-        FXMLLoader fxmlloader = new FXMLLoader(getClass().getResource("/prices/EditPriceView.fxml"));
-        Parent root = (Parent) fxmlloader.load();
-        
-        EditPriceViewController epvc = fxmlloader.<EditPriceViewController>getController();
-        
-        epvc.initData(null, super.getType());
-        epvc.setPrice(this.pricetable.getSelectionModel().getSelectedItem());
-
-        Scene scene = new Scene(root);
-        Stage stage = (Stage) addPricebtn.getScene().getWindow();
-        Stage substage = new Stage();
-        substage.setScene(scene);
-        substage.setResizable(false);
-        substage.sizeToScene();
-        substage.setTitle("Add Prices");
-        substage.initModality(Modality.WINDOW_MODAL);
-        substage.initOwner(stage);
-        substage.showAndWait();
-        
-        this.getPrices();
-
-    }
-    
-     @FXML
-    public void viewPrice(ActionEvent event) {
-        System.out.println(this.pricetable.getSelectionModel().getSelectedItem().getIdprices());
-    }
-    
-    public void getPrices() throws SQLException{
-        InventoryQuery iq = new InventoryQuery();
-        String[] arr = {"sku", "skudesc", "poprice", "sellingprice", "skuom", "effdte"};
-        ObservableList<PricesModel> data = FXCollections.observableArrayList();
-        Iterator rs = iq.getAllPrices(super.getType());
-        
-        while(rs.hasNext()){
-            HashMap map = (HashMap) rs.next();
-            PricesModel model = new PricesModel();
-            
-            model.setIdprices(Integer.parseInt(map.get("idPrices").toString()));
-            model.setIdinventory(Integer.parseInt(map.get("idinventory").toString()));
-            model.setSku(map.get("sku").toString());
-            model.setSkudesc(map.get("skudesc").toString());
-            model.setPoprice(Double.parseDouble(map.get("poPrice").toString()));
-            model.setSellingprice(Double.parseDouble(map.get("sellingPrice").toString()));
-            model.setSkuom(map.get("skuom").toString());
-            model.setEffdte(Date.valueOf(map.get("effectivedte").toString()));
-            data.add(model);
-        }
-        ObservableList<TableColumn<PricesModel, ?>> olist;
-        olist = (ObservableList<TableColumn<PricesModel, ?>>) pricetable.getColumns();
-
-        for (int i = 0; i < olist.size(); i++) {
-            olist.get(i).setCellValueFactory(
-                    new PropertyValueFactory<>(arr[i])
-            );
-        }
-        pricetable.setItems(data);
     }
     
     public void getUOMS() throws SQLException{
@@ -786,30 +1485,44 @@ public class MainController_1 extends AbstractController implements Initializabl
         
         this.getUOMS();
     }
+    
+    @FXML
+    void exportReport(ActionEvent event) throws SQLException, IOException {
+        String report = this.reportsbox.getSelectionModel().getSelectedItem();
+        reportslist.add("PM Stock Transfer Report");
+        reportslist.add("PM Return Summary Report");
+        reportslist.add("PM Return Detailed Report");
+        reportslist.add("PM Inventory Summary Report");
+        reportslist.add("PM Inventory Detailed Report");
+        reportslist.add("PM Inventory Critical Stock Report");
+        switch(report){
+            case "Purchases Report" : 
+                roq.MM_POReport(Date.valueOf(this.fromdte.getValue()), Date.valueOf(this.todte.getValue())); 
+                break;
+            case "PM Return Summary Report" :  
+                roq.MM_SRSummaryReport(); 
+                break;
+            case "PM Return Detailed Report" :  
+                roq.MM_SRDetailedReport(Date.valueOf(this.fromdte.getValue()), Date.valueOf(this.todte.getValue())); 
+                break;
+            case "PM Inventory Summary Report" :  
+                roq.MM_InventorySummaryReport(); 
+                break;
+            case "PM Inventory Detailed Report" :  
+                roq.MM_InventoryDetailedReport(Date.valueOf(this.fromdte.getValue()), Date.valueOf(this.todte.getValue())); 
+                break;
+            case "PM Inventory Critical Stock Report" :  
+                roq.MM_InventoryCriticalStockReport(); 
+                break;
+            case "PM Stock Transfer Report" :  
+                roq.StockTransferReport(Date.valueOf(this.fromdte.getValue()), Date.valueOf(this.todte.getValue())); 
+                break;
+        }
+        Alert alert = new Alert(Alert.AlertType.INFORMATION);
+        alert.setTitle("Information Dialog");
+        alert.setHeaderText(null);
+        alert.setContentText("Report Created please see My Document/Reports");
 
-    @Override
-    public void initData(UserModel user, int type) {
-        super.setGlobalUser(user);
-        super.setType(type);
-        useridfld.setText(String.valueOf(super.getGlobalUser().getId()));
-        
-        try {
-             // TOD
-             this.getUOMS();
-             this.getWHS();
-             this.getSuppliers();
-             this.getInventory();
-             this.getPrices();
-             this.getReturns();
-             this.getReturnsAdjustments();
-             
-         } catch (SQLException ex) {
-             Logger.getLogger(MainController.class.getName()).log(Level.SEVERE, null, ex);
-         }
-    }
-
-    @Override
-    public void initialize(URL location, ResourceBundle resources) {
-        
+        alert.showAndWait();
     }
 }

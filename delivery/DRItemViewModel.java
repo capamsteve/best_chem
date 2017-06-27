@@ -19,6 +19,7 @@ public class DRItemViewModel {
     private int ordrqty;
     private int deliveryqty;
     private int qtyremaining;
+    private int soh;
     private String uom;
     
     public DRItemViewModel(Integer id){
@@ -173,6 +174,20 @@ public class DRItemViewModel {
             return false;
         }
         return true;
+    }
+
+    /**
+     * @return the soh
+     */
+    public int getSoh() {
+        return soh;
+    }
+
+    /**
+     * @param soh the soh to set
+     */
+    public void setSoh(int soh) {
+        this.soh = soh;
     }
     
 }

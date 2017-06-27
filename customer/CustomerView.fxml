@@ -31,7 +31,7 @@
       </Label>
       <StackPane layoutY="231.0" prefHeight="282.0" prefWidth="850.0">
          <children>
-            <TableView fx:id="contactList" prefHeight="282.0" prefWidth="668.0">
+            <TableView fx:id="contactList" editable="true" prefHeight="282.0" prefWidth="668.0">
                <columns>
                   <TableColumn prefWidth="248.0" text="Contact Person" />
                   <TableColumn prefWidth="199.0" text="Number" />

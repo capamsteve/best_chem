@@ -6,15 +6,6 @@
 package delivery;
 
 import best_chem.AbstractController;
-import com.itextpdf.io.font.FontConstants;
-import com.itextpdf.kernel.font.PdfFont;
-import com.itextpdf.kernel.font.PdfFontFactory;
-import com.itextpdf.kernel.pdf.PdfDocument;
-import com.itextpdf.kernel.pdf.PdfWriter;
-import com.itextpdf.layout.Document;
-import com.itextpdf.layout.element.List;
-import com.itextpdf.layout.element.ListItem;
-import com.itextpdf.layout.element.Paragraph;
 import customer.CustomerViewController;
 import dbquerries.DeliveryReceiptsQuery;
 import dbquerries.InventoryQuery;
@@ -29,7 +20,6 @@ import java.net.URL;
 import java.sql.Date;
 import java.sql.SQLException;
 import java.text.NumberFormat;
-import java.text.SimpleDateFormat;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -56,9 +46,11 @@ import javafx.stage.Stage;
 import models.CustomerModel;
 import models.DRItemsModel;
 import models.DRModel;
+import models.InventoryModel;
 import models.SIModel;
 import models.SItemsModel;
 import models.UserModel;
+import org.apache.poi.ss.usermodel.BorderStyle;
 import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.xssf.usermodel.XSSFCellStyle;
 import org.apache.poi.xssf.usermodel.XSSFFont;
@@ -145,6 +137,8 @@ public class DeliveryReceiptController extends AbstractController implements Ini
     
     private ArrayList<DRItemViewModel> items; 
     
+    private boolean isCancelled;
+    
     private final DeliveryReceiptsQuery drq = new DeliveryReceiptsQuery();
     
     private final SalesInvoiceQuery siq = new SalesInvoiceQuery();
@@ -207,6 +201,7 @@ public class DeliveryReceiptController extends AbstractController implements Ini
             viewm.setSkudesc(map.get("skudesc").toString());
             viewm.setOrdrqty(Integer.parseInt(map.get("ordrqty").toString()));
             viewm.setUom(map.get("skuom").toString());
+            viewm.setSoh(Integer.parseInt(map.get("soh").toString()));
 
             this.items.add(viewm);
         }
@@ -218,6 +213,7 @@ public class DeliveryReceiptController extends AbstractController implements Ini
             DRItemViewModel viewm = new DRItemViewModel(Integer.valueOf(map.get("idinventory").toString()));
             int dex = this.items.indexOf(viewm);
             
+            this.items.get(dex).setDeliveryqty(Double.valueOf(map.get("Remaining_Quantity").toString()).intValue());
             this.items.get(dex).setQtyremaining(Double.valueOf(map.get("Remaining_Quantity").toString()).intValue());
         }
 
@@ -281,6 +277,7 @@ public class DeliveryReceiptController extends AbstractController implements Ini
             viewm.setSkudesc(map.get("skudesc").toString());
             viewm.setOrdrqty(Integer.parseInt(map.get("ordrqty").toString()));
             viewm.setUom(map.get("skuom").toString());
+            viewm.setSoh(Integer.parseInt(map.get("soh").toString()));
 
             viewm.setQtyremaining(Integer.parseInt(map.get("ordrqty").toString()));
 
@@ -354,6 +351,7 @@ public class DeliveryReceiptController extends AbstractController implements Ini
             viewm.setSkudesc(map.get("skudesc").toString());
             viewm.setOrdrqty(Integer.parseInt(map.get("ordrqty").toString()));
             viewm.setUom(map.get("skuom").toString());
+            viewm.setSoh(Integer.parseInt(map.get("soh").toString()));
 
             viewm.setQtyremaining(Integer.parseInt(map.get("ordrqty").toString()));
 
@@ -366,7 +364,6 @@ public class DeliveryReceiptController extends AbstractController implements Ini
             HashMap map = (HashMap) iterate2.next();
             DRItemViewModel viewm = new DRItemViewModel(Integer.valueOf(map.get("idinventory").toString()));
             int dex = this.items.indexOf(viewm);
-            
             this.items.get(dex).setQtyremaining(Double.valueOf(map.get("Remaining_Quantity").toString()).intValue());
         }
 
@@ -384,7 +381,7 @@ public class DeliveryReceiptController extends AbstractController implements Ini
     }
     
     public void RefreshItems(){
-        String[] arr = {"sku", "skudesc", "ordrqty", "deliveryqty", "qtyremaining", "uom"};
+        String[] arr = {"sku", "skudesc", "ordrqty", "deliveryqty", "qtyremaining", "uom", "soh"};
         this.itemlist.getItems().removeAll(this.itemlist.getItems());
         ObservableList<DRItemViewModel> data
                 = FXCollections.observableArrayList();
@@ -398,39 +395,57 @@ public class DeliveryReceiptController extends AbstractController implements Ini
             olist.get(i).setCellValueFactory(
                     new PropertyValueFactory<>(arr[i])
             );
+            
+            if(i == 2 || i == 3 || i == 4){
+                olist.get(i).setStyle("-fx-alignment: CENTER-RIGHT;");
+            }
+            else if(i == 5){
+                olist.get(i).setStyle("-fx-alignment: CENTER;");
+            }
+            else{
+                olist.get(i).setStyle("-fx-alignment: CENTER-LEFT;");
+            }
         }
         
         this.itemlist.setItems(data);
     }
 
     @FXML
-    public void EditItem(ActionEvent event) throws IOException { 
-        FXMLLoader fxmlloader = new FXMLLoader(getClass().getResource("/delivery/EditDeliveryQuantityView.fxml"));
-        Parent root = (Parent) fxmlloader.load();
+    public void EditItem(ActionEvent event) throws IOException {
         
-        EditDeliveryQuantityController edqc = fxmlloader.<EditDeliveryQuantityController>getController();
-        edqc.setlimit(this.itemlist.getSelectionModel().getSelectedItem().getQtyremaining());
+        if(this.itemlist.getSelectionModel().getSelectedItem().getQtyremaining() != 0){
+            FXMLLoader fxmlloader = new FXMLLoader(getClass().getResource("/delivery/EditDeliveryQuantityView.fxml"));
+            Parent root = (Parent) fxmlloader.load();
+
+            EditDeliveryQuantityController edqc = fxmlloader.<EditDeliveryQuantityController>getController();
+            edqc.setlimit(this.itemlist.getSelectionModel().getSelectedItem().getQtyremaining());
+
+            Scene scene = new Scene(root);
+            Stage stage = (Stage) editbtn.getScene().getWindow();
+            Stage substage = new Stage();
+            substage.setScene(scene);
+            substage.setResizable(false);
+            substage.sizeToScene();
+            substage.setTitle("Edit Delivery Quantity");
+            substage.initModality(Modality.WINDOW_MODAL);
+            substage.initOwner(stage);
+            substage.showAndWait();
+
+            if(!edqc.isCanceled()){
+                this.items.get(this.itemlist.getSelectionModel().getSelectedIndex()).setDeliveryqty(edqc.getQty());
+
+                this.itemlist.getItems().clear();
+                this.RefreshItems();
+            }
         
-        Scene scene = new Scene(root);
-        Stage stage = (Stage) editbtn.getScene().getWindow();
-        Stage substage = new Stage();
-        substage.setScene(scene);
-        substage.setResizable(false);
-        substage.sizeToScene();
-        substage.setTitle("Edit Delivery Quantity");
-        substage.initModality(Modality.WINDOW_MODAL);
-        substage.initOwner(stage);
-        substage.showAndWait();
-        
-        if(!edqc.isCanceled()){
-            DRItemViewModel temp = this.itemlist.getSelectionModel().getSelectedItem();
-            System.out.println("temp: " + temp.getDeliveryqty());
-            this.items.remove(temp);
-            
-            temp.setDeliveryqty(edqc.getQty());
-            System.out.println(temp.getDritemid());
-            this.items.add(temp);
-            this.RefreshItems();
+        }
+        else{
+            Alert alert = new Alert(Alert.AlertType.INFORMATION);
+            alert.setTitle("Information Dialog");
+            alert.setHeaderText(null);
+            alert.setContentText("This item is complete");
+
+            alert.showAndWait();
         }
         
         this.RefreshItems();
@@ -481,6 +496,7 @@ public class DeliveryReceiptController extends AbstractController implements Ini
                 
         }
         
+        this.isCancelled = false;
         Stage stage = (Stage) cancelbtn.getScene().getWindow();
         stage.close();
 
@@ -488,6 +504,7 @@ public class DeliveryReceiptController extends AbstractController implements Ini
     
     @FXML
     public void cancelHandler(ActionEvent event) {
+        this.isCancelled = true;
         Stage stage = (Stage) cancelbtn.getScene().getWindow();
         stage.close();
     }
@@ -511,7 +528,7 @@ public class DeliveryReceiptController extends AbstractController implements Ini
         NumberFormat nf= NumberFormat.getInstance();
         nf.setMaximumFractionDigits(2);
         nf.setMinimumFractionDigits(2);
-        nf.setRoundingMode(RoundingMode.CEILING);
+        nf.setRoundingMode(RoundingMode.HALF_EVEN);
         
         FileInputStream file = new FileInputStream("C:\\res\\drform.xlsx");
 
@@ -578,22 +595,29 @@ public class DeliveryReceiptController extends AbstractController implements Ini
         txtfont.setFontName("Calibri");
         txtfont.setFontHeightInPoints((short)10);
         txtstyle.setFont(txtfont);
+        txtstyle.setBorderLeft(BorderStyle.THIN);
+        txtstyle.setBorderRight(BorderStyle.THIN);
+        txtstyle.setBorderTop(BorderStyle.THIN);
+        txtstyle.setBorderBottom(BorderStyle.THIN);
         
         for(int x = 0; x < this.items.size(); x++){
             
-            rownum = start;
-            cellnum = 1;
-            this.createCell(sheetrow, sheet, cell, rownum, cellnum, String.valueOf(this.items.get(x).getOrdrqty()), txtstyle);
+            if(this.items.get(x).getDeliveryqty() != 0){
+                rownum = start;
+                cellnum = 1;
+                this.createCell(sheetrow, sheet, cell, rownum, cellnum, String.valueOf(this.items.get(x).getDeliveryqty()), txtstyle);
+
+                rownum = start;
+                cellnum = 2;
+                this.createCell(sheetrow, sheet, cell, rownum, cellnum, this.items.get(x).getUom(), txtstyle);
+
+                rownum = start;
+                cellnum = 3;
+                this.createCell(sheetrow, sheet, cell, rownum, cellnum, this.items.get(x).getSkudesc(), txtstyle);
+
+                start++;
+            }
             
-            rownum = start;
-            cellnum = 2;
-            this.createCell(sheetrow, sheet, cell, rownum, cellnum, this.items.get(x).getUom(), txtstyle);
-            
-            rownum = start;
-            cellnum = 3;
-            this.createCell(sheetrow, sheet, cell, rownum, cellnum, this.items.get(x).getSkudesc(), txtstyle);
-            
-            start++;
         }
         
         //DR num
@@ -614,7 +638,10 @@ public class DeliveryReceiptController extends AbstractController implements Ini
             System.out.println("Directory Created");
             dir.mkdir();
         }
-        File file2 = new File(dir.getAbsolutePath()+ "\\" + "drsample.xlsx");
+        
+        String filename = "[DR]" + this.model.getCompany() + "-(" + this.drm.getDrnum() + ").xlsx";
+        
+        File file2 = new File(dir.getAbsolutePath()+ "\\" + filename);
         if(!file2.exists()){
             file2.createNewFile();
         }
@@ -681,7 +708,7 @@ public class DeliveryReceiptController extends AbstractController implements Ini
         sim.setDrvnme("N/A");
         sim.setTrcnme("N/A");
         sim.setPlateno("N/A");
-        sim.setDte(Date.valueOf(this.sovm.getSodate()));
+        sim.setDte(Date.valueOf(LocalDate.now()));
         sim.setRemarks("N/A");
         sim.setSoidnvc(sovm.getIdso());
         sim.setPrntstat("N");
@@ -700,7 +727,16 @@ public class DeliveryReceiptController extends AbstractController implements Ini
             siq.addSalesInvoice(sim);
         }
         
-        iq.updateInventories(this.itemlist.getItems().iterator(), super.getType());
+        ArrayList<InventoryModel> models = new ArrayList();
+        for(DRItemViewModel item : items){
+            InventoryModel im = new InventoryModel(item.getInventory_id());
+            im.setSoh(item.getDeliveryqty());
+            im.setMov("DEC");
+            im.setRemarks("");
+            models.add(im);
+        }
+        
+        iq.PostUpdateInventory(models.iterator(), super.getGlobalUser().getUsername(), "DeliveryReceipt", Integer.valueOf(this.model.getIdcustomer()), this.model.getCompany(), "Customer", this.drm.getDrnum(), "", this.rmksfld.getText(), super.getType());
         drq.changePGIStatusDR(this.drm.getDrnum());
         drq.changeStatusDR(this.drm.getDrnum(), "complete");
         drq.changePGIStatusItems(this.itemlist.getItems().iterator());
@@ -708,7 +744,30 @@ public class DeliveryReceiptController extends AbstractController implements Ini
         if(this.model.isAuto_create()){
             soq.changeStatSalesOrder(this.sovm.getIdso(), Integer.parseInt(this.model.getIdcustomer()), "complete");
         }else{
-            soq.changeStatSalesOrder(this.sovm.getIdso(), Integer.parseInt(this.model.getIdcustomer()), "Partially Delivered");
+            /**
+             * CHECK HERE IF ALL ITEMS HAVE BEEN SERVED
+             */
+            Iterator items = drq.getSalesOrderItemsWRemaining(this.sovm.getIdso());
+            
+            int item_count = 0;
+            int item_actual = 0;
+            while(items.hasNext()){
+                HashMap map = (HashMap) items.next();
+                int qwt = Double.valueOf(map.get("Remaining_Quantity").toString()).intValue();
+                
+                if(qwt == 0){
+                    item_actual++;
+                }
+                item_count++;
+            }
+            
+            if(item_count == item_actual){
+                soq.changeStatSalesOrder(this.sovm.getIdso(), Integer.parseInt(this.model.getIdcustomer()), "complete");
+            }else{ 
+                soq.changeStatSalesOrder(this.sovm.getIdso(), Integer.parseInt(this.model.getIdcustomer()), "Partially Delivered");
+            }
+            
+            
         }
         
 
@@ -752,5 +811,19 @@ public class DeliveryReceiptController extends AbstractController implements Ini
         
         Stage stage = (Stage) cancelbtn.getScene().getWindow();
         stage.close();
+    }
+
+    /**
+     * @return the isCancelled
+     */
+    public boolean isIsCancelled() {
+        return isCancelled;
+    }
+
+    /**
+     * @param isCancelled the isCancelled to set
+     */
+    public void setIsCancelled(boolean isCancelled) {
+        this.isCancelled = isCancelled;
     }
 }

@@ -5,6 +5,8 @@
  */
 package models;
 
+import java.math.RoundingMode;
+import java.text.NumberFormat;
 import java.util.Date;
 
 /**
@@ -15,12 +17,22 @@ public class PricesModel {
     
     private Integer idprices;
     private double poprice;
+    private String poprice1;
     private double sellingprice;
+    private String sellingprice1;
     private Date effdte;
     private int idinventory;
     private String sku;
     private String skudesc;
     private String skuom;
+    private String whs;
+    private NumberFormat nf= NumberFormat.getInstance();
+    
+    public PricesModel(){
+        nf.setMaximumFractionDigits(2);
+        nf.setMinimumFractionDigits(2);
+        nf.setRoundingMode(RoundingMode.HALF_EVEN);
+    }
 
     /**
      * @return the idprices
@@ -132,6 +144,48 @@ public class PricesModel {
      */
     public void setSkuom(String skuom) {
         this.skuom = skuom;
+    }
+
+    /**
+     * @return the poprice1
+     */
+    public String getPoprice1() {
+        return poprice1;
+    }
+
+    /**
+     * @param poprice1 the poprice1 to set
+     */
+    public void setPoprice1() {
+        this.poprice1 = nf.format(this.poprice);
+    }
+
+    /**
+     * @return the sellingprice1
+     */
+    public String getSellingprice1() {
+        return sellingprice1;
+    }
+
+    /**
+     * @param sellingprice1 the sellingprice1 to set
+     */
+    public void setSellingprice1() {
+        this.sellingprice1 = nf.format(this.sellingprice);
+    }
+
+    /**
+     * @return the whs
+     */
+    public String getWhs() {
+        return whs;
+    }
+
+    /**
+     * @param whs the whs to set
+     */
+    public void setWhs(String whs) {
+        this.whs = whs;
     }
     
 }

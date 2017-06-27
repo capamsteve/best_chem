@@ -136,7 +136,7 @@ public class ManualGoodsIssueController extends AbstractController implements In
         if(isEdit){
             mod.setGinum(Integer.valueOf(this.idfld.getText()));
             ArrayList<InventoryModel> ims = new ArrayList();
-            iq.editMGI(mod, super.getType());
+            iq.editMGI(mod, super.getType(), 1);
             
             for(InventoryModel im : this.items){
                 if(im.getMgiid_item() == 0){
@@ -145,17 +145,17 @@ public class ManualGoodsIssueController extends AbstractController implements In
             }
             
             if(!this.items.isEmpty()){
-                iq.editMGItems(this.items.iterator(), super.getType());
+                iq.editMGItems(this.items.iterator(), super.getType(), 1);
             }
             if(!this.deleted.isEmpty()){
-                iq.deleteMGIItems(this.deleted.iterator(), super.getType());
+                iq.deleteMGIItems(this.deleted.iterator(), super.getType(), 1);
             }
             if(!ims.isEmpty()){
-                iq.addMGItems(ims.iterator(), mod.getGinum(), super.getType());
+                iq.addMGItems(ims.iterator(), mod.getGinum(), super.getType(), 1);
             }
         }else{
             if(!this.items.isEmpty()){
-                iq.addMGI(mod, super.getType());
+                iq.addMGI(mod, super.getType(), 1);
             }
             
         }
@@ -175,10 +175,11 @@ public class ManualGoodsIssueController extends AbstractController implements In
         
         for(int i = 0; i < this.items.size(); i++){
             this.items.get(i).setMov("DEC");
+            this.items.get(i).setRemarks(this.mod_og.getDescription());
         }
         
-        iq.PostUpdateInventory(this.items.iterator());
-        iq.changeMGIPost(this.items.iterator(), this.mod_og.getGinum());
+        iq.PostUpdateInventory(this.items.iterator(), super.getGlobalUser().getUsername(), "ManualGoodsIssue", 0, this.customerfld.getText(), "Customer", this.mod_og.getGinum(), this.mod_og.getRef(), this.mod_og.getDescription(), super.getType());
+        iq.changeMGIPost(this.items.iterator(), this.mod_og.getGinum(), super.getType(), 1);
         
         Stage stage = (Stage) cancelbtn.getScene().getWindow();
         stage.close();
@@ -210,21 +211,31 @@ public class ManualGoodsIssueController extends AbstractController implements In
         substage.initOwner(stage);
         substage.showAndWait();
         
-        InventoryModel mod = mgic.getitem();
+        if(mgic.getitem() != null){
+            InventoryModel mod = mgic.getitem();
         
-        if(!this.items.contains(mod)){
-            this.items.add(mod);
-        }
-        else{
+            if(!this.items.contains(mod)){
+                this.items.add(mod);
+            }
+            else{
+                Alert alert = new Alert(Alert.AlertType.INFORMATION);
+                alert.setTitle("Information Dialog");
+                alert.setHeaderText(null);
+                alert.setContentText("You have already selected this item.");
+
+                alert.showAndWait();
+            }
+
+            this.RefreshItems();
+        }else{
             Alert alert = new Alert(Alert.AlertType.INFORMATION);
             alert.setTitle("Information Dialog");
             alert.setHeaderText(null);
-            alert.setContentText("You have already selected this item.");
+            alert.setContentText("You did not select an item.");
 
             alert.showAndWait();
         }
         
-        this.RefreshItems();
 
     }
 
@@ -306,6 +317,7 @@ public class ManualGoodsIssueController extends AbstractController implements In
         this.isEdit = false;
         this.idfld.setDisable(true);
         this.pgibtn.setDisable(true);
+        this.prntbtn.setDisable(true);
         
     }
     
@@ -323,7 +335,7 @@ public class ManualGoodsIssueController extends AbstractController implements In
         this.addressfld.setText(mod.getAddress());
         this.descfld.setText(mod.getDescription());
         
-        Iterator ir = iq.getMGItems(super.getType(), mod.getGinum());
+        Iterator ir = iq.getMGItems(super.getType(), mod.getGinum(), 1);
         
         while(ir.hasNext()){
             items.add((InventoryModel) ir.next());
@@ -353,7 +365,7 @@ public class ManualGoodsIssueController extends AbstractController implements In
         this.descfld.setText(mod.getDescription());
         this.descfld.setEditable(false);
         
-        Iterator ir = iq.getMGItems(super.getType(), mod.getGinum());
+        Iterator ir = iq.getMGItems(super.getType(), mod.getGinum(), 1);
         
         while(ir.hasNext()){
             items.add((InventoryModel) ir.next());
@@ -383,6 +395,19 @@ public class ManualGoodsIssueController extends AbstractController implements In
     public void initData(UserModel user, int type) {
         super.setGlobalUser(user);
         super.setType(type);
+        
+        if(type == 2){
+            ObservableList<TableColumn<InventoryModel, ?>> olist = (ObservableList<TableColumn<InventoryModel, ?>>) this.itemlist.getColumns();
+
+            for (int i = 0; i < olist.size(); i++) {
+                if(i == 0){
+                    olist.get(i).setText("PM Code#");
+                }
+                else if(i == 1){
+                    olist.get(i).setText("PM Description");
+                }
+            }
+        }
     }
     
     @FXML
@@ -390,7 +415,7 @@ public class ManualGoodsIssueController extends AbstractController implements In
         NumberFormat nf= NumberFormat.getInstance();
         nf.setMaximumFractionDigits(2);
         nf.setMinimumFractionDigits(2);
-        nf.setRoundingMode(RoundingMode.CEILING);
+        nf.setRoundingMode(RoundingMode.HALF_EVEN);
         
         FileInputStream file = new FileInputStream("C:\\res\\mgiform.xlsx");
 
@@ -463,6 +488,10 @@ public class ManualGoodsIssueController extends AbstractController implements In
         txtfont.setFontName("Calibri");
         txtfont.setFontHeightInPoints((short)10);
         txtstyle.setFont(txtfont);
+        txtstyle.setBorderBottom(BorderStyle.THIN);
+        txtstyle.setBorderTop(BorderStyle.THIN);
+        txtstyle.setBorderRight(BorderStyle.THIN);
+        txtstyle.setBorderLeft(BorderStyle.THIN);
         
         for(int x = 0; x < this.items.size(); x++){
             
@@ -499,7 +528,10 @@ public class ManualGoodsIssueController extends AbstractController implements In
             System.out.println("Directory Created");
             dir.mkdir();
         }
-        File file2 = new File(dir.getAbsolutePath()+ "\\" + "mgisample.xlsx");
+        
+        String filename = "[MGI]" + this.customerfld.getText() + "-(" + this.mod_og.getGinum() + ").xlsx";
+        
+        File file2 = new File(dir.getAbsolutePath()+ "\\" + filename);
         if(!file2.exists()){
             file2.createNewFile();
         }
