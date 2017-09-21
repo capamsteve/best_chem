@@ -20,6 +20,7 @@ import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.control.Button;
+import javafx.scene.control.RadioButton;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
 import javafx.scene.control.TextField;
@@ -49,6 +50,9 @@ public class POItemsController extends AbstractController implements Initializab
 
     @FXML
     private TextField inventoryidfld;
+    
+    @FXML
+    private RadioButton descbtn;
     
     private InventoryModel item;
     
@@ -96,7 +100,13 @@ public class POItemsController extends AbstractController implements Initializab
     
     private void searchSKU(String sku) throws SQLException{
         
-        Iterator rs = iq.getInventories(sku, this.supid);
+        Iterator rs = null;
+        if(this.descbtn.isSelected()){
+            rs = iq.getInventoriesDesc(sku, this.supid);
+        }else{
+            rs = iq.getInventories(sku, this.supid);
+        }
+         
         
         this.RefreshItems(rs);
     }

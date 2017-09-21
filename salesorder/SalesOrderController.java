@@ -229,6 +229,8 @@ public class SalesOrderController extends AbstractController implements Initiali
                     alert.setContentText("This Sales Order is already cancelled.");
                 }else if(this.salestble.getSelectionModel().getSelectedItem().getStatus().equals("With DR")){
                     alert.setContentText("This Sales Order already has open delivery receipts.");
+                }else if(this.salestble.getSelectionModel().getSelectedItem().getStatus().equals("complete")){
+                    alert.setContentText("This Sales Order is already complete.");
                 }
                 alert.showAndWait();
             }
@@ -365,9 +367,9 @@ public class SalesOrderController extends AbstractController implements Initiali
                 alert.setTitle("Information Dialog");
                 alert.setHeaderText(null);
                 if(this.salestble.getSelectionModel().getSelectedItem().getStatus().equals("complete")){
-                    alert.setContentText("This Sales Order is already cancelled.");
-                }else{
                     alert.setContentText("This Sales Order is already complete.");
+                }else{
+                    alert.setContentText("This Sales Order is already cancelled.");
                 }
                 alert.showAndWait();
                 
@@ -511,40 +513,49 @@ public class SalesOrderController extends AbstractController implements Initiali
     public void addSI(ActionEvent event) throws IOException, SQLException {
         
         try{
-            if(this.salestble.getSelectionModel().getSelectedItem().getStatus().equals("Partially Delivered") || this.salestble.getSelectionModel().getSelectedItem().getStatus().equals("complete")){
-                FXMLLoader fxmlloader = new FXMLLoader(getClass().getResource("/salesinvoices/SalesInvoiceView.fxml"));
-                Parent root = (Parent) fxmlloader.load();
+            if(!this.cust.isAuto_create()){
+                if(this.salestble.getSelectionModel().getSelectedItem().getStatus().equals("Partially Delivered") || this.salestble.getSelectionModel().getSelectedItem().getStatus().equals("complete")){
+                    FXMLLoader fxmlloader = new FXMLLoader(getClass().getResource("/salesinvoices/SalesInvoiceView.fxml"));
+                    Parent root = (Parent) fxmlloader.load();
 
-                SalesInvoiceController sivc = fxmlloader.<SalesInvoiceController>getController();
-                sivc.initData(this.getGlobalUser(), 0);
-                sivc.setInit(cust, this.somod);
-                sivc.AddMode();
+                    SalesInvoiceController sivc = fxmlloader.<SalesInvoiceController>getController();
+                    sivc.initData(this.getGlobalUser(), 0);
+                    sivc.setInit(cust, this.somod);
+                    sivc.AddMode();
 
-                Scene scene = new Scene(root);
-                Stage stage = (Stage) addinvoicebtn.getScene().getWindow();
-                Stage substage = new Stage();
-                substage.setScene(scene);
-                substage.setTitle("Add Sales Invoice");
-                substage.initModality(Modality.WINDOW_MODAL);
-                substage.initOwner(stage);
-                substage.showAndWait();
+                    Scene scene = new Scene(root);
+                    Stage stage = (Stage) addinvoicebtn.getScene().getWindow();
+                    Stage substage = new Stage();
+                    substage.setScene(scene);
+                    substage.setTitle("Add Sales Invoice");
+                    substage.initModality(Modality.WINDOW_MODAL);
+                    substage.initOwner(stage);
+                    substage.showAndWait();
 
-                this.getSalesInvoice(this.salestble.getSelectionModel().getSelectedItem().getIdso());
+                    this.getSalesInvoice(this.salestble.getSelectionModel().getSelectedItem().getIdso());
+                }
+                else{
+                    Alert alert = new Alert(Alert.AlertType.INFORMATION);
+                    alert.setTitle("Information Dialog");
+                    alert.setHeaderText(null);
+
+                    if(this.salestble.getSelectionModel().getSelectedItem().getStatus().equals("cancelled")){
+                        alert.setContentText("This Sales Order is already cancelled.");
+                    }
+                    else if(this.salestble.getSelectionModel().getSelectedItem().getStatus().equals("open")){
+                        alert.setContentText("This Sales order does not have a delivery receipt.");
+                    }
+
+
+
+                    alert.showAndWait();
+                }
             }
             else{
                 Alert alert = new Alert(Alert.AlertType.INFORMATION);
                 alert.setTitle("Information Dialog");
                 alert.setHeaderText(null);
-                
-                if(this.salestble.getSelectionModel().getSelectedItem().getStatus().equals("cancelled")){
-                    alert.setContentText("This Sales Order is already cancelled.");
-                }
-                else if(this.salestble.getSelectionModel().getSelectedItem().getStatus().equals("open")){
-                    alert.setContentText("This Sales order does not have a delivery receipt.");
-                }
-                
-                
-
+                alert.setContentText("This customer auto creates sales invoice.");
                 alert.showAndWait();
             }
         }catch(NullPointerException e){

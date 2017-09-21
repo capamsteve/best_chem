@@ -25,6 +25,7 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
+import javafx.scene.control.RadioButton;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
 import javafx.scene.control.cell.PropertyValueFactory;
@@ -74,7 +75,13 @@ public class AddPriceViewController extends AbstractController implements Initia
         ObservableList<InventoryModel> data
                 = FXCollections.observableArrayList();
         
-        Iterator rs = iq.getInventories(sku, super.getType());
+        Iterator rs = null;
+        
+        if(this.descbtn.isSelected()){
+            rs = iq.getInventoriesByDesc1(sku, super.getType());
+        }else{
+            rs = iq.getInventories(sku, super.getType());
+        }
         
         while(rs.hasNext()){
             data.add((InventoryModel)rs.next());
@@ -111,6 +118,9 @@ public class AddPriceViewController extends AbstractController implements Initia
 
     @FXML
     private Button addbtn;
+    
+    @FXML
+    private RadioButton descbtn;
     
     @FXML
     private DatePicker effdtefld;

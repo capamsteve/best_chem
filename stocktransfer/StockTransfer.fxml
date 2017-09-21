@@ -23,7 +23,7 @@
       </Label>
       <DatePicker fx:id="datefld" layoutX="383.0" layoutY="86.0" prefHeight="25.0" prefWidth="182.0" />
       <TextField fx:id="soldtofld" layoutX="96.0" layoutY="121.0" prefHeight="25.0" prefWidth="290.0" />
-      <ToolBar layoutX="16.0" layoutY="294.0" prefHeight="40.0" prefWidth="965.0">
+      <ToolBar layoutX="16.0" layoutY="294.0" prefHeight="40.0" prefWidth="819.0">
          <items>
             <Button id="Addbtn" fx:id="addbtn" mnemonicParsing="false" onAction="#AddItem" text="Add" />
             <Button fx:id="editbtn" mnemonicParsing="false" onAction="#EditItem" text="Edit" />
@@ -133,5 +133,20 @@
          </children>
       </StackPane>
       <Button fx:id="printbtn" layoutX="701.0" layoutY="623.0" mnemonicParsing="false" onAction="#export" text="Print" />
+      <Label layoutX="850.0" layoutY="307.0" text="Total Items:">
+         <font>
+            <Font name="Arial" size="14.0" />
+         </font>
+      </Label>
+      <Label fx:id="itemNum" layoutX="926.0" layoutY="304.0" text="00">
+         <font>
+            <Font name="Arial Bold" size="17.0" />
+         </font>
+      </Label>
+      <Label layoutX="950.0" layoutY="304.0" text="/ 21">
+         <font>
+            <Font name="Arial Bold" size="17.0" />
+         </font>
+      </Label>
    </children>
 </Pane>

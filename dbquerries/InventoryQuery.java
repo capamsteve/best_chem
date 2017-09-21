@@ -93,7 +93,45 @@ public class InventoryQuery {
         
     }
     
-    
+    public boolean checkInventory(InventoryModel im, int table) throws SQLException{
+        
+        boolean check = false;
+        String query = "";
+        
+        if(table == 1){
+            query = "SELECT count(*) as cnt from inventory where sku = ? and skudesc = ? and skuom = ? and skuwh = ?";
+        }
+        else if(table == 2){
+            query = "SELECT count(*) as cnt from pm_inventory where sku = ? and skudesc = ? and skuom = ? and skuwh = ?";
+        }
+        
+        DBQuery dbq = DBQuery.getInstance();
+        DBConnect dbc = DBConnect.getInstance();
+        
+        PreparedStatement st = dbc.getConnection().prepareStatement(query);
+        st.setString(1, im.getSku());
+        st.setString(2, im.getDescription());
+        st.setString(3, im.getUom());
+        st.setString(4, im.getWh());
+        
+        Iterator rs = dbq.getQueryResultSet2(st);
+        
+        int num = 0;
+        
+        while(rs.hasNext()){
+            HashMap map = (HashMap) rs.next();
+            num = Integer.valueOf(map.get("cnt").toString());
+        }
+        
+        if(num == 0){
+            check = false;
+        }else{
+            check = true;
+        }
+        
+        return check;
+    }
+
     public Iterator getInventories(String sku, int table) throws SQLException{
         
         String query = "";
@@ -103,6 +141,47 @@ public class InventoryQuery {
         }
         else if(table == 2){
             query = "SELECT * FROM pm_inventory where sku LIKE ?";
+        }
+        DBQuery dbq = DBQuery.getInstance();
+        DBConnect dbc = DBConnect.getInstance();
+        ArrayList<InventoryModel> list = new ArrayList();
+        
+        PreparedStatement st = dbc.getConnection().prepareStatement(query);
+        
+        sku = "%" + sku + "%";
+        
+        st.setString(1, sku);
+        
+        Iterator rs = dbq.getQueryResultSet(st);
+        
+        while(rs.hasNext()){
+            HashMap map = (HashMap) rs.next();
+            InventoryModel inventory = new InventoryModel(Integer.valueOf(map.get("idinventory").toString()));
+            inventory.setSku((String) map.get("sku"));
+            inventory.setDescription((String) map.get("skudesc"));
+            inventory.setUom((String) map.get("skuom"));
+            inventory.setWh((String) map.get("skuwh"));
+            inventory.setSoh((int) map.get("soh"));
+            inventory.setCsl((int) map.get("csl"));
+            inventory.setUnits((int) map.get("units"));
+            inventory.setInvent_type(map.get("inv_type").toString());
+            
+            list.add(inventory);
+        }
+        
+        dbc.closeConnection();
+        return list.iterator();
+    }
+    
+    public Iterator getInventoriesByDesc1(String sku, int table) throws SQLException{
+        
+        String query = "";
+        
+        if(table == 1){
+            query = "SELECT * FROM inventory where skudesc LIKE ?;";
+        }
+        else if(table == 2){
+            query = "SELECT * FROM pm_inventory where skudesc LIKE ?";
         }
         DBQuery dbq = DBQuery.getInstance();
         DBConnect dbc = DBConnect.getInstance();
@@ -177,16 +256,183 @@ public class InventoryQuery {
         return list.iterator();
     }
     
+    public Iterator getInventoriesByWH(String wh, int table) throws SQLException{
+        
+        String query = "";
+        
+        if(table == 1){
+            query = "SELECT * FROM inventory where skuwh = ?;";
+        }
+        else if(table == 2){
+            query = "SELECT * FROM pm_inventory where sku LIKE ?;";
+        }
+        DBQuery dbq = DBQuery.getInstance();
+        DBConnect dbc = DBConnect.getInstance();
+        ArrayList<InventoryModel> list = new ArrayList();
+        
+        PreparedStatement st = dbc.getConnection().prepareStatement(query);
+        
+        st.setString(1, wh);
+        
+        Iterator rs = dbq.getQueryResultSet(st);
+        
+        while(rs.hasNext()){
+            HashMap map = (HashMap) rs.next();
+            InventoryModel inventory = new InventoryModel(Integer.valueOf(map.get("idinventory").toString()));
+            inventory.setSku((String) map.get("sku"));
+            inventory.setDescription((String) map.get("skudesc"));
+            inventory.setUom((String) map.get("skuom"));
+            inventory.setWh((String) map.get("skuwh"));
+            inventory.setSoh((int) map.get("soh"));
+            inventory.setCsl((int) map.get("csl"));
+            inventory.setUnits((int) map.get("units"));
+            inventory.setInvent_type(map.get("inv_type").toString());
+            
+            list.add(inventory);
+        }
+        
+        dbc.closeConnection();
+        return list.iterator();
+    }
+    
+    public Iterator getInventoriesByWH(String sku, String wh, int table) throws SQLException{
+        
+        String query = "";
+        
+        if(table == 1){
+            query = "SELECT * FROM inventory where sku LIKE ? and skuwh = ?;";
+        }
+        else if(table == 2){
+            query = "SELECT * FROM pm_inventory where sku LIKE ?;";
+        }
+        DBQuery dbq = DBQuery.getInstance();
+        DBConnect dbc = DBConnect.getInstance();
+        ArrayList<InventoryModel> list = new ArrayList();
+        
+        PreparedStatement st = dbc.getConnection().prepareStatement(query);
+        
+        sku = "%" + sku + "%";
+        
+        st.setString(1, sku);
+        st.setString(2, wh);
+        
+        Iterator rs = dbq.getQueryResultSet(st);
+        
+        while(rs.hasNext()){
+            HashMap map = (HashMap) rs.next();
+            InventoryModel inventory = new InventoryModel(Integer.valueOf(map.get("idinventory").toString()));
+            inventory.setSku((String) map.get("sku"));
+            inventory.setDescription((String) map.get("skudesc"));
+            inventory.setUom((String) map.get("skuom"));
+            inventory.setWh((String) map.get("skuwh"));
+            inventory.setSoh((int) map.get("soh"));
+            inventory.setCsl((int) map.get("csl"));
+            inventory.setUnits((int) map.get("units"));
+            inventory.setInvent_type(map.get("inv_type").toString());
+            
+            list.add(inventory);
+        }
+        
+        dbc.closeConnection();
+        return list.iterator();
+    }
+    
+    public Iterator getInventoriesByWHDesc(String sku, String wh, int table) throws SQLException{
+        
+        String query = "";
+        
+        if(table == 1){
+            query = "SELECT * FROM inventory where skudesc LIKE ? and skuwh = ?;";
+        }
+        else if(table == 2){
+            query = "SELECT * FROM pm_inventory where skudesc LIKE ?;";
+        }
+        DBQuery dbq = DBQuery.getInstance();
+        DBConnect dbc = DBConnect.getInstance();
+        ArrayList<InventoryModel> list = new ArrayList();
+        
+        PreparedStatement st = dbc.getConnection().prepareStatement(query);
+        
+        sku = "%" + sku + "%";
+        
+        st.setString(1, sku);
+        st.setString(2, wh);
+        
+        Iterator rs = dbq.getQueryResultSet(st);
+        
+        while(rs.hasNext()){
+            HashMap map = (HashMap) rs.next();
+            InventoryModel inventory = new InventoryModel(Integer.valueOf(map.get("idinventory").toString()));
+            inventory.setSku((String) map.get("sku"));
+            inventory.setDescription((String) map.get("skudesc"));
+            inventory.setUom((String) map.get("skuom"));
+            inventory.setWh((String) map.get("skuwh"));
+            inventory.setSoh((int) map.get("soh"));
+            inventory.setCsl((int) map.get("csl"));
+            inventory.setUnits((int) map.get("units"));
+            inventory.setInvent_type(map.get("inv_type").toString());
+            
+            list.add(inventory);
+        }
+        
+        dbc.closeConnection();
+        return list.iterator();
+    }
+    
     public Iterator getInventories(String sku, String warehouse, String uom, int table) throws SQLException{
         System.out.println(table);
         
         String query = "";
         
         if(table == 1){
-            query = "SELECT * FROM inventory where sku LIKE ?;";
+            query = "SELECT * FROM inventory where sku LIKE ? and skuom = ? and skuwh = ?;";
         }
         else if(table == 2){
             query = "SELECT * FROM pm_inventory where sku LIKE ? and skuom = ? and skuwh = ?;";
+        }
+        DBQuery dbq = DBQuery.getInstance();
+        DBConnect dbc = DBConnect.getInstance();
+        ArrayList<InventoryModel> list = new ArrayList();
+        
+        PreparedStatement st = dbc.getConnection().prepareStatement(query);
+        
+        sku = "%" + sku + "%";
+        
+        st.setString(1, sku);
+        st.setString(2, uom);
+        st.setString(3, warehouse);
+        
+        Iterator rs = dbq.getQueryResultSet(st);
+        
+        while(rs.hasNext()){
+            HashMap map = (HashMap) rs.next();
+            InventoryModel inventory = new InventoryModel(Integer.valueOf(map.get("idinventory").toString()));
+            inventory.setSku((String) map.get("sku"));
+            inventory.setDescription((String) map.get("skudesc"));
+            inventory.setUom((String) map.get("skuom"));
+            inventory.setWh((String) map.get("skuwh"));
+            inventory.setSoh((int) map.get("soh"));
+            inventory.setCsl((int) map.get("csl"));
+            inventory.setUnits((int) map.get("units"));
+            inventory.setInvent_type(map.get("inv_type").toString());
+            
+            list.add(inventory);
+        }
+        
+        dbc.closeConnection();
+        return list.iterator();
+    }
+    
+    public Iterator getInventoriesByDesc2(String sku, String warehouse, String uom, int table) throws SQLException{
+        System.out.println(table);
+        
+        String query = "";
+        
+        if(table == 1){
+            query = "SELECT * FROM inventory where skudesc LIKE ? and skuom = ? and skuwh = ?;";
+        }
+        else if(table == 2){
+            query = "SELECT * FROM pm_inventory where skudesc LIKE ? and skuom = ? and skuwh = ?;";
         }
         DBQuery dbq = DBQuery.getInstance();
         DBConnect dbc = DBConnect.getInstance();

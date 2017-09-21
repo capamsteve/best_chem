@@ -203,6 +203,7 @@ public class StockTransmittalViewController extends AbstractController implement
                     bom.setWhouse("SG");
                     int total = bom.getBom_qty() * mod.getSoh();
                     bom.setBom_qty(total);
+                    bom.setBom_qty1();
                     this.items1.add(bom);
                 }
                 
@@ -359,6 +360,7 @@ public class StockTransmittalViewController extends AbstractController implement
             
             this.items1.get(this.itemlist1.getSelectionModel().getSelectedIndex()).setBom_qty(result.get().getVal());
             this.items1.get(this.itemlist1.getSelectionModel().getSelectedIndex()).setWhouse(result.get().getWH());
+            this.items1.get(this.itemlist1.getSelectionModel().getSelectedIndex()).setBom_qty1();
             
             this.RefreshItems2();
         }
@@ -522,6 +524,7 @@ public class StockTransmittalViewController extends AbstractController implement
                     bom.setWhouse("BC");
                     int total = bom.getBom_qty() * pim.getSoh();
                     bom.setBom_qty(total);
+                    bom.setBom_qty1();
                     this.items1.add(bom);
                 }
 
@@ -678,7 +681,7 @@ public class StockTransmittalViewController extends AbstractController implement
     }
     
     public void RefreshItems2(){
-        String[] arr = {"sku", "description", "whouse", "bom_qty"};
+        String[] arr = {"sku", "description", "whouse", "bom_qty1"};
         ObservableList<BOModel> data
                 = FXCollections.observableArrayList();
         
@@ -817,7 +820,7 @@ public class StockTransmittalViewController extends AbstractController implement
             
             rownum = start;
             cellnum = 6;
-            this.createCell(sheetrow, sheet, cell, rownum, cellnum, String.valueOf(this.items1.get(x).getBom_qty()), txtstyle);
+            this.createCell(sheetrow, sheet, cell, rownum, cellnum, this.items1.get(x).getBom_qty1(), txtstyle);
             
             start++;
         }

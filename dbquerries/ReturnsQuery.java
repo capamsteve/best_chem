@@ -168,6 +168,45 @@ public class ReturnsQuery {
         return list.iterator();
     }
     
+    public Iterator getReturnsByDesc(String sku, int table) throws SQLException{
+        
+        String query = "";
+        
+        if(table == 1){
+            query = "SELECT * FROM returns where skudesc LIKE ?;";
+        }
+        else if(table == 2){
+            query = "SELECT * FROM mm_returns where skudesc LIKE ?;";
+        }
+        
+        DBQuery dbq = DBQuery.getInstance();
+        DBConnect dbc = DBConnect.getInstance();
+        ArrayList<ReturnsModel> list = new ArrayList();
+        
+        PreparedStatement st = dbc.getConnection().prepareStatement(query);
+        
+        sku = "%" + sku + "%";
+        
+        st.setString(1, sku);
+        
+        Iterator rs = dbq.getQueryResultSet(st);
+        
+        while(rs.hasNext()){
+            HashMap map = (HashMap) rs.next();
+            ReturnsModel returns = new ReturnsModel(Integer.valueOf(map.get("idreturns").toString()));
+            returns.setSku((String) map.get("sku"));
+            returns.setSkudesc((String) map.get("desc"));
+            returns.setRetuom((String) map.get("retuom"));
+            returns.setRetwhs((String) map.get("retwhs"));
+            returns.setSoh((int) map.get("soh"));
+            
+            list.add(returns);
+        }
+        
+        dbc.closeConnection();
+        return list.iterator();
+    }
+    
     public void editReturns(ReturnsModel model, int table) throws SQLException{
         
         String query = "";

@@ -5,6 +5,9 @@
  */
 package models;
 
+import java.math.RoundingMode;
+import java.text.NumberFormat;
+
 /**
  *
  * @author Steven
@@ -16,6 +19,7 @@ public class BOModel {
     private String sku;
     private String description;
     private int bom_qty;
+    private String bom_qty1;
     private String uom;
     private String whouse;
     private String status;
@@ -23,8 +27,15 @@ public class BOModel {
     private int pm_inventory;
     private int stitemid;
     
+    private final NumberFormat nf2= NumberFormat.getInstance();
+    
     public BOModel(Integer idinventory){
         this.idinventory = idinventory;
+        
+        
+        nf2.setMaximumFractionDigits(0);
+        nf2.setMinimumFractionDigits(0);
+        nf2.setRoundingMode(RoundingMode.HALF_EVEN);
     }
     
     /**
@@ -203,6 +214,19 @@ public class BOModel {
      */
     public void setPm_inventory(int pm_inventory) {
         this.pm_inventory = pm_inventory;
+    }
+
+    /**
+     * @return the bom_qty1
+     */
+    public String getBom_qty1() {
+        return bom_qty1;
+    }
+
+    /**
+     */
+    public void setBom_qty1() {
+        this.bom_qty1 = this.nf2.format(this.bom_qty);
     }
     
 }

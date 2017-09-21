@@ -196,7 +196,7 @@ public class StockTransmittalQuery {
             inventory.setWhouse(map.get("bom_wh").toString());
             inventory.setFg_inventory(Integer.valueOf(map.get("fginvent_id").toString()));
             inventory.setStitemid(Integer.valueOf(map.get("idtritems").toString()));
-            
+            inventory.setBom_qty1();
             mods.add(inventory);
         }
         

@@ -154,7 +154,6 @@ public class PricesModel {
     }
 
     /**
-     * @param poprice1 the poprice1 to set
      */
     public void setPoprice1() {
         this.poprice1 = nf.format(this.poprice);
@@ -168,7 +167,6 @@ public class PricesModel {
     }
 
     /**
-     * @param sellingprice1 the sellingprice1 to set
      */
     public void setSellingprice1() {
         this.sellingprice1 = nf.format(this.sellingprice);

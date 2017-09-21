@@ -97,6 +97,36 @@ public class PMInventoryQuery {
         return list.iterator();
     }
     
+    public Iterator getInventoriesByDesc(String sku) throws SQLException{
+        
+        String query = "SELECT * FROM pm_inventory where skudesc LIKE ? and skuom = 'PC' GROUP BY sku ORDER BY idinventory;";
+        
+        DBQuery dbq = DBQuery.getInstance();
+        DBConnect dbc = DBConnect.getInstance();
+        ArrayList<InventoryModel> list = new ArrayList();
+        
+        PreparedStatement st = dbc.getConnection().prepareStatement(query);
+        
+        sku = "%" + sku + "%";
+        
+        st.setString(1, sku);
+        
+        Iterator rs = dbq.getQueryResultSet(st);
+        
+        while(rs.hasNext()){
+            HashMap map = (HashMap) rs.next();
+            InventoryModel inventory = new InventoryModel(Integer.valueOf(map.get("idinventory").toString()));
+            inventory.setSku((String) map.get("sku"));
+            inventory.setDescription((String) map.get("skudesc"));
+            inventory.setUnits((int) map.get("units"));
+            
+            list.add(inventory);
+        }
+        
+        dbc.closeConnection();
+        return list.iterator();
+    }
+    
     public void addPriceSupplier(PricesModel prm, int sup_id) throws SQLException{
         
         DBConnect dbc = DBConnect.getInstance();
@@ -242,6 +272,40 @@ public class PMInventoryQuery {
         ArrayList<InventoryModel> list = new ArrayList();
         
         PreparedStatement st = dbc.getConnection().prepareStatement("CALL PO_PRICES_GET_BY_SUP_SKU(?,?);");
+        
+        sku = "%" + sku + "%";
+        
+        st.setInt(1, supplier);
+        st.setString(2, sku);
+        
+        Iterator rs = dbq.getQueryResultSet(st);
+        
+        while(rs.hasNext()){
+            HashMap map = (HashMap) rs.next();
+            InventoryModel inventory = new InventoryModel(Integer.valueOf(map.get("idinventory").toString()));
+            inventory.setSku((String) map.get("sku"));
+            inventory.setDescription((String) map.get("skudesc"));
+            inventory.setUom((String) map.get("skuom"));
+            inventory.setWh((String) map.get("skuwh"));
+            inventory.setPoprice(Double.valueOf(map.get("poPrice").toString()));
+            inventory.setSoh((int) map.get("soh"));
+            inventory.setCsl((int) map.get("csl"));
+            inventory.setUnits((int) map.get("units"));
+            
+            list.add(inventory);
+        }
+        
+        dbc.closeConnection();
+        return list.iterator();
+    }
+    
+    public Iterator getInventoriesDesc(String sku, int supplier) throws SQLException{
+        
+        DBQuery dbq = DBQuery.getInstance();
+        DBConnect dbc = DBConnect.getInstance();
+        ArrayList<InventoryModel> list = new ArrayList();
+        
+        PreparedStatement st = dbc.getConnection().prepareStatement("CALL PO_PRICES_GET_BY_SUP_DESC(?,?);");
         
         sku = "%" + sku + "%";
         

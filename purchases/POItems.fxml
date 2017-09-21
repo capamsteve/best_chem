@@ -57,6 +57,6 @@
             </ImageView>
          </graphic>
       </Button>
-      <ComboBox fx:id="supplierbox" layoutX="374.0" layoutY="68.0" prefWidth="150.0" />
+      <RadioButton fx:id="descbtn" layoutX="392.0" layoutY="70.0" mnemonicParsing="false" text="Description" />
    </children>
 </Pane>

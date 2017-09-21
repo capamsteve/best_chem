@@ -19,6 +19,7 @@ import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.control.Button;
+import javafx.scene.control.RadioButton;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
 import javafx.scene.control.TextField;
@@ -55,6 +56,9 @@ public class TransmittalSelectorController extends AbstractController implements
     @FXML
     private TextField inventoryidfld;
     
+    @FXML
+    private RadioButton descbtn;
+    
     private InventoryModel item;
     
     private boolean isCancelled = false;
@@ -86,7 +90,14 @@ public class TransmittalSelectorController extends AbstractController implements
         ObservableList<InventoryModel> data
                 = FXCollections.observableArrayList();
         
-        Iterator rs = iq.getInventories(sku, 1);
+        Iterator rs = null;
+        
+        if(this.descbtn.isSelected()){
+            rs = iq.getInventoriesByWHDesc(sku, "BC", 1);
+        }else{
+            rs = iq.getInventoriesByWH(sku, "BC", 1);
+        }
+
         
         while(rs.hasNext()){
             data.add((InventoryModel)rs.next());

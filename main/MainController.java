@@ -242,6 +242,12 @@ public class MainController extends AbstractController implements Initializable 
     @FXML
     private TabPane bstchmpane;
     
+    @FXML
+    private TabPane invtabs;
+    
+    @FXML
+    private TabPane rettabs;
+    
     //Queries
     private final CustomerQuery cq = new CustomerQuery();
     private final UtilitiesQuery uq = new UtilitiesQuery();
@@ -328,15 +334,10 @@ public class MainController extends AbstractController implements Initializable 
                         case 1 : getSuppliers(); 
                             break;
                         case 2 : getInventory(); 
-                                 getInventoryAdjustments();
-                                 getMGI();
                             break;
                         case 3 : getReturns();
-                                 getReturnsAdjustments();
                             break;
                         case 4 : getPrices();
-                            break;
-                        case 5 : //Reports
                             break;
                         case 6 : getWHS(); 
                             break;
@@ -349,6 +350,47 @@ public class MainController extends AbstractController implements Initializable 
             }
             
         });
+        
+        invtabs.getSelectionModel().selectedIndexProperty().addListener(new ChangeListener<Number>(){
+
+            @Override
+            public void changed(ObservableValue<? extends Number> observable, Number oldValue, Number newValue) {
+                try {
+                    switch(Integer.parseInt(newValue.toString())){
+                        case 0 : getInventory();
+                            break;
+                        case 1 : getInventoryAdjustments();
+                            break;
+                        case 2 : getMGI();
+                            break;
+                    }
+                } catch (SQLException ex) {
+                    Logger.getLogger(MainController.class.getName()).log(Level.SEVERE, null, ex);
+                }
+            }
+            
+        });
+        
+        rettabs.getSelectionModel().selectedIndexProperty().addListener(new ChangeListener<Number>(){
+
+            @Override
+            public void changed(ObservableValue<? extends Number> observable, Number oldValue, Number newValue) {
+                try {
+                    switch(Integer.parseInt(newValue.toString())){
+                        case 0 : getReturns();
+                            break;
+                        case 1 : getReturnsAdjustments();
+                            break;
+                    }
+                } catch (SQLException ex) {
+                    Logger.getLogger(MainController.class.getName()).log(Level.SEVERE, null, ex);
+                }
+            }
+            
+        });
+        
+        
+        
     }
     
     /**
@@ -387,9 +429,6 @@ public class MainController extends AbstractController implements Initializable 
      *  
      * 
      * 
-     * @param event
-     * @throws java.io.IOException
-     * @throws java.sql.SQLException
      */
     
     //DONE
@@ -785,25 +824,34 @@ public class MainController extends AbstractController implements Initializable 
 
     @FXML
     void editAdjustment(ActionEvent event) throws SQLException, IOException {
-        FXMLLoader fxmlloader = new FXMLLoader(getClass().getResource("/inventory/InventoryAdjustmentEntry.fxml"));
-        Parent root = (Parent) fxmlloader.load();
-        
-        InventoryAdjustmentEntryController iaec = fxmlloader.<InventoryAdjustmentEntryController>getController();
-        iaec.initData(super.getGlobalUser(), super.getType());
-        iaec.Edit(this.inventoryadjtable.getSelectionModel().getSelectedItem());
-        
-        Scene scene = new Scene(root);
-        Stage stage = (Stage) iabtn.getScene().getWindow();
-        Stage substage = new Stage();
-        substage.setScene(scene);
-        substage.setResizable(false);
-        substage.sizeToScene();
-        substage.setTitle("Inventory Adjustment Entry");
-        substage.initModality(Modality.WINDOW_MODAL);
-        substage.initOwner(stage);
-        substage.showAndWait();
-        
-        this.getInventoryAdjustments();
+        if(this.inventoryadjtable.getSelectionModel().getSelectedItem().getPgistat().equals("N")){
+            FXMLLoader fxmlloader = new FXMLLoader(getClass().getResource("/inventory/InventoryAdjustmentEntry.fxml"));
+            Parent root = (Parent) fxmlloader.load();
+
+            InventoryAdjustmentEntryController iaec = fxmlloader.<InventoryAdjustmentEntryController>getController();
+            iaec.initData(super.getGlobalUser(), super.getType());
+            iaec.Edit(this.inventoryadjtable.getSelectionModel().getSelectedItem());
+
+            Scene scene = new Scene(root);
+            Stage stage = (Stage) iabtn.getScene().getWindow();
+            Stage substage = new Stage();
+            substage.setScene(scene);
+            substage.setResizable(false);
+            substage.sizeToScene();
+            substage.setTitle("Inventory Adjustment Entry");
+            substage.initModality(Modality.WINDOW_MODAL);
+            substage.initOwner(stage);
+            substage.showAndWait();
+
+            this.getInventoryAdjustments();
+        }else{
+            Alert alert = new Alert(AlertType.INFORMATION);
+            alert.setTitle("Information Dialog");
+            alert.setHeaderText(null);
+            alert.setContentText("This has been posted already and cannot be edited.");
+
+            alert.showAndWait();
+        }
     }
 
     @FXML
@@ -855,25 +903,35 @@ public class MainController extends AbstractController implements Initializable 
 
     @FXML
     void editMGI(ActionEvent event) throws SQLException, IOException {
-        FXMLLoader fxmlloader = new FXMLLoader(getClass().getResource("/mgi/ManualGoodsIssue.fxml"));
-        Parent root = (Parent) fxmlloader.load();
-        
-        ManualGoodsIssueController mgic = fxmlloader.<ManualGoodsIssueController>getController();
-        mgic.initData(super.getGlobalUser(), super.getType());
-        mgic.EditMode(this.mgitable.getSelectionModel().getSelectedItem());
-        
-        Scene scene = new Scene(root);
-        Stage stage = (Stage) iabtn.getScene().getWindow();
-        Stage substage = new Stage();
-        substage.setScene(scene);
-        substage.setResizable(false);
-        substage.sizeToScene();
-        substage.setTitle("Edit Manual Goods Issue");
-        substage.initModality(Modality.WINDOW_MODAL);
-        substage.initOwner(stage);
-        substage.showAndWait();
-        
-        this.getMGI();
+        if(this.mgitable.getSelectionModel().getSelectedItem().getPgistat().equals("N")){
+            FXMLLoader fxmlloader = new FXMLLoader(getClass().getResource("/mgi/ManualGoodsIssue.fxml"));
+            Parent root = (Parent) fxmlloader.load();
+
+            ManualGoodsIssueController mgic = fxmlloader.<ManualGoodsIssueController>getController();
+            mgic.initData(super.getGlobalUser(), super.getType());
+            mgic.EditMode(this.mgitable.getSelectionModel().getSelectedItem());
+
+            Scene scene = new Scene(root);
+            Stage stage = (Stage) iabtn.getScene().getWindow();
+            Stage substage = new Stage();
+            substage.setScene(scene);
+            substage.setResizable(false);
+            substage.sizeToScene();
+            substage.setTitle("Edit Manual Goods Issue");
+            substage.initModality(Modality.WINDOW_MODAL);
+            substage.initOwner(stage);
+            substage.showAndWait();
+
+            this.getMGI();
+        }
+        else{
+            Alert alert = new Alert(AlertType.INFORMATION);
+            alert.setTitle("Information Dialog");
+            alert.setHeaderText(null);
+            alert.setContentText("This has been posted already and cannot be edited.");
+
+            alert.showAndWait();
+        }
     }
 
     @FXML
@@ -923,14 +981,17 @@ public class MainController extends AbstractController implements Initializable 
     }
     
     public void getInventory() throws SQLException{
-        String[] arr = {"sku", "description", "uom", "wh", "soh", "csl"};
+        String[] arr = {"sku", "description", "uom", "wh", "soh1", "csl1"};
         ObservableList<InventoryModel> data
                 = FXCollections.observableArrayList();
         
         Iterator rs = iq.getInventories(super.getType());
         
         while(rs.hasNext()){
-            data.add((InventoryModel)rs.next());
+            InventoryModel im = (InventoryModel)rs.next();
+            im.setSoh1();
+            im.setCsl1();
+            data.add(im);
         }
         
         ObservableList<TableColumn<InventoryModel, ?>> olist;
@@ -1121,6 +1182,13 @@ public class MainController extends AbstractController implements Initializable 
             substage.showAndWait();
 
             this.getReturnsAdjustments();
+        }else{
+            Alert alert = new Alert(AlertType.INFORMATION);
+            alert.setTitle("Information Dialog");
+            alert.setHeaderText(null);
+            alert.setContentText("This has been posted already and cannot be edited.");
+
+            alert.showAndWait();
         }
     }
 

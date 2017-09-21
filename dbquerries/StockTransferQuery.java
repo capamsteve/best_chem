@@ -145,6 +145,7 @@ public class StockTransferQuery {
         st.setString(10, stm.getPlate());
         st.setString(11, stm.getStdesc());
         st.setString(12, stm.getRemarks());
+        st.setInt(13, stm.getIdst());
         
         st.executeUpdate();
         

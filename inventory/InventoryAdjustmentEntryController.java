@@ -161,11 +161,14 @@ public class InventoryAdjustmentEntryController extends AbstractController imple
     }
     
     public void RefreshItems(){
-        String[] arr = {"sku", "description", "wh", "uom", "soh", "mov"};
+        String[] arr = {"sku", "description", "wh", "uom", "soh1", "mov"};
         ObservableList<InventoryModel> data
                 = FXCollections.observableArrayList();
         
-        data.addAll(items);
+        for(InventoryModel item : this.items){
+            item.setSoh1();
+            data.add(item);
+        }
         
         ObservableList<TableColumn<InventoryModel, ?>> olist;
         olist = (ObservableList<TableColumn<InventoryModel, ?>>) this.itemlist.getColumns();

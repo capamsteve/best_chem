@@ -18,6 +18,7 @@ public class PurchaseItemModel {
     private String sku;
     private String desc;
     private int qty;
+    private String qty1;
     private String uom;
     private Integer idinventory;
     private double uprice;
@@ -30,12 +31,17 @@ public class PurchaseItemModel {
     private String batchnum;
     
     private NumberFormat nf= NumberFormat.getInstance();
+    private final NumberFormat nf2= NumberFormat.getInstance();
     
     public PurchaseItemModel(Integer idinventory){
         this.idinventory = idinventory;
         nf.setMaximumFractionDigits(2);
         nf.setMinimumFractionDigits(2);
         nf.setRoundingMode(RoundingMode.HALF_EVEN);
+        
+        nf2.setMaximumFractionDigits(0);
+        nf2.setMinimumFractionDigits(0);
+        nf2.setRoundingMode(RoundingMode.HALF_EVEN);
         
     }
     
@@ -211,7 +217,6 @@ public class PurchaseItemModel {
     }
 
     /**
-     * @param uprice1 the uprice1 to set
      */
     public void setUprice1() {
         this.uprice1 = nf.format(this.uprice);
@@ -225,7 +230,6 @@ public class PurchaseItemModel {
     }
 
     /**
-     * @param amount1 the amount1 to set
      */
     public void setAmount1() {
         this.amount1 = nf.format(this.amount);
@@ -239,7 +243,6 @@ public class PurchaseItemModel {
     }
 
     /**
-     * @param vat1 the vat1 to set
      */
     public void setVat1() {
         this.vat1 = nf.format(this.vat);
@@ -257,6 +260,19 @@ public class PurchaseItemModel {
      */
     public void setBatchnum(String batchnum) {
         this.batchnum = batchnum;
+    }
+
+    /**
+     * @return the qty1
+     */
+    public String getQty1() {
+        return qty1;
+    }
+
+    /**
+     */
+    public void setQty1() {
+        this.qty1 = this.nf2.format(this.qty);
     }
     
 }

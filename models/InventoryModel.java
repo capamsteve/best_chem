@@ -21,7 +21,9 @@ public class InventoryModel {
     private String uom;
     private String wh;
     private int soh;
+    private String soh1;
     private int csl;
+    private String csl1;
     private int units;
     private String invent_type;
     private double poprice;
@@ -39,6 +41,7 @@ public class InventoryModel {
     private ArrayList<PricesModel> prices;
     private String remarks;
     private NumberFormat nf= NumberFormat.getInstance();
+    private final NumberFormat nf2= NumberFormat.getInstance();
     
     //public InventoryModel(){
     //    this.prices = new ArrayList();
@@ -49,6 +52,10 @@ public class InventoryModel {
         nf.setMaximumFractionDigits(2);
         nf.setMinimumFractionDigits(2);
         nf.setRoundingMode(RoundingMode.HALF_EVEN);
+        
+        nf2.setMaximumFractionDigits(0);
+        nf2.setMinimumFractionDigits(0);
+        nf2.setRoundingMode(RoundingMode.HALF_EVEN);
     }
 
     /**
@@ -315,7 +322,6 @@ public class InventoryModel {
     }
 
     /**
-     * @param poprice1 the poprice1 to set
      */
     public void setPoprice1() {
         this.poprice1 = nf.format(this.poprice);
@@ -329,7 +335,6 @@ public class InventoryModel {
     }
 
     /**
-     * @param sellprice1 the sellprice1 to set
      */
     public void setSellprice1() {
         this.sellprice1 = nf.format(this.sellprice);
@@ -403,6 +408,32 @@ public class InventoryModel {
      */
     public void setInvent_type(String invent_type) {
         this.invent_type = invent_type;
+    }
+
+    /**
+     * @return the soh1
+     */
+    public String getSoh1() {
+        return soh1;
+    }
+
+    /**
+     */
+    public void setSoh1() {
+        this.soh1 = this.nf2.format(this.soh);
+    }
+
+    /**
+     * @return the csl1
+     */
+    public String getCsl1() {
+        return csl1;
+    }
+
+    /**
+     */
+    public void setCsl1() {
+        this.csl1 = this.nf2.format(this.csl);
     }
     
 }

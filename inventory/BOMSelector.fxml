@@ -53,5 +53,6 @@
             </ImageView>
          </graphic>
       </Button>
+      <RadioButton fx:id="descbtn" layoutX="408.0" layoutY="71.0" mnemonicParsing="false" text="Description" />
    </children>
 </Pane>

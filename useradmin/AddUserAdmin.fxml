@@ -26,22 +26,22 @@
          </font>
       </Label>
       <TextField fx:id="cnpersonfld" layoutX="125.0" layoutY="57.0" prefHeight="25.0" prefWidth="202.0" />
-      <Label layoutX="10.0" layoutY="130.0" text="Password:">
+      <Label layoutX="10.0" layoutY="93.0" text="Name:">
          <font>
             <Font name="Arial" size="14.0" />
          </font>
       </Label>
-      <Button fx:id="addbtn" layoutX="201.0" layoutY="198.0" mnemonicParsing="false" onAction="#AddHandler" text="Add User" />
-      <Button fx:id="cancelbtn" layoutX="277.0" layoutY="198.0" mnemonicParsing="false" onAction="#cancelHandler" text="Cancel" />
-      <Label layoutX="10.0" layoutY="164.0" text="User Type:">
+      <TextField fx:id="namefld" layoutX="125.0" layoutY="89.0" prefHeight="25.0" prefWidth="202.0" />
+      <Label layoutX="10.0" layoutY="130.0" text="Password:">
          <font>
             <Font name="Arial" size="14.0" />
          </font>
       </Label>
       <PasswordField fx:id="passfld" layoutX="125.0" layoutY="126.0" prefHeight="25.0" prefWidth="202.0" />
       <ComboBox fx:id="usertyp" layoutX="125.0" layoutY="160.0" prefHeight="25.0" prefWidth="202.0" />
-      <TextField fx:id="namefld" layoutX="125.0" layoutY="89.0" prefHeight="25.0" prefWidth="202.0" />
-      <Label layoutX="10.0" layoutY="93.0" text="Name:">
+      <Button fx:id="addbtn" layoutX="201.0" layoutY="198.0" mnemonicParsing="false" onAction="#AddHandler" text="Add User" />
+      <Button fx:id="cancelbtn" layoutX="277.0" layoutY="198.0" mnemonicParsing="false" onAction="#cancelHandler" text="Cancel" />
+      <Label layoutX="10.0" layoutY="164.0" text="User Type:">
          <font>
             <Font name="Arial" size="14.0" />
          </font>

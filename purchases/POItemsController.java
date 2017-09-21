@@ -22,6 +22,7 @@ import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.control.Button;
 import javafx.scene.control.ComboBox;
+import javafx.scene.control.RadioButton;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
 import javafx.scene.control.TextField;
@@ -49,6 +50,9 @@ public class POItemsController extends AbstractController implements Initializab
 
     @FXML
     private Button cancelbtn;
+    
+    @FXML
+    private RadioButton descbtn;
 
     @FXML
     private TextField inventoryidfld;
@@ -104,7 +108,13 @@ public class POItemsController extends AbstractController implements Initializab
         ObservableList<InventoryModel> data
                 = FXCollections.observableArrayList();
         
-        Iterator rs = iq.getInventories(sku, super.getType());
+        Iterator rs = null;
+        
+        if(this.descbtn.isSelected()){
+            rs = iq.getInventoriesByDesc1(sku, super.getType());
+        }else{
+            rs = iq.getInventories(sku, super.getType());
+        }
         
         while(rs.hasNext()){
             data.add((InventoryModel)rs.next());
@@ -160,25 +170,6 @@ public class POItemsController extends AbstractController implements Initializab
     @Override
     public void initData(UserModel user, int type) {
         super.setType(type);
-        
-        if(super.getType() == 1){
-            this.supplierbox.setVisible(false);
-        }
-        
-        try {
-            Iterator ir = sq.getAllSuppliers(super.getType());
-            
-            while(ir.hasNext()){
-                SupplierModel supmod = (SupplierModel) ir.next();
-                this.supdata.add(supmod.getSupname());
-            }
-            
-            System.out.println(this.supdata.size());
-            
-            this.supplierbox.getItems().addAll(supdata);
-        } catch (SQLException ex) {
-            Logger.getLogger(POItemsController.class.getName()).log(Level.SEVERE, null, ex);
-        }
     }
     
 }

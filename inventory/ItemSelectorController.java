@@ -20,6 +20,7 @@ import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.control.Alert;
 import javafx.scene.control.Button;
+import javafx.scene.control.Label;
 import javafx.scene.control.RadioButton;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
@@ -67,6 +68,12 @@ public class ItemSelectorController extends AbstractController implements Initia
     @FXML
     private ToggleGroup togglegroup1;
     
+    @FXML
+    private RadioButton descbtn;
+    
+    @FXML
+    private Label skulbl;
+    
     private InventoryModel item;
     
     private boolean isCancelled = false;
@@ -91,7 +98,7 @@ public class ItemSelectorController extends AbstractController implements Initia
             alert.setContentText("Please select either Increment or Decrement");
 
             alert.showAndWait();
-        }
+        } 
         else if(selectedRadioButton.getText().equals("INCREMENT")){
             System.out.println(selectedRadioButton.getText());
             this.item.setMov("INC");
@@ -118,7 +125,13 @@ public class ItemSelectorController extends AbstractController implements Initia
         ObservableList<InventoryModel> data
                 = FXCollections.observableArrayList();
         
-        Iterator rs = iq.getInventories(sku, super.getType());
+        Iterator rs = null;
+        
+        if(this.descbtn.isSelected()){
+            rs = iq.getInventoriesByDesc1(sku, super.getType());
+        }else{
+            rs = iq.getInventories(sku, super.getType());
+        }
         
         while(rs.hasNext()){
             data.add((InventoryModel)rs.next());
@@ -182,6 +195,17 @@ public class ItemSelectorController extends AbstractController implements Initia
     @Override
     public void initData(UserModel user, int type) {
         super.setType(type);
+        
+        if(type == 2){
+            this.skulbl.setText("PM Code:");
+            ObservableList<TableColumn<InventoryModel, ?>> olist = (ObservableList<TableColumn<InventoryModel, ?>>) this.inventorytable.getColumns();
+
+            for (int i = 0; i < olist.size(); i++) {
+                if(i == 0){
+                    olist.get(i).setText("PM Code");
+                }
+            }
+        }
     }
     
 }

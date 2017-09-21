@@ -62,5 +62,6 @@
          </toggleGroup>
       </RadioButton>
       <RadioButton fx:id="decbtn" layoutX="156.0" layoutY="434.0" mnemonicParsing="false" text="DECREMENT" toggleGroup="$togglegroup1" />
+      <RadioButton fx:id="descbtn" layoutX="384.0" layoutY="70.0" mnemonicParsing="false" text="Description" />
    </children>
 </Pane>

@@ -337,7 +337,7 @@ public class PurchaseDocumentController extends AbstractController implements In
     }
     
     public void RefreshItems(){
-        String[] arr = {"sku", "desc", "qty", "uom", "uprice1", "amount1", "vat1"};
+        String[] arr = {"sku", "desc", "qty1", "uom", "uprice1", "amount1", "vat1"};
         ObservableList<PurchaseItemModel> data
                 = FXCollections.observableArrayList();
         
@@ -345,6 +345,7 @@ public class PurchaseDocumentController extends AbstractController implements In
             this.items.get(i).setAmount1();
             this.items.get(i).setUprice1();
             this.items.get(i).setVat1();
+            this.items.get(i).setQty1();
             data.add(items.get(i));
         }
         
@@ -603,15 +604,8 @@ public class PurchaseDocumentController extends AbstractController implements In
         
         //Date
         rownum = 8;
-        cellnum = 2;
-        String str3 = ""; 
-        for(int i = 0; i < 6; i++){
-            str3 += "\u00a0 ";
-        }
-        str3 += "DATE: ";
-        for(int i = 0; i < 20; i++){
-            str3 += "\u00a0 ";
-        }
+        cellnum = 4;
+        String str3 = "DATE: ";
         str3 += this.datefld.getValue().toString();
         this.createCell(sheetrow, sheet, cell, rownum, cellnum, str3);
         
@@ -695,7 +689,7 @@ public class PurchaseDocumentController extends AbstractController implements In
             
             rownum = start;
             cellnum = 2;
-            this.createCell(sheetrow, sheet, cell, rownum, cellnum, String.valueOf(this.items.get(x).getQty()), txtstyle2);
+            this.createCell(sheetrow, sheet, cell, rownum, cellnum, this.items.get(x).getQty1(), txtstyle2);
             
             rownum = start;
             cellnum = 3;
@@ -715,12 +709,12 @@ public class PurchaseDocumentController extends AbstractController implements In
         //Total Sales
         rownum = 38;
         cellnum = 4;
-        this.createCell(sheetrow, sheet, cell, rownum, cellnum, this.totalfld.getText());
+        this.createCell(sheetrow, sheet, cell, rownum, cellnum, this.totalfld.getText(), txtstyle2);
         
         //Total Sales
         rownum = 40;
         cellnum = 4;
-        this.createCell(sheetrow, sheet, cell, rownum, cellnum, this.totalfld.getText());
+        this.createCell(sheetrow, sheet, cell, rownum, cellnum, this.totalfld.getText(), txtstyle2);
         
         file.close();
         

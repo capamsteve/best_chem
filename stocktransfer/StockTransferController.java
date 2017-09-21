@@ -35,6 +35,7 @@ import javafx.scene.Scene;
 import javafx.scene.control.Alert;
 import javafx.scene.control.Button;
 import javafx.scene.control.DatePicker;
+import javafx.scene.control.Label;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
 import javafx.scene.control.TextArea;
@@ -48,6 +49,7 @@ import models.UserModel;
 import models.StockTransferModel;
 import org.apache.poi.ss.usermodel.BorderStyle;
 import org.apache.poi.ss.usermodel.Cell;
+import org.apache.poi.ss.usermodel.HorizontalAlignment;
 import org.apache.poi.xssf.usermodel.XSSFCellStyle;
 import org.apache.poi.xssf.usermodel.XSSFFont;
 import org.apache.poi.xssf.usermodel.XSSFRow;
@@ -125,6 +127,9 @@ public class StockTransferController extends AbstractController implements Initi
 
     @FXML
     private TextArea stdescfld;
+    
+    @FXML
+    private Label itemNum;
 
     @FXML
     private Button savebtn;
@@ -163,47 +168,57 @@ public class StockTransferController extends AbstractController implements Initi
 
     @FXML
     void AddItem(ActionEvent event) throws IOException, SQLException {
-        FXMLLoader fxmlloader = new FXMLLoader(getClass().getResource("/stocktransfer/STItems.fxml"));
-        Parent root = (Parent) fxmlloader.load();
-        
-        STItemsController stic = fxmlloader.<STItemsController>getController();
-        stic.initData(super.getGlobalUser(),super.getType());
+        if(this.items.size() != 21){
+            FXMLLoader fxmlloader = new FXMLLoader(getClass().getResource("/stocktransfer/STItems.fxml"));
+            Parent root = (Parent) fxmlloader.load();
 
-        Scene scene = new Scene(root);
-        Stage stage = (Stage) addbtn.getScene().getWindow();
-        Stage substage = new Stage();
-        substage.setScene(scene);
-        substage.setTitle("Add Item");
-        substage.initModality(Modality.WINDOW_MODAL);
-        substage.initOwner(stage);
-        substage.showAndWait();
-        
-        if(!stic.IsCancelled()){
-            if(stic.getItem() != null && stic.getParallel_item() != null){
-                if(!this.items.contains(stic.getItem())){
-                    this.items.add(stic.getItem());
-                    this.items2.add(stic.getParallel_item());
-                    
-                    this.RefreshItems();
-                    this.RefreshItems2();
+            STItemsController stic = fxmlloader.<STItemsController>getController();
+            stic.initData(super.getGlobalUser(),super.getType());
+
+            Scene scene = new Scene(root);
+            Stage stage = (Stage) addbtn.getScene().getWindow();
+            Stage substage = new Stage();
+            substage.setScene(scene);
+            substage.setTitle("Add Item");
+            substage.initModality(Modality.WINDOW_MODAL);
+            substage.initOwner(stage);
+            substage.showAndWait();
+
+            if(!stic.IsCancelled()){
+                if(stic.getItem() != null && stic.getParallel_item() != null){
+                    if(!this.items.contains(stic.getItem())){
+                        this.items.add(stic.getItem());
+                        this.items2.add(stic.getParallel_item());
+
+                        this.RefreshItems();
+                        this.RefreshItems2();
+                    }
+                    else{
+                        Alert alert = new Alert(Alert.AlertType.INFORMATION);
+                        alert.setTitle("Information Dialog");
+                        alert.setHeaderText(null);
+                        alert.setContentText("This Item has already been added.");
+
+                        alert.showAndWait();
+                    }
                 }
                 else{
                     Alert alert = new Alert(Alert.AlertType.INFORMATION);
                     alert.setTitle("Information Dialog");
                     alert.setHeaderText(null);
-                    alert.setContentText("This Item has already been added.");
+                    alert.setContentText("A Parallel item is null.");
 
                     alert.showAndWait();
                 }
             }
-            else{
-                Alert alert = new Alert(Alert.AlertType.INFORMATION);
-                alert.setTitle("Information Dialog");
-                alert.setHeaderText(null);
-                alert.setContentText("A Parallel item is null.");
+        }
+        else{
+            Alert alert = new Alert(Alert.AlertType.INFORMATION);
+            alert.setTitle("Information Dialog");
+            alert.setHeaderText(null);
+            alert.setContentText("You have reached 21 items already.");
 
-                alert.showAndWait();
-            }
+            alert.showAndWait();
         }
     }
 
@@ -313,7 +328,7 @@ public class StockTransferController extends AbstractController implements Initi
             }
             
             if(!this.deleted.isEmpty()){
-                
+                this.stq.deleteSTItems(deleted.iterator());
             }
             if(!this.items.isEmpty()){
                 if(!addedinEdit1.isEmpty()){
@@ -371,6 +386,7 @@ public class StockTransferController extends AbstractController implements Initi
             item1.setSoh(Integer.parseInt(map.get("invent_qty").toString()));
             item1.setSt_id(Integer.parseInt(map.get("st_idinvent").toString()));
             item1.setStitem_id(Integer.parseInt(map.get("idstitems").toString()));
+            item1.setUom(map.get("skuom1").toString());
             
             this.items.add(item1);
             
@@ -435,6 +451,7 @@ public class StockTransferController extends AbstractController implements Initi
             item1.setDescription(map.get("skudesc1").toString());
             item1.setWh(map.get("skuwh1").toString());
             item1.setSoh(Integer.parseInt(map.get("invent_qty").toString()));
+            item1.setUom(map.get("skuom1").toString());
             
             this.items.add(item1);
             
@@ -467,7 +484,10 @@ public class StockTransferController extends AbstractController implements Initi
         ObservableList<InventoryModel> data
                 = FXCollections.observableArrayList();
         
-        data.addAll(items);
+        for(InventoryModel item: items){
+            item.setSoh1();
+            data.add(item);
+        }
         
         ObservableList<TableColumn<InventoryModel, ?>> olist;
         olist = (ObservableList<TableColumn<InventoryModel, ?>>) this.itemlist.getColumns();
@@ -477,6 +497,9 @@ public class StockTransferController extends AbstractController implements Initi
                     new PropertyValueFactory<>(arr[i])
             );
         }
+        
+        this.itemNum.setText(String.valueOf(this.items.size()));
+        
         this.itemlist.getItems().clear();
         this.itemlist.setItems(data);
     }
@@ -570,34 +593,57 @@ public class StockTransferController extends AbstractController implements Initi
         String str6 = "ATTENTION: " + this.attentionfld.getText();
         this.createCell(sheetrow, sheet, cell, rownum, cellnum, str6);
         
+        XSSFCellStyle txtstyle3 = workbook.createCellStyle();
+        XSSFFont txtfont1 = workbook.createFont();
+        txtfont1.setFontName("Calibri");
+        txtfont1.setFontHeightInPoints((short)14);
+        txtfont1.setBold(true);
+        txtstyle3.setFont(txtfont1);
+        txtstyle3.setAlignment(HorizontalAlignment.RIGHT);
+        
         //DR num
         rownum = 9;
         cellnum = 3;
         String str4 = "P.O No. " + this.idfld.getText();
-        this.createCell(sheetrow, sheet, cell, rownum, cellnum, str4);
+        this.createCell(sheetrow, sheet, cell, rownum, cellnum, str4, txtstyle3);
         
-        //Items
         //Items
         int start = 12;
         XSSFCellStyle txtstyle = workbook.createCellStyle();
         XSSFFont txtfont = workbook.createFont();
         txtfont.setFontName("Calibri");
-        txtfont.setFontHeightInPoints((short)10);
+        txtfont.setFontHeightInPoints((short)11);
         txtstyle.setFont(txtfont);
         txtstyle.setBorderBottom(BorderStyle.THIN);
         txtstyle.setBorderTop(BorderStyle.THIN);
         txtstyle.setBorderRight(BorderStyle.THIN);
         txtstyle.setBorderLeft(BorderStyle.THIN);
         
+        XSSFCellStyle txtstyle5 = workbook.createCellStyle();
+        txtstyle5.setFont(txtfont);
+        txtstyle5.setAlignment(HorizontalAlignment.RIGHT);
+        txtstyle5.setBorderBottom(BorderStyle.THIN);
+        txtstyle5.setBorderTop(BorderStyle.THIN);
+        txtstyle5.setBorderRight(BorderStyle.THIN);
+        txtstyle5.setBorderLeft(BorderStyle.THIN);
+        
+        XSSFCellStyle txtstyle6 = workbook.createCellStyle();
+        txtstyle6.setFont(txtfont);
+        txtstyle6.setAlignment(HorizontalAlignment.CENTER);
+        txtstyle6.setBorderBottom(BorderStyle.THIN);
+        txtstyle6.setBorderTop(BorderStyle.THIN);
+        txtstyle6.setBorderRight(BorderStyle.THIN);
+        txtstyle6.setBorderLeft(BorderStyle.THIN);
+        
         for(int x = 0; x < this.items.size(); x++){
             
             rownum = start;
             cellnum = 1;
-            this.createCell(sheetrow, sheet, cell, rownum, cellnum, String.valueOf(this.items.get(x).getSoh()), txtstyle);
+            this.createCell(sheetrow, sheet, cell, rownum, cellnum, this.items.get(x).getSoh1(), txtstyle5);
             
             rownum = start;
             cellnum = 2;
-            this.createCell(sheetrow, sheet, cell, rownum, cellnum, this.items.get(x).getUom(), txtstyle);
+            this.createCell(sheetrow, sheet, cell, rownum, cellnum, this.items.get(x).getUom(), txtstyle6);
             
             rownum = start;
             cellnum = 3;
@@ -605,6 +651,30 @@ public class StockTransferController extends AbstractController implements Initi
             
             start++;
         }
+        
+        XSSFCellStyle txtstyle7 = workbook.createCellStyle();
+        XSSFFont txtfont4 = workbook.createFont();
+        txtfont4.setFontName("Calibri");
+        txtfont4.setFontHeightInPoints((short)12);
+        txtstyle7.setFont(txtfont4);
+        txtstyle7.setBorderBottom(BorderStyle.THIN);
+        txtstyle7.setBorderTop(BorderStyle.THIN);
+        txtstyle7.setBorderRight(BorderStyle.THIN);
+        txtstyle7.setBorderLeft(BorderStyle.THIN);
+        
+        if(this.items.size() != 21){
+            rownum = start;
+            cellnum = 3;
+            this.createCell(sheetrow, sheet, cell, rownum, cellnum, "******************NOTHING FOLLOWS******************", txtstyle7);
+        }
+        
+        XSSFCellStyle txtstyle8 = workbook.createCellStyle();
+        txtstyle8.setFont(txtfont);
+        
+        rownum = 35;
+        cellnum = 1;
+        String prepared = "Prepared By:    " + super.getGlobalUser().getName();
+        this.createCell(sheetrow, sheet, cell, rownum, cellnum, prepared, txtstyle8);
         
         //DR num
         rownum = 37;
@@ -625,7 +695,7 @@ public class StockTransferController extends AbstractController implements Initi
             dir.mkdir();
         }
         
-        String filename = "[StockTransmittal]" + this.soldtofld.getText() + "-(" + this.stm.getIdst() + ").xlsx";
+        String filename = "[StockTransfer]" + this.soldtofld.getText() + "-(" + this.stm.getIdst() + ").xlsx";
         
         File file2 = new File(dir.getAbsolutePath()+ "\\" + filename);
         if(!file2.exists()){

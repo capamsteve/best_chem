@@ -64,6 +64,9 @@ public class ReturnSelectorController extends AbstractController implements Init
 
     @FXML
     private RadioButton decbtn;
+    
+    @FXML
+    private RadioButton descbtn;
 
     @FXML
     private ToggleGroup togglegroup1;
@@ -117,7 +120,13 @@ public class ReturnSelectorController extends AbstractController implements Init
         ObservableList<ReturnsModel> data
                 = FXCollections.observableArrayList();
         
-        Iterator rs = rq.getReturnsBySku(sku, super.getType());
+        Iterator rs = null;
+        
+        if(this.descbtn.isSelected()){
+            rs = rq.getReturnsByDesc(sku, super.getType());
+        }else{
+            rs = rq.getReturnsBySku(sku, super.getType());
+        }
         
         while(rs.hasNext()){
             data.add((ReturnsModel)rs.next());

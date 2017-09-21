@@ -5,6 +5,9 @@
  */
 package delivery;
 
+import java.math.RoundingMode;
+import java.text.NumberFormat;
+
 /**
  *
  * @author Steven
@@ -17,13 +20,23 @@ public class DRItemViewModel {
     private Integer inventory_id;
     private String skudesc;
     private int ordrqty;
+    private String ordrqty1;
     private int deliveryqty;
+    private String deliveryqty1;
     private int qtyremaining;
+    private String qtyremaining1;
     private int soh;
+    private String soh1;
     private String uom;
+    
+    private final NumberFormat nf2= NumberFormat.getInstance();
     
     public DRItemViewModel(Integer id){
         this.inventory_id = id;
+        
+        nf2.setMaximumFractionDigits(0);
+        nf2.setMinimumFractionDigits(0);
+        nf2.setRoundingMode(RoundingMode.HALF_EVEN);
     }
 
     /**
@@ -188,6 +201,52 @@ public class DRItemViewModel {
      */
     public void setSoh(int soh) {
         this.soh = soh;
+    }
+
+    /**
+     * @return the ordrqty1
+     */
+    public String getOrdrqty1() {
+        return ordrqty1;
+    }
+
+    public void setOrdrqty1() {
+        this.ordrqty1 = this.nf2.format(this.ordrqty);
+    }
+
+    /**
+     * @return the deliveryqty1
+     */
+    public String getDeliveryqty1() {
+        return deliveryqty1;
+    }
+
+    public void setDeliveryqty1() {
+        this.deliveryqty1 = this.nf2.format(this.deliveryqty);
+    }
+
+    /**
+     * @return the qtyremaining1
+     */
+    public String getQtyremaining1() {
+        return qtyremaining1;
+    }
+
+    public void setQtyremaining1() {
+        this.qtyremaining1 = this.nf2.format(this.qtyremaining);
+    }
+
+    /**
+     * @return the soh1
+     */
+    public String getSoh1() {
+        return soh1;
+    }
+
+    /**
+     */
+    public void setSoh1() {
+        this.soh1 = this.nf2.format(this.soh);
     }
     
 }

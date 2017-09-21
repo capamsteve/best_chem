@@ -54,6 +54,7 @@ public class SalesOrderQuery {
         while(items.hasNext()){
             SOItemModel item = (SOItemModel) items.next();
             
+            System.out.println("HERE");
             ps.setInt(1, item.getQty());
             ps.setInt(2, salesid);
             ps.setInt(3, item.getIdinventory());

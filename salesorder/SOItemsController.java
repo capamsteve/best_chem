@@ -20,6 +20,7 @@ import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.control.Alert;
 import javafx.scene.control.Button;
+import javafx.scene.control.RadioButton;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
 import javafx.scene.control.TextField;
@@ -56,7 +57,10 @@ public class SOItemsController implements Initializable {
     @FXML
     private Button searchbtn;
     
-    private boolean isCancelled = false;
+    @FXML
+    private RadioButton descbtn;
+    
+    private boolean isCancelled = true;
     
     private final InventoryQuery iq = new InventoryQuery();
 
@@ -65,6 +69,7 @@ public class SOItemsController implements Initializable {
         
         //System.out.println(this.inventorytable.getSelectionModel().getSelectedItem().getIdinventory());
         
+        this.isCancelled = false;
         try{
             if(!this.qtyfld.getText().isEmpty()){
                 item = iq.getInventoryWPrice(this.inventorytable.getSelectionModel().getSelectedItem().getIdinventory(), 1);
@@ -113,7 +118,13 @@ public class SOItemsController implements Initializable {
         ObservableList<InventoryModel> data
                 = FXCollections.observableArrayList();
         
-        Iterator rs = iq.getInventories(sku, 1);
+        Iterator rs = null;
+        
+        if(this.descbtn.isSelected()){
+            rs = iq.getInventoriesByDesc1(sku, 1);
+        }else{
+            rs = iq.getInventories(sku, 1);
+        }
         
         while(rs.hasNext()){
             data.add((InventoryModel)rs.next());
@@ -144,12 +155,6 @@ public class SOItemsController implements Initializable {
                 } catch (SQLException ex) {
                     Logger.getLogger(SOItemsController.class.getName()).log(Level.SEVERE, null, ex);
                 }
-            }
-        });
-        
-        this.inventoryidfld.textProperty().addListener((ObservableValue<? extends String> observable, String oldValue, String newValue) -> {
-            if (!newValue.matches("\\d*")) {
-                inventoryidfld.setText(newValue.replaceAll("[^\\d]", ""));
             }
         });
         

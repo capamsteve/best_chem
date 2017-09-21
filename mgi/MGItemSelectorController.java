@@ -19,9 +19,12 @@ import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.control.Button;
+import javafx.scene.control.Label;
+import javafx.scene.control.RadioButton;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
 import javafx.scene.control.TextField;
+import javafx.scene.control.ToggleGroup;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyEvent;
@@ -55,6 +58,12 @@ public class MGItemSelectorController extends AbstractController implements Init
     @FXML
     private TextField inventoryidfld;
     
+    @FXML
+    private Label skulbl;
+    
+    @FXML
+    private RadioButton descbtn;
+    
     private InventoryModel item;
     
     private boolean isCancelled = false;
@@ -86,7 +95,13 @@ public class MGItemSelectorController extends AbstractController implements Init
         ObservableList<InventoryModel> data
                 = FXCollections.observableArrayList();
         
-        Iterator rs = iq.getInventories(sku, super.getType());
+        Iterator rs = null;
+        
+        if(this.descbtn.isSelected()){
+            rs = iq.getInventoriesByDesc1(sku, super.getType());
+        }else{
+            rs = iq.getInventories(sku, super.getType());
+        }
         
         while(rs.hasNext()){
             data.add((InventoryModel)rs.next());
@@ -144,6 +159,16 @@ public class MGItemSelectorController extends AbstractController implements Init
     @Override
     public void initData(UserModel user, int type) {
         super.setType(type);
+        if(type == 2){
+            this.skulbl.setText("PM Code:");
+            ObservableList<TableColumn<InventoryModel, ?>> olist = (ObservableList<TableColumn<InventoryModel, ?>>) this.inventorytable.getColumns();
+
+            for (int i = 0; i < olist.size(); i++) {
+                if(i == 0){
+                    olist.get(i).setText("PM Code");
+                }
+            }
+        }
     }
     
 }

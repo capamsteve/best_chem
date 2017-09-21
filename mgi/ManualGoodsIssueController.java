@@ -46,6 +46,7 @@ import models.MGIModel;
 import models.UserModel;
 import org.apache.poi.ss.usermodel.BorderStyle;
 import org.apache.poi.ss.usermodel.Cell;
+import org.apache.poi.ss.usermodel.HorizontalAlignment;
 import org.apache.poi.xssf.usermodel.XSSFCellStyle;
 import org.apache.poi.xssf.usermodel.XSSFFont;
 import org.apache.poi.xssf.usermodel.XSSFRow;
@@ -296,11 +297,14 @@ public class ManualGoodsIssueController extends AbstractController implements In
     }
     
     public void RefreshItems(){
-        String[] arr = {"sku", "description", "wh", "uom", "soh"};
+        String[] arr = {"sku", "description", "wh", "uom", "soh1"};
         ObservableList<InventoryModel> data
                 = FXCollections.observableArrayList();
         
-        data.addAll(items);
+        for(InventoryModel item : this.items){
+            item.setSoh1();
+            data.add(item);
+        }
         
         ObservableList<TableColumn<InventoryModel, ?>> olist;
         olist = (ObservableList<TableColumn<InventoryModel, ?>>) this.itemlist.getColumns();
@@ -474,13 +478,20 @@ public class ManualGoodsIssueController extends AbstractController implements In
         String str6 = "ATTENTION: " + this.contactfld.getText();
         this.createCell(sheetrow, sheet, cell, rownum, cellnum, str6);
         
+        XSSFCellStyle txtstyle3 = workbook.createCellStyle();
+        XSSFFont txtfont1 = workbook.createFont();
+        txtfont1.setFontName("Calibri");
+        txtfont1.setFontHeightInPoints((short)14);
+        txtfont1.setBold(true);
+        txtstyle3.setFont(txtfont1);
+        txtstyle3.setAlignment(HorizontalAlignment.RIGHT);
+        
         //DR num
         rownum = 9;
         cellnum = 3;
         String str4 = "P.O No. " + this.idfld.getText();
-        this.createCell(sheetrow, sheet, cell, rownum, cellnum, str4);
+        this.createCell(sheetrow, sheet, cell, rownum, cellnum, str4, txtstyle3);
         
-        //Items
         //Items
         int start = 12;
         XSSFCellStyle txtstyle = workbook.createCellStyle();
@@ -493,15 +504,31 @@ public class ManualGoodsIssueController extends AbstractController implements In
         txtstyle.setBorderRight(BorderStyle.THIN);
         txtstyle.setBorderLeft(BorderStyle.THIN);
         
+        XSSFCellStyle txtstyle5 = workbook.createCellStyle();
+        txtstyle5.setFont(txtfont);
+        txtstyle5.setAlignment(HorizontalAlignment.RIGHT);
+        txtstyle5.setBorderBottom(BorderStyle.THIN);
+        txtstyle5.setBorderTop(BorderStyle.THIN);
+        txtstyle5.setBorderRight(BorderStyle.THIN);
+        txtstyle5.setBorderLeft(BorderStyle.THIN);
+        
+        XSSFCellStyle txtstyle6 = workbook.createCellStyle();
+        txtstyle6.setFont(txtfont);
+        txtstyle6.setAlignment(HorizontalAlignment.CENTER);
+        txtstyle6.setBorderBottom(BorderStyle.THIN);
+        txtstyle6.setBorderTop(BorderStyle.THIN);
+        txtstyle6.setBorderRight(BorderStyle.THIN);
+        txtstyle6.setBorderLeft(BorderStyle.THIN);
+        
         for(int x = 0; x < this.items.size(); x++){
             
             rownum = start;
             cellnum = 1;
-            this.createCell(sheetrow, sheet, cell, rownum, cellnum, String.valueOf(this.items.get(x).getSoh()), txtstyle);
+            this.createCell(sheetrow, sheet, cell, rownum, cellnum, this.items.get(x).getSoh1(), txtstyle5);
             
             rownum = start;
             cellnum = 2;
-            this.createCell(sheetrow, sheet, cell, rownum, cellnum, this.items.get(x).getUom(), txtstyle);
+            this.createCell(sheetrow, sheet, cell, rownum, cellnum, this.items.get(x).getUom(), txtstyle6);
             
             rownum = start;
             cellnum = 3;
@@ -509,6 +536,30 @@ public class ManualGoodsIssueController extends AbstractController implements In
             
             start++;
         }
+        
+        XSSFCellStyle txtstyle7 = workbook.createCellStyle();
+        XSSFFont txtfont4 = workbook.createFont();
+        txtfont4.setFontName("Calibri");
+        txtfont4.setFontHeightInPoints((short)12);
+        txtstyle7.setFont(txtfont4);
+        txtstyle7.setBorderBottom(BorderStyle.THIN);
+        txtstyle7.setBorderTop(BorderStyle.THIN);
+        txtstyle7.setBorderRight(BorderStyle.THIN);
+        txtstyle7.setBorderLeft(BorderStyle.THIN);
+        
+        if(this.items.size() != 21){
+            rownum = start;
+            cellnum = 3;
+            this.createCell(sheetrow, sheet, cell, rownum, cellnum, "******************NOTHING FOLLOWS******************", txtstyle7);
+        }
+        
+        XSSFCellStyle txtstyle8 = workbook.createCellStyle();
+        txtstyle8.setFont(txtfont);
+        
+        rownum = 35;
+        cellnum = 1;
+        String prepared = "Prepared By:    " + super.getGlobalUser().getName();
+        this.createCell(sheetrow, sheet, cell, rownum, cellnum, prepared, txtstyle8);
         
         //DR num
         rownum = 37;

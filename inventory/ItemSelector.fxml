@@ -20,12 +20,12 @@
             <Image url="@../res/BC.PNG" />
          </image>
       </ImageView>
-      <Label layoutX="24.0" layoutY="72.0" text="SKU#:">
+      <Label fx:id="skulbl" layoutX="24.0" layoutY="72.0" text="SKU#:">
          <font>
             <Font name="Arial" size="14.0" />
          </font>
       </Label>
-      <TextField fx:id="inventoryidfld" layoutX="77.0" layoutY="67.0" prefHeight="25.0" prefWidth="245.0" />
+      <TextField fx:id="inventoryidfld" layoutX="89.0" layoutY="67.0" prefHeight="25.0" prefWidth="245.0" />
       <StackPane layoutX="23.0" layoutY="97.0" prefHeight="299.0" prefWidth="758.0">
          <children>
             <TableView fx:id="inventorytable" prefHeight="200.0" prefWidth="200.0">
@@ -48,7 +48,7 @@
       </Label>
       <Button fx:id="saveitembtn" layoutX="684.0" layoutY="412.0" mnemonicParsing="false" onAction="#additem" text="Add" />
       <Button fx:id="cancelbtn" layoutX="729.0" layoutY="412.0" mnemonicParsing="false" onAction="#cancelHandler" text="Cancel" />
-      <Button fx:id="searchbtn" layoutX="331.0" layoutY="67.0" mnemonicParsing="false">
+      <Button fx:id="searchbtn" layoutX="343.0" layoutY="67.0" mnemonicParsing="false">
          <graphic>
             <ImageView fitHeight="15.0" fitWidth="21.0" pickOnBounds="true" preserveRatio="true">
                <image>
@@ -63,5 +63,6 @@
          </toggleGroup>
       </RadioButton>
       <RadioButton fx:id="decbtn" layoutX="156.0" layoutY="434.0" mnemonicParsing="false" text="DECREMENT" toggleGroup="$togglegroup1" />
+      <RadioButton fx:id="descbtn" layoutX="395.0" layoutY="70.0" mnemonicParsing="false" text="Description" />
    </children>
 </Pane>

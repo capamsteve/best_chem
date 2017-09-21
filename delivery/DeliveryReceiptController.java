@@ -52,6 +52,7 @@ import models.SItemsModel;
 import models.UserModel;
 import org.apache.poi.ss.usermodel.BorderStyle;
 import org.apache.poi.ss.usermodel.Cell;
+import org.apache.poi.ss.usermodel.HorizontalAlignment;
 import org.apache.poi.xssf.usermodel.XSSFCellStyle;
 import org.apache.poi.xssf.usermodel.XSSFFont;
 import org.apache.poi.xssf.usermodel.XSSFRow;
@@ -137,7 +138,7 @@ public class DeliveryReceiptController extends AbstractController implements Ini
     
     private ArrayList<DRItemViewModel> items; 
     
-    private boolean isCancelled;
+    private boolean isCancelled = true;
     
     private final DeliveryReceiptsQuery drq = new DeliveryReceiptsQuery();
     
@@ -381,12 +382,17 @@ public class DeliveryReceiptController extends AbstractController implements Ini
     }
     
     public void RefreshItems(){
-        String[] arr = {"sku", "skudesc", "ordrqty", "deliveryqty", "qtyremaining", "uom", "soh"};
+        String[] arr = {"sku", "skudesc", "ordrqty1", "deliveryqty1", "qtyremaining1", "uom", "soh1"};
         this.itemlist.getItems().removeAll(this.itemlist.getItems());
         ObservableList<DRItemViewModel> data
                 = FXCollections.observableArrayList();
         
         for(int i = 0; i < this.items.size(); i++){
+            
+            this.items.get(i).setDeliveryqty1();
+            this.items.get(i).setOrdrqty1();
+            this.items.get(i).setQtyremaining1();
+            this.items.get(i).setSoh1();
             data.add(this.items.get(i));
         }
         ObservableList<TableColumn<DRItemViewModel, ?>> olist = (ObservableList<TableColumn<DRItemViewModel, ?>>) itemlist.getColumns();
@@ -581,35 +587,58 @@ public class DeliveryReceiptController extends AbstractController implements Ini
         String str2 = "ADDRESS: " + this.model.getAddress();
         this.createCell(sheetrow, sheet, cell, rownum, cellnum, str2);
         
+        XSSFCellStyle txtstyle3 = workbook.createCellStyle();
+        XSSFFont txtfont1 = workbook.createFont();
+        txtfont1.setFontName("Calibri");
+        txtfont1.setFontHeightInPoints((short)14);
+        txtfont1.setBold(true);
+        txtstyle3.setFont(txtfont1);
+        txtstyle3.setAlignment(HorizontalAlignment.RIGHT);
+        
         //DR num
         rownum = 9;
         cellnum = 3;
         String str4 = "P.O No. " + this.dridfld.getText();
-        this.createCell(sheetrow, sheet, cell, rownum, cellnum, str4);
+        this.createCell(sheetrow, sheet, cell, rownum, cellnum, str4, txtstyle3);
         
-        //Items
         //Items
         int start = 12;
         XSSFCellStyle txtstyle = workbook.createCellStyle();
         XSSFFont txtfont = workbook.createFont();
         txtfont.setFontName("Calibri");
-        txtfont.setFontHeightInPoints((short)10);
+        txtfont.setFontHeightInPoints((short)11);
         txtstyle.setFont(txtfont);
-        txtstyle.setBorderLeft(BorderStyle.THIN);
-        txtstyle.setBorderRight(BorderStyle.THIN);
-        txtstyle.setBorderTop(BorderStyle.THIN);
         txtstyle.setBorderBottom(BorderStyle.THIN);
+        txtstyle.setBorderTop(BorderStyle.THIN);
+        txtstyle.setBorderRight(BorderStyle.THIN);
+        txtstyle.setBorderLeft(BorderStyle.THIN);
+        
+        XSSFCellStyle txtstyle5 = workbook.createCellStyle();
+        txtstyle5.setFont(txtfont);
+        txtstyle5.setAlignment(HorizontalAlignment.RIGHT);
+        txtstyle5.setBorderBottom(BorderStyle.THIN);
+        txtstyle5.setBorderTop(BorderStyle.THIN);
+        txtstyle5.setBorderRight(BorderStyle.THIN);
+        txtstyle5.setBorderLeft(BorderStyle.THIN);
+        
+        XSSFCellStyle txtstyle6 = workbook.createCellStyle();
+        txtstyle6.setFont(txtfont);
+        txtstyle6.setAlignment(HorizontalAlignment.CENTER);
+        txtstyle6.setBorderBottom(BorderStyle.THIN);
+        txtstyle6.setBorderTop(BorderStyle.THIN);
+        txtstyle6.setBorderRight(BorderStyle.THIN);
+        txtstyle6.setBorderLeft(BorderStyle.THIN);
         
         for(int x = 0; x < this.items.size(); x++){
             
             if(this.items.get(x).getDeliveryqty() != 0){
                 rownum = start;
                 cellnum = 1;
-                this.createCell(sheetrow, sheet, cell, rownum, cellnum, String.valueOf(this.items.get(x).getDeliveryqty()), txtstyle);
+                this.createCell(sheetrow, sheet, cell, rownum, cellnum, this.items.get(x).getDeliveryqty1(), txtstyle5);
 
                 rownum = start;
                 cellnum = 2;
-                this.createCell(sheetrow, sheet, cell, rownum, cellnum, this.items.get(x).getUom(), txtstyle);
+                this.createCell(sheetrow, sheet, cell, rownum, cellnum, this.items.get(x).getUom(), txtstyle6);
 
                 rownum = start;
                 cellnum = 3;
@@ -619,6 +648,30 @@ public class DeliveryReceiptController extends AbstractController implements Ini
             }
             
         }
+        
+        XSSFCellStyle txtstyle7 = workbook.createCellStyle();
+        XSSFFont txtfont4 = workbook.createFont();
+        txtfont4.setFontName("Calibri");
+        txtfont4.setFontHeightInPoints((short)12);
+        txtstyle7.setFont(txtfont4);
+        txtstyle7.setBorderBottom(BorderStyle.THIN);
+        txtstyle7.setBorderTop(BorderStyle.THIN);
+        txtstyle7.setBorderRight(BorderStyle.THIN);
+        txtstyle7.setBorderLeft(BorderStyle.THIN);
+        
+        if(this.items.size() != 21){
+            rownum = start;
+            cellnum = 3;
+            this.createCell(sheetrow, sheet, cell, rownum, cellnum, "******************NOTHING FOLLOWS******************", txtstyle7);
+        }
+        
+        XSSFCellStyle txtstyle8 = workbook.createCellStyle();
+        txtstyle8.setFont(txtfont);
+        
+        rownum = 35;
+        cellnum = 1;
+        String prepared = "Prepared By:    " + super.getGlobalUser().getName();
+        this.createCell(sheetrow, sheet, cell, rownum, cellnum, prepared, txtstyle8);
         
         //DR num
         rownum = 37;

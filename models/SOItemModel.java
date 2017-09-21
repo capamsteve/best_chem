@@ -18,6 +18,7 @@ public class SOItemModel {
     private String sku;
     private String desc;
     private int qty;
+    private String qty1;
     private String uom;
     private Integer idinventory;
     private double uprice;
@@ -31,6 +32,7 @@ public class SOItemModel {
     private String stat;
     
     private NumberFormat nf= NumberFormat.getInstance();
+    private final NumberFormat nf2= NumberFormat.getInstance();
     
     
     public SOItemModel(Integer idinventory){
@@ -38,6 +40,10 @@ public class SOItemModel {
         nf.setMaximumFractionDigits(2);
         nf.setMinimumFractionDigits(2);
         nf.setRoundingMode(RoundingMode.HALF_EVEN);
+        
+        nf2.setMaximumFractionDigits(0);
+        nf2.setMinimumFractionDigits(0);
+        nf2.setRoundingMode(RoundingMode.HALF_EVEN);
     }
     
     public Integer getId(){
@@ -223,28 +229,24 @@ public class SOItemModel {
     }
 
     /**
-     * @param uprice1 the uprice1 to set
      */
     public void setUprice1() {
         this.uprice1 = nf.format(this.uprice);
     }
 
     /**
-     * @param discnt1 the discnt1 to set
      */
     public void setDiscnt1() {
         this.discnt1 = nf.format(this.discnt);
     }
 
     /**
-     * @param amount1 the amount1 to set
      */
     public void setAmount1() {
         this.amount1 = nf.format(this.amount);
     }
 
     /**
-     * @param vat1 the vat1 to set
      */
     public void setVat1() {
         this.vat1 = nf.format(this.vat);
@@ -276,5 +278,18 @@ public class SOItemModel {
      */
     public String getVat1() {
         return vat1;
+    }
+
+    /**
+     * @return the qty1
+     */
+    public String getQty1() {
+        return qty1;
+    }
+
+    /**
+     */
+    public void setQty1() {
+        this.qty1 = this.nf2.format(this.qty);
     }
 }

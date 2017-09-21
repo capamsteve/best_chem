@@ -80,7 +80,7 @@
                <content>
                   <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0">
                      <children>
-                        <TabPane layoutX="4.0" layoutY="12.0" prefHeight="455.0" prefWidth="943.0" tabClosingPolicy="UNAVAILABLE">
+                        <TabPane fx:id="invtabs" layoutX="4.0" layoutY="12.0" prefHeight="455.0" prefWidth="943.0" tabClosingPolicy="UNAVAILABLE">
                            <tabs>
                               <Tab text="Details">
                                  <content>
@@ -107,6 +107,7 @@
                                                 <Button fx:id="iabtn" mnemonicParsing="false" onAction="#inventoryAdjustment" text="Add Inventory Adjustment" />
                                                 <Button fx:id="addmgibtn" mnemonicParsing="false" onAction="#addMGI" text="Add Manual Goods Issue" />
                                                 <Button fx:id="addmgrbtn" mnemonicParsing="false" onAction="#addMGR" text="Add Manual Goods Receipt" />
+                                                <TextField fx:id="searchpm1" promptText="Search PM Code" />
                                              </items>
                                           </ToolBar>
                                        </children>
@@ -290,7 +291,7 @@
                               </TableView>
                            </children>
                         </StackPane>
-                        <Label layoutX="484.0" layoutY="39.0" text="PM Inventory">
+                        <Label layoutX="484.0" layoutY="5.0" text="PM Inventory">
                            <font>
                               <Font name="System Bold" size="15.0" />
                            </font>
@@ -298,7 +299,8 @@
                               <Insets right="20.0" />
                            </padding>
                         </Label>
-                        <Button fx:id="exportbombtn" layoutX="193.0" layoutY="27.0" mnemonicParsing="false" onAction="#exportBOM" text="Export Bill of Material (BOM)" />
+                        <Button fx:id="exportbombtn" layoutX="484.0" layoutY="28.0" mnemonicParsing="false" onAction="#exportBOM" text="Export Bill of Material (BOM)" />
+                        <TextField fx:id="searchpm2" layoutX="189.0" layoutY="27.0" promptText="Search SKU" />
                      </children>
                   </AnchorPane>
                </content>
@@ -307,7 +309,7 @@
                <content>
                   <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0">
                      <children>
-                        <TabPane layoutX="4.0" layoutY="12.0" prefHeight="455.0" prefWidth="943.0" tabClosingPolicy="UNAVAILABLE">
+                        <TabPane fx:id="rettabs" layoutX="4.0" layoutY="12.0" prefHeight="455.0" prefWidth="943.0" tabClosingPolicy="UNAVAILABLE">
                            <tabs>
                               <Tab text="Returns">
                                  <content>
@@ -391,7 +393,7 @@
                               <Font name="Arial" size="14.0" />
                            </font>
                         </Label>
-                        <ComboBox fx:id="reportsbox" layoutX="124.0" layoutY="31.0" prefWidth="150.0" />
+                        <ComboBox fx:id="reportsbox" layoutX="124.0" layoutY="31.0" prefHeight="25.0" prefWidth="281.0" />
                      </children>
                   </AnchorPane>
                </content>

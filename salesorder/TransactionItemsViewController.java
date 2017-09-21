@@ -246,7 +246,7 @@ public class TransactionItemsViewController extends AbstractController implement
     }
     
     public void RefreshItems(){
-        String[] arr = {"sku", "desc", "qty", "uom", "uprice1", "amount1", "vat1"};
+        String[] arr = {"sku", "desc", "qty1", "uom", "uprice1", "amount1", "vat1"};
         ObservableList<SOItemModel> data
                 = FXCollections.observableArrayList();
         
@@ -254,6 +254,7 @@ public class TransactionItemsViewController extends AbstractController implement
             itemsList.get(i).setAmount1();
             itemsList.get(i).setUprice1();
             itemsList.get(i).setVat1();
+            itemsList.get(i).setQty1();
             data.add(itemsList.get(i));
         }
         ObservableList<TableColumn<SOItemModel, ?>> olist = (ObservableList<TableColumn<SOItemModel, ?>>) itemlist.getColumns();
@@ -606,7 +607,7 @@ public class TransactionItemsViewController extends AbstractController implement
             cell = new Cell().add(this.itemsList.get(i).getDesc()).setTextAlignment(TextAlignment.CENTER);
             cell.setBorderBottom(Border.NO_BORDER);
             table.addCell(cell);
-            cell = new Cell().add(String.valueOf(this.itemsList.get(i).getQty())).setTextAlignment(TextAlignment.RIGHT);
+            cell = new Cell().add(this.itemsList.get(i).getQty1()).setTextAlignment(TextAlignment.RIGHT);
             cell.setBorderBottom(Border.NO_BORDER);
             table.addCell(cell);
             this.itemsList.get(i).setUprice1();

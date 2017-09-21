@@ -72,11 +72,12 @@ public class UserQuery {
         String hash = DatatypeConverter.printBase64Binary(raw);
         System.out.println(hash);
         
-        PreparedStatement st = dbc.getConnection().prepareCall("CALL `USER_ADD`(?,?,?)");
+        PreparedStatement st = dbc.getConnection().prepareCall("CALL `USER_ADD`(?,?,?,?)");
         
         st.setString(1, user.getUsername());
         st.setString(2, hash);
         st.setString(3, user.getRole());
+        st.setString(4, user.getName());
         
         st.execute();
     }

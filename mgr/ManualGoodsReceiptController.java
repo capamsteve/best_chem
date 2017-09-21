@@ -282,11 +282,14 @@ public class ManualGoodsReceiptController extends AbstractController implements 
     }
     
     public void RefreshItems(){
-        String[] arr = {"sku", "description", "wh", "uom", "soh"};
+        String[] arr = {"sku", "description", "wh", "uom", "soh1"};
         ObservableList<InventoryModel> data
                 = FXCollections.observableArrayList();
         
-        data.addAll(items);
+        for(InventoryModel item : this.items){
+            item.setSoh1();
+            data.add(item);
+        }
         
         ObservableList<TableColumn<InventoryModel, ?>> olist;
         olist = (ObservableList<TableColumn<InventoryModel, ?>>) this.itemlist.getColumns();
